@@ -3,7 +3,7 @@ import json
 import os
 from openai import OpenAI
 
-from services.agent_actions import like_post, comment_on_post, create_post, find_post_author, follow_user
+from services.agent_actions import functions
 
 DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY")
 url = "https://api.deepseek.com"
@@ -41,13 +41,6 @@ role_description = {
   "role_description": "You are an agent tasked with taking on your given persona and interacting with SimFeed, a social network. You have been given a set of functions you can use to interact with SimFeed. You must stay in character at all times. When responding, use only the provided functions to accomplish tasks. Always respond in the specified JSON format."
 }
 
-functions = {
-    "like_post":like_post,
-    "comment_on_post": comment_on_post,
-    "create_post": create_post,
-    "find_post_author": find_post_author,
-    "follow_user": follow_user,
-}
 
 async def run_agent_turn(request_function, context):
     response = await asyncio.to_thread(make_deepseek_request, context)

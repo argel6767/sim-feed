@@ -1,3 +1,4 @@
+import inspect
 from datetime import datetime, UTC
 from configs.db import db
 
@@ -117,3 +118,26 @@ async def follow_user(persona_id: int, user_id: int):
         return {"status": f"{user_id} followed successfully"}
     except Exception as e:
         return {"status": f"failed to follow user {user_id} due to {e}. Try another action"}
+
+functions = {
+    "like_post": like_post,
+    "comment_on_post": comment_on_post,
+    "create_post": create_post,
+    "find_post_author": find_post_author,
+    "follow_user": follow_user,
+}
+
+def get_function_info() -> list[dict]:
+    function_info = []
+    for name, func in functions.items():
+        sig = inspect.signature(func)
+        params = [
+            {"name": p.name, "type": str(p.annotation.__name__)}
+            for p in sig.parameters.values()
+        ]
+        function_info.append({
+            "name": name,
+            "description": inspect.getdoc(func),
+            "parameters": params,
+        })
+    return function_info
