@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from dotenv import load_dotenv
 
 from configs.db import db
+from services.scheduler import scheduler
 
 load_dotenv()
 
@@ -11,6 +12,7 @@ async def lifespan(app: FastAPI):
     await db.connect()
     yield
     await db.disconnect()
+    scheduler.shutdown()
 
 app = FastAPI(lifespan=lifespan)
 

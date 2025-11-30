@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 from openai import OpenAI
@@ -36,6 +37,10 @@ response_format = {
   }
 }
 
+role_description = {
+  "role_description": "You are an agent tasked with taking on your given persona and interacting with SimFeed, a social network. You have been given a set of functions you can use to interact with SimFeed. You must stay in character at all times. When responding, use only the provided functions to accomplish tasks. Always respond in the specified JSON format."
+}
+
 functions = {
     "like_post":like_post,
     "comment_on_post": comment_on_post,
@@ -44,8 +49,8 @@ functions = {
     "follow_user": follow_user,
 }
 
-def run_agent_turn(request_function, context):
-    response = request_function(context)
+async def run_agent_turn(request_function, context):
+    response = await asyncio.to_thread(make_deepseek_request, context)
     context.append(response)
 
     response_data = json.loads(response["message"])
@@ -69,10 +74,11 @@ def make_deepseek_request(messages: list[dict[str, str]]) -> dict[str, str | Non
     print(response_message)
     return {"role": response_message.role, "message": response_message.content}
 
-def run_deepseek_agent(system_context: str):
+async def run_deepseek_agent(persona: dict, function_info: list[dict[str, str]]):
     turns = 0
-    context = [{"role": "system", "content": system_context}]
+    system_context = {**role_description,**persona, **function_info}
+    context = [{"role": "system", "content": json.dumps(system_context)}]
 
     while turns < 10:
-        run_agent_turn(make_deepseek_request, context)
+        await run_agent_turn(make_deepseek_request, context)
         turns += 1
