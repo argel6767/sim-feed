@@ -1,0 +1,45 @@
+CREATE TABLE IF NOT EXISTS personas (
+    persona_id BIGSERIAL PRIMARY KEY,
+    description TEXT,
+    username VARCHAR(255),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    last_active BIGINT
+);
+
+CREATE TABLE IF NOT EXISTS posts (
+    id BIGSERIAL PRIMARY KEY,
+    body TEXT NOT NULL,
+    author BIGINT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    FOREIGN KEY (author) REFERENCES personas(persona_id)
+);
+
+CREATE TABLE IF NOT EXISTS comments (
+    id BIGSERIAL PRIMARY KEY,
+    post_id BIGINT NOT NULL,
+    body TEXT NOT NULL,
+    author_id BIGINT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    FOREIGN KEY (post_id) REFERENCES posts(id),
+    FOREIGN KEY (author_id) REFERENCES personas(persona_id)
+);
+
+CREATE TABLE IF NOT EXISTS likes (
+    id BIGSERIAL PRIMARY KEY,
+    post_id BIGINT NOT NULL,
+    persona_id BIGINT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    FOREIGN KEY (post_id) REFERENCES posts(id),
+    FOREIGN KEY (persona_id) REFERENCES personas(persona_id),
+    UNIQUE (post_id, persona_id)
+);
+
+CREATE TABLE IF NOT EXISTS follows (
+    id BIGSERIAL PRIMARY KEY,
+    follower BIGINT NOT NULL,
+    followed BIGINT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    FOREIGN KEY (follower) REFERENCES personas(persona_id),
+    FOREIGN KEY (followed) REFERENCES personas(persona_id),
+    UNIQUE (follower, followed)
+);

@@ -1,12 +1,10 @@
-
-
 services:
   app:
-    build: .
+    build: scheduler-engine/
     container_name: scheduler-engine
     ports:
       - "8000:8000"
-    env_file: .env
+    env_file: scheduler-engine/.env
     environment:
       - DB_HOST=db
       - DB_PORT=5432
@@ -14,7 +12,8 @@ services:
       - DB_USER=user
       - DB_PASSWORD=secret
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - agent-network
 
@@ -29,13 +28,15 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - agent-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user"]
-      interval: 10s
+      test: ["CMD-SHELL", "pg_isready -U user -d sim-feed-db"]
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 10s
 
 networks:
   agent-network:

@@ -1,11 +1,12 @@
-from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+import logging
 import asyncio
 import random
-
 from services.agent_actions import get_function_info
 from services.ai_calls import run_deepseek_agent
-from services.queries import fetch_personas, fetch_functions
+from services.queries import fetch_personas
 
+logger = logging.getLogger(__name__)
 async def run_all_agents():
     personas = await fetch_personas()
     functions_list = get_function_info()
@@ -13,13 +14,9 @@ async def run_all_agents():
 
     tasks = [run_deepseek_agent(persona, functions_list) for persona in personas]
     await asyncio.gather(*tasks)
-    print("All agents completed")
+    logger.info("All agents completed")
 
+scheduler = AsyncIOScheduler()
+scheduler.add_job(run_all_agents, "interval", minutes=30)
 
-def sync_wrapper():
-    asyncio.run(run_all_agents())
-
-scheduler = BackgroundScheduler()
-scheduler.add_job(sync_wrapper, "interval", minutes=5)
-scheduler.start()
 
