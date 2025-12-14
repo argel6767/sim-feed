@@ -1,4 +1,3 @@
-import os
 import asyncpg
 from dataclasses import dataclass
 
@@ -35,7 +34,6 @@ class Database:
     async def execute(self, query: str, *args) -> str:
             async with self.pool.acquire() as conn:
                 return await conn.execute(query, *args)
-
 
 async def create_pool(database_url: str) -> asyncpg.Pool:
     return await asyncpg.create_pool(database_url, ssl="prefer")
