@@ -1,0 +1,77 @@
+name: Build Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check-changes:
+    name: Check Changes
+    runs-on: ubuntu-latest
+    outputs:
+      scheduler-engine-changed: ${{ steps.filter.outputs.scheduler-engine }}
+      api-changed: ${{ steps.filter.outputs.api }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          base: main
+          filters: |
+            scheduler-engine:
+              - 'scheduler-engine/**'
+            api:
+              - 'api/**'
+
+  build-scheduler-engine:
+    name: Build Scheduler Engine
+    runs-on: ubuntu-latest
+    needs: check-changes
+    if: needs.check-changes.outputs.scheduler-engine-changed == 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Build Script
+        run: ./bin/build_scheduler.sh
+
+  test-scheduler-engine:
+    name: Test Scheduler Engine
+    runs-on: ubuntu-latest
+    needs: build-scheduler-engine
+    if: needs.build-scheduler-engine.result == 'success'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Test Script
+        run: ./bin/test_scheduler.sh
+
+  deployment-summary:
+    name: Deployment Summary
+    runs-on: ubuntu-latest
+    needs:
+      - check-changes
+      - build-scheduler-engine
+      - test-scheduler-engine
+    if: always()
+    steps:
+      - name: Write summary
+        run: |
+          {
+            echo "## 🚀 Deployment Summary"
+            echo ""
+            echo "### 🔍 Change Detection"
+            echo "- Scheduler Engine changed: **${{ needs.check-changes.outputs.scheduler-engine-changed }}**"
+            echo "- API changed: **${{ needs.check-changes.outputs.api-changed }}**"
+            echo ""
+            echo "### 🏗️ Scheduler Engine"
+            echo "- Build: **${{ needs.build-scheduler-engine.result || 'skipped' }}**"
+            echo "- Tests: **${{ needs.test-scheduler-engine.result || 'skipped' }}**"
+            echo ""
+            echo "### 🧾 Metadata"
+            echo "- Workflow: \`${{ github.workflow }}\`"
+            echo "- Trigger: \`${{ github.event_name }}\`"
+            echo "- Branch: \`${{ github.ref_name }}\`"
+            echo "- Commit: \`${{ github.sha }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
