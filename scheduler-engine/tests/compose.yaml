@@ -1,0 +1,40 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: tests/Dockerfile.test
+    container_name: scheduler-engine-test-suite
+    environment:
+      - DATABASE_URL=postgresql://user:secret@db:5432/sim-feed-db
+      - PYTHONPATH=/app
+      - DEEPSEEK_API_KEY=fake_api_key
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - agent-network
+    command: ["pytest", "-q"]
+
+  db:
+    image: postgres:16-alpine
+    container_name: sim-feed-test-db
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=sim-feed-db
+    volumes:
+      - ../../sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - agent-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d sim-feed-db"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+      start_period: 5s
+    tmpfs:
+      - /var/lib/postgresql/data
+
+networks:
+  agent-network:
+    driver: bridge

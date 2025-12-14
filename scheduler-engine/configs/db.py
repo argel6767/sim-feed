@@ -15,9 +15,13 @@ class Database:
         )
 
     async def disconnect(self):
-        await self.pool.close()
+        if self.pool is not None:
+            await self.pool.close()
+            self.pool = None
 
     async def execute_query(self, query_string, *variables):
+        if self.pool is None:
+            raise Exception("Database not connected")
         async with self.pool.acquire() as conn:
             try:
                 # Check if query is SELECT

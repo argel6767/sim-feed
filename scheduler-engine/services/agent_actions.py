@@ -166,7 +166,7 @@ async def follow_user(persona_id: int, user_id: int):
     if persona_id == user_id:
         return {"status": f"Error. You cannot follow yourself. Try another action"}
     
-    query = "INSERT INTO follows (follower, followed) VALUES ($1, $2, DEFAULT) ON CONFLICT (follower, followed) DO NOTHING"
+    query = "INSERT INTO follows (follower, followed, created_at) VALUES ($1, $2, DEFAULT) ON CONFLICT (follower, followed) DO NOTHING"
     try:
         await db.execute_query(query, persona_id, user_id)
         return {"status": f"{user_id} followed successfully"}
