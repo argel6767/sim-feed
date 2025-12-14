@@ -34,6 +34,8 @@ jobs:
     if: needs.check-changes.outputs.scheduler-engine-changed == 'true'
     steps:
       - uses: actions/checkout@v4
+      - name: Make Build Script Executable
+        run: chmod +x ./bin/build_scheduler.sh
       - name: Run Build Script
         run: ./bin/build_scheduler.sh
 
@@ -44,9 +46,26 @@ jobs:
     if: needs.build-scheduler-engine.result == 'success'
     steps:
       - uses: actions/checkout@v4
+      - name: Make Test Script Executable
+        run: chmod +x ./bin/test_scheduler.sh
       - name: Run Test Script
         run: ./bin/test_scheduler.sh
-
+        
+  run-all-services:
+    name: Run All Services
+    runs-on: ubuntu-latest
+    needs:
+      - check-changes
+      - build-scheduler-engine
+      - test-scheduler-engine
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+      - name: Make Run Script Executable
+        run: chmod +x ./bin/run_all_services.sh
+      - name: Run All Services Script
+        run: ./bin/run_all_services.sh
+        
   deployment-summary:
     name: Deployment Summary
     runs-on: ubuntu-latest
@@ -54,6 +73,7 @@ jobs:
       - check-changes
       - build-scheduler-engine
       - test-scheduler-engine
+      - run-all-services
     if: always()
     steps:
       - name: Write summary
@@ -68,6 +88,9 @@ jobs:
             echo "### 🏗️ Scheduler Engine"
             echo "- Build: **${{ needs.build-scheduler-engine.result || 'skipped' }}**"
             echo "- Tests: **${{ needs.test-scheduler-engine.result || 'skipped' }}**"
+            echo ""
+            echo "### 🏗️ All Services"
+            echo "- Run: **${{ needs.run-all-services.result || 'skipped' }}**"
             echo ""
             echo "### 🧾 Metadata"
             echo "- Workflow: \`${{ github.workflow }}\`"

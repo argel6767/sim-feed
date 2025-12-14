@@ -43,8 +43,6 @@ async def like_post(db: Database, post_id: int, persona_id: int):
         Dictionary with status message indicating success or failure reason
     """
 
-
-    
     query = "INSERT INTO likes (post_id, persona_id, created_at) VALUES ($1, $2, DEFAULT) ON CONFLICT (post_id, persona_id) DO NOTHING"
     try:
         await db.execute_query(query, post_id, persona_id)
