@@ -2,3 +2,5 @@
 */.idea/*
 */*.env
 *.idea/*
+Queries/*
+*/__pycache__/*

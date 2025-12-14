@@ -1,18 +1,11 @@
 import os
 import asyncpg
+from dataclasses import dataclass
 
-DATABASE_URL = os.environ.get("DATABASE_URL")
-
-
+@dataclass
 class Database:
-    def __init__(self):
-        self.pool = None
-
-    async def connect(self):
-        self.pool = await asyncpg.create_pool(
-            DATABASE_URL,
-            ssl="prefer",
-        )
+    
+    pool: asyncpg.Pool
 
     async def disconnect(self):
         if self.pool is not None:
@@ -34,6 +27,15 @@ class Database:
                     return result
             except Exception as e:
                 raise e
+    async def fetch(self, query: str, *args) -> list[dict]:
+            async with self.pool.acquire() as conn:
+                rows = await conn.fetch(query, *args)
+                return [dict(r) for r in rows]
+                
+    async def execute(self, query: str, *args) -> str:
+            async with self.pool.acquire() as conn:
+                return await conn.execute(query, *args)
 
 
-db = Database()
+async def create_pool(database_url: str) -> asyncpg.Pool:
+    return await asyncpg.create_pool(database_url, ssl="prefer")

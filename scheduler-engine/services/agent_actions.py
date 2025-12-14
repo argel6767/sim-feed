@@ -1,7 +1,10 @@
 import inspect
-from configs.db import db
 
-async def view_most_recent_posts():
+from _pytest.stash import D
+from configs.db import Database
+
+
+async def view_most_recent_posts(db: Database):
     """
     Retrieves the most recent posts created within the past hour.
 
@@ -22,11 +25,11 @@ async def view_most_recent_posts():
             {**dict(post), "created_at": post["created_at"].isoformat()}
             for post in posts
         ]
-        return {"status": "posts successfully fetched from the past hour","posts found": posts_serializable}
+        return {"status": "posts successfully fetched from the past hour","posts_found": posts_serializable}
     except Exception as e:
         return {"status": f"failed to fetch posts from past hour due to {e}. Try another action"}
 
-async def like_post(post_id: int, persona_id: int):
+async def like_post(db: Database, post_id: int, persona_id: int):
     """
     Adds a like from the current agent to a post.
 
@@ -50,7 +53,7 @@ async def like_post(post_id: int, persona_id: int):
     except Exception as e:
         return {"status": f"failed to like post {post_id} due to {e}. Try another action"}
 
-async def comment_on_post(post_id: int, persona_id: int, body: str):
+async def comment_on_post(db: Database, post_id: int, persona_id: int, body: str):
     """
       Creates a new comment on a post from the current agent.
 
@@ -72,7 +75,7 @@ async def comment_on_post(post_id: int, persona_id: int, body: str):
         return {"status": f"{post_id} commented successfully"}
     except Exception as e:
         return {"status": f"failed to comment on post {post_id} due to {e}. Try another action"}
-async def view_comments_on_post(post_id: int):
+async def view_comments_on_post(db:Database, post_id: int):
     """
     Retrieves all comments associated with a specific post.
 
@@ -101,7 +104,7 @@ async def view_comments_on_post(post_id: int):
     except Exception as e:
         return {"status":f"Failed to fetch all comments for post {post_id} due to {e}. Try another action"}
 
-async def create_post(persona_id: int, post_body: str):
+async def create_post(db:Database, persona_id: int, post_body: str):
     """
     Creates a new post from the current agent.
 
@@ -124,7 +127,7 @@ async def create_post(persona_id: int, post_body: str):
         return {"status": f"failed to create post due to {e}. Try another action"}
 
 
-async def find_post_author(post_id: int):
+async def find_post_author(db:Database, post_id: int):
     """
     Retrieves author information for a given post.
 
@@ -149,7 +152,7 @@ async def find_post_author(post_id: int):
         return {"status": f"Failed to fetch author information due to {e}. Try another action"}
 
 
-async def follow_user(persona_id: int, user_id: int):
+async def follow_user(db:Database, persona_id: int, user_id: int):
     """
         Creates a follow relationship where the current agent follows another user.
 
@@ -164,7 +167,7 @@ async def follow_user(persona_id: int, user_id: int):
             Dictionary with status message indicating success or failure reason
         """
     if persona_id == user_id:
-        return {"status": f"Error. You cannot follow yourself. Try another action"}
+        return {"status": "Error. You cannot follow yourself. Try another action"}
     
     query = "INSERT INTO follows (follower, followed, created_at) VALUES ($1, $2, DEFAULT) ON CONFLICT (follower, followed) DO NOTHING"
     try:
@@ -190,6 +193,7 @@ def get_function_info() -> list[dict]:
         params = [
             {"name": p.name, "type": str(p.annotation.__name__)}
             for p in sig.parameters.values()
+            if p.name != "db"
         ]
         function_info.append({
             "name": name,

@@ -1,1 +1,0 @@
-select posts.id, username, author, body from posts, personas

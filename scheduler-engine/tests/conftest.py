@@ -1,44 +1,48 @@
-# tests/conftest.py
 import os
 import uuid
 
 import pytest_asyncio
+import pytest
+from main import app, get_db
+from httpx import AsyncClient, ASGITransport
 
-from configs.db import db
+from configs.db import Database, create_pool
 
 
 @pytest_asyncio.fixture(scope="function")
-async def db_pool():
+async def db():
     """
-    Create a fresh asyncpg pool per test.
+    Create a fresh Database instance (asyncpg pool) per test.
 
-    This avoids cross-event-loop reuse of a pool, which is the root cause of:
-    - RuntimeError: Future attached to a different loop
-    - cannot perform operation: another operation is in progress
-    - connection was closed in the middle of operation
+    This guarantees:
+    - pool is created on the same event loop as the test
+    - no cross-loop asyncpg usage
+    - clean isolation between tests
     """
-    if not os.environ.get("DATABASE_URL"):
+    database_url = os.environ.get("DATABASE_URL")
+    if not database_url:
         raise RuntimeError("DATABASE_URL must be set for tests.")
 
-    await db.connect()
+    pool = await create_pool(database_url)
     try:
-        yield db.pool
+        yield Database(pool=pool)
     finally:
-        await db.disconnect()
+        await pool.close()
 
 
 @pytest_asyncio.fixture
-def fetch(db_pool):
+def fetch(db: Database):
+    """
+    Convenience helper for SELECT / RETURNING queries in tests.
+    """
     async def _fetch(query, *args):
-        async with db_pool.acquire() as conn:
-            rows = await conn.fetch(query, *args)
-            return [dict(r) for r in rows]
+        return await db.fetch(query, *args)
 
     return _fetch
 
 
 @pytest_asyncio.fixture
-async def persona(fetch, db_pool):
+async def persona(db: Database, fetch):
     username = f"test_{uuid.uuid4().hex[:10]}"
     rows = await fetch(
         """
@@ -52,22 +56,21 @@ async def persona(fetch, db_pool):
     p = rows[0]
     yield p
 
-    async with db_pool.acquire() as conn:
-        await conn.execute(
-            "DELETE FROM follows WHERE follower = $1 OR followed = $1",
-            p["persona_id"],
-        )
-        await conn.execute("DELETE FROM likes WHERE persona_id = $1", p["persona_id"])
-        await conn.execute("DELETE FROM comments WHERE author_id = $1", p["persona_id"])
-        await conn.execute("DELETE FROM posts WHERE author = $1", p["persona_id"])
-        await conn.execute(
-            "DELETE FROM personas WHERE persona_id = $1",
-            p["persona_id"],
-        )
+    await db.execute(
+        "DELETE FROM follows WHERE follower = $1 OR followed = $1",
+        p["persona_id"],
+    )
+    await db.execute("DELETE FROM likes WHERE persona_id = $1", p["persona_id"])
+    await db.execute("DELETE FROM comments WHERE author_id = $1", p["persona_id"])
+    await db.execute("DELETE FROM posts WHERE author = $1", p["persona_id"])
+    await db.execute(
+        "DELETE FROM personas WHERE persona_id = $1",
+        p["persona_id"],
+    )
 
 
 @pytest_asyncio.fixture
-async def other_persona(fetch, db_pool):
+async def other_persona(db: Database, fetch):
     username = f"test_{uuid.uuid4().hex[:10]}"
     rows = await fetch(
         """
@@ -81,22 +84,21 @@ async def other_persona(fetch, db_pool):
     p = rows[0]
     yield p
 
-    async with db_pool.acquire() as conn:
-        await conn.execute(
-            "DELETE FROM follows WHERE follower = $1 OR followed = $1",
-            p["persona_id"],
-        )
-        await conn.execute("DELETE FROM likes WHERE persona_id = $1", p["persona_id"])
-        await conn.execute("DELETE FROM comments WHERE author_id = $1", p["persona_id"])
-        await conn.execute("DELETE FROM posts WHERE author = $1", p["persona_id"])
-        await conn.execute(
-            "DELETE FROM personas WHERE persona_id = $1",
-            p["persona_id"],
-        )
+    await db.execute(
+        "DELETE FROM follows WHERE follower = $1 OR followed = $1",
+        p["persona_id"],
+    )
+    await db.execute("DELETE FROM likes WHERE persona_id = $1", p["persona_id"])
+    await db.execute("DELETE FROM comments WHERE author_id = $1", p["persona_id"])
+    await db.execute("DELETE FROM posts WHERE author = $1", p["persona_id"])
+    await db.execute(
+        "DELETE FROM personas WHERE persona_id = $1",
+        p["persona_id"],
+    )
 
 
 @pytest_asyncio.fixture
-async def post(fetch, db_pool, persona):
+async def post(db: Database, fetch, persona):
     rows = await fetch(
         """
         INSERT INTO posts (body, author)
@@ -109,7 +111,32 @@ async def post(fetch, db_pool, persona):
     p = rows[0]
     yield p
 
-    async with db_pool.acquire() as conn:
-        await conn.execute("DELETE FROM likes WHERE post_id = $1", p["id"])
-        await conn.execute("DELETE FROM comments WHERE post_id = $1", p["id"])
-        await conn.execute("DELETE FROM posts WHERE id = $1", p["id"])
+    await db.execute("DELETE FROM likes WHERE post_id = $1", p["id"])
+    await db.execute("DELETE FROM comments WHERE post_id = $1", p["id"])
+    await db.execute("DELETE FROM posts WHERE id = $1", p["id"])
+    
+@pytest.fixture
+async def client(db):
+    async def override_get_db():
+        return db
+
+    app.dependency_overrides[get_db] = override_get_db
+
+    transport = ASGITransport(app=app)
+
+    async with AsyncClient(
+        transport=transport,
+        base_url="http://test",
+    ) as ac:
+        yield ac
+
+    app.dependency_overrides.clear()
+
+@pytest.fixture(autouse=True)
+def override_get_db(db):
+    async def _get_db_override():
+        yield db
+
+    app.dependency_overrides[get_db] = _get_db_override
+    yield
+    app.dependency_overrides.clear()

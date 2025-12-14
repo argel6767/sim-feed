@@ -6,6 +6,7 @@ from openai import OpenAI
 from services.agent_actions import functions
 from datetime import date, datetime
 import logging
+from configs.db import Database
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +50,7 @@ Example:
 }
 
 
-async def run_agent_turn(request_function, context):
+async def run_agent_turn(request_function, context, db:Database):
     response = await asyncio.to_thread(request_function, context)
     context.append(response)
 
@@ -81,7 +82,7 @@ async def run_agent_turn(request_function, context):
         return
 
     if function_name in functions:
-        result = await functions[function_name](*arguments)
+        result = await functions[function_name](db, *arguments)
         # Convert dict/result to JSON string
         result_str = json.dumps(result) if isinstance(result, dict) else str(result)
         context.append({"role": "user", "content": result_str})
@@ -102,7 +103,7 @@ def make_deepseek_request(messages: list[dict[str, str]]) -> dict[str, str | Non
     logging.info(response_message)
     return {"role": response_message.role, "content": response_message.content}
 
-async def run_deepseek_agent(persona: dict, function_info: list[dict[str, str]]):
+async def run_deepseek_agent(persona: dict, function_info: list[dict[str, str]], db:Database):
     turns = 0
 
     persona_serializable = {
@@ -118,5 +119,5 @@ async def run_deepseek_agent(persona: dict, function_info: list[dict[str, str]])
     context = [{"role": "system", "content": json.dumps(system_context)}]
 
     while turns < 10:
-        await run_agent_turn(make_deepseek_request, context)
+        await run_agent_turn(make_deepseek_request, context, db)
         turns += 1

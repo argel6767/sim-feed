@@ -2,8 +2,7 @@ CREATE TABLE IF NOT EXISTS personas (
     persona_id BIGSERIAL PRIMARY KEY,
     description TEXT,
     username VARCHAR(255),
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    last_active BIGINT
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS posts (
