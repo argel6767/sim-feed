@@ -1,5 +1,5 @@
 import { APIGatewayProxyHandlerV2 } from "aws-lambda";
-import { pool } from "../lib/db";
+import { getPool } from "../lib/db";
 
 export const config = {
   callbackWaitsForEmptyEventLoop: false
@@ -21,6 +21,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   const query = `SELECT * FROM posts ORDER BY created_at DESC LIMIT $1 OFFSET $2`;
   
   try {
+    const pool = await getPool();
     const result = await pool.query(query, [LIMIT, offset]);
     return {
       statusCode: 200,

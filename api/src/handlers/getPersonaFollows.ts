@@ -1,4 +1,4 @@
-import { pool } from "../lib/db";
+import { getPool } from "../lib/db";
 import { APIGatewayProxyHandlerV2 } from "aws-lambda";
 
 export const config = {
@@ -14,7 +14,7 @@ type Relation = 'follower' | 'followed';
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   const personaId = event.pathParameters?.persona_id;
-  const relation = event.pathParameters?.relation as Relation;
+  const relation = event.queryStringParameters?.relation as Relation;
 
   if (!personaId) {
     return {
@@ -31,6 +31,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   }
 
   try {
+    const pool = await getPool();
     const result = await pool.query(`SELECT * FROM follows WHERE ${relation} = $1`, [personaId]);
 
     if (!result.rows.length || result.rows.length === 0) {

@@ -1,4 +1,4 @@
-import {pool} from '../lib/db';
+import {getPool} from '../lib/db';
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
 
 export const config = {
@@ -16,6 +16,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   }
 
   try {
+    const pool = await getPool();
     const result = await pool.query('SELECT * FROM personas WHERE id = $1', [personaId]);
     if (!result.rows.length || result.rows.length === 0) {
       return {

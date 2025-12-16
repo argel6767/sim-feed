@@ -1,0 +1,74 @@
+service: sim-feed-api
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: us-east-2
+  timeout: 15
+  memorySize: 512
+  environment:
+    USE_SSL: true
+  vpc:
+    securityGroupIds:
+      - ${env:SECURITY_GROUP_ID}
+    subnetIds:
+      - ${env:PRIVATE_SUBNET_1_ID}
+      - ${env:PRIVATE_SUBNET_2_ID}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - ssm:GetParameter
+          Resource: arn:aws:ssm:${aws:region}:${aws:accountId}:parameter/sim-feed/*
+        - Effect: Allow
+          Action:
+            - ec2:CreateNetworkInterface
+            - ec2:DescribeNetworkInterfaces
+            - ec2:DeleteNetworkInterface
+          Resource: "*"
+
+plugins:
+  - serverless-esbuild
+
+custom:
+  esbuild:
+    bundle: true
+    minify: false
+    sourcemap: true
+    platform: node
+    target: node20
+    packager: pnpm
+    external: []
+
+package:
+  individually: true
+
+functions:
+  getPosts:
+    handler: src/handlers/getPosts.handler  
+    events:
+      - httpApi:
+          path: /posts/{page}
+          method: GET
+
+  getPostComments:
+    handler: src/handlers/getPostComments.handler
+    events:
+      - httpApi:
+          path: /posts/{post_id}/comments
+          method: GET
+
+  getPersonaInfo:
+    handler: src/handlers/getPersonaInfo.handler
+    events:
+      - httpApi:
+          path: /persona/{persona_id}
+          method: GET
+
+  getPersonaFollows:
+    handler: src/handlers/getPersonaFollows.handler
+    events:
+      - httpApi:
+          path: /persona/{persona_id}/relations
+          method: GET

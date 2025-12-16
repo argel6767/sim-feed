@@ -6,13 +6,17 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "clean:functions": "pnpm dotenv serverless remove --stage dev",
+    "deploy": "pnpm run build && pnpm run clean:functions && pnpm dotenv serverless deploy --verbose --stage dev",
+    "deploy:prod": "pnpm dotenv serverless deploy --verbose --stage prod"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.17.1",
   "dependencies": {
+    "@aws-sdk/client-ssm": "^3.948.0",
     "@types/aws-lambda": "^8.10.159",
     "dotenv": "^17.2.3",
     "pg": "^8.16.3"
@@ -20,6 +24,9 @@
   "devDependencies": {
     "@types/node": "^25.0.2",
     "@types/pg": "^8.16.0",
+    "dotenv-cli": "^11.0.0",
+    "esbuild": "^0.27.1",
+    "serverless-esbuild": "^1.56.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   }
