@@ -58,7 +58,7 @@ jobs:
     if: needs.check-changes.outputs.api-changed == 'true'
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v3
         with:
           node-version: '20'
@@ -76,7 +76,7 @@ jobs:
     if: needs.build-api-handlers.result == 'success'
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v3
         with:
           node-version: '20'
