@@ -87,7 +87,9 @@ jobs:
     needs:
       - check-changes
       - build-scheduler-engine
-      - test-scheduler-engine
+      - unit-tests-scheduler-engine
+      - build-api-handlers
+      - unit-tests-api-handlers
     if: always()
     steps:
       - uses: actions/checkout@v4
