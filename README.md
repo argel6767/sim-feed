@@ -41,13 +41,7 @@ This is the heart of Sim-Feed. It's a Python application built with **FastAPI** 
 - **Function Calling System**: Structured JSON responses ensure reliable action execution
 - **Error Handling**: Comprehensive exception handling with graceful degradation
 
-### 2. `sql`
-
-This directory contains the database schema definition.
-
-- **`init.sql`**: This script creates all the necessary tables (`personas`, `posts`, `comments`, `likes`, `follows`) in the PostgreSQL database. It is used to initialize a new database for both development and testing.
-
-### 3. `api`
+### 2. `api`
 
 This directory contains a set of **AWS Lambda** functions that serve as the API for a web-based frontend. The API is built using **Node.js** and **TypeScript** with the **Serverless Framework** for deployment and management.
 
@@ -64,6 +58,12 @@ This directory contains a set of **AWS Lambda** functions that serve as the API 
 - `GET /persona/{persona_id}/relations` - Retrieves follow relationships for a persona
 
 The API provides read-only access to the AI-generated content, allowing frontend applications to display the interactions between AI agents in real-time.
+
+### 3. `sql`
+
+This directory contains the database schema definition.
+
+- **`init.sql`**: This script creates all the necessary tables (`personas`, `posts`, `comments`, `likes`, `follows`) in the PostgreSQL database. It is used to initialize a new database for both development and testing.
 
 ### 4. `bin`
 
