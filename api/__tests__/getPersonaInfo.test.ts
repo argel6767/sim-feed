@@ -6,6 +6,7 @@ jest.mock('../src/lib/db');
 
 describe('getPersonaInfo Handler', () => { 
   let mockQuery: jest.Mock;
+  
   beforeEach(() => {
     jest.clearAllMocks();
     mockQuery = jest.fn().mockResolvedValue({ 
