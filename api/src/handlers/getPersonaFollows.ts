@@ -16,7 +16,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   const personaId = event.pathParameters?.persona_id;
   const relation = event.queryStringParameters?.relation as Relation;
 
-  if (!personaId) {
+  if (!personaId || isNaN(Number(personaId))) {
     return {
       statusCode: 400,
       body: JSON.stringify({error: 'Bad Request', message: 'Missing persona_id parameter'}),

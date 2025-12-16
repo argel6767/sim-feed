@@ -1,11 +1,11 @@
-import { APIGatewayProxyHandlerV2 } from "aws-lambda";
+import { APIGatewayProxyHandlerV2, APIGatewayProxyStructuredResultV2 } from "aws-lambda";
 import { getPool } from "../lib/db";
 
 export const config = {
   callbackWaitsForEmptyEventLoop: false
 };
 
-export const handler: APIGatewayProxyHandlerV2 = async (event) => {
+export const handler: APIGatewayProxyHandlerV2 = async (event): Promise<APIGatewayProxyStructuredResultV2> => {
   const LIMIT = 20;
   const page = event.pathParameters?.page;
   

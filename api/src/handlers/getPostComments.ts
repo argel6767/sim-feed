@@ -8,7 +8,7 @@ export const config = {
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   const postId = event.pathParameters?.post_id;
 
-  if (!postId) {
+  if (!postId || isNaN(Number(postId))) {
     return {
       statusCode: 400,
       body: JSON.stringify({ error: 'Bad Request', message: 'Missing post_id parameter' }),

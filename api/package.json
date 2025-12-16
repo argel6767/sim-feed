@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "clean:functions": "pnpm dotenv serverless remove --stage dev",
@@ -22,11 +24,15 @@
     "pg": "^8.16.3"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "@types/node": "^25.0.2",
     "@types/pg": "^8.16.0",
+    "aws-sdk-mock": "^6.2.1",
     "dotenv-cli": "^11.0.0",
     "esbuild": "^0.27.1",
+    "jest": "^30.2.0",
     "serverless-esbuild": "^1.56.1",
+    "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   }

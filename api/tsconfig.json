@@ -12,7 +12,7 @@
 
     "sourceMap": true,
 
-    "types": ["node", "aws-lambda"]
+    "types": ["node", "aws-lambda", "jest"]
   },
   "include": ["src"]
 }
