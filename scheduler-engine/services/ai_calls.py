@@ -110,6 +110,7 @@ async def run_deepseek_agent(persona: dict, function_info: list[dict[str, str]],
         k: str(v) if isinstance(v, (date, datetime)) else v
         for k, v in persona.items()
     }
+    
     # Convert list of function dicts to a single dict with "functions" key
     system_context = {
         **role_description,

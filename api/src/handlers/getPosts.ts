@@ -17,7 +17,6 @@ export const handler: APIGatewayProxyHandlerV2 = async (event): Promise<APIGatew
   }
   
   const offset = (Number(page) - 1) * LIMIT;
-  
   const query = `SELECT * FROM posts ORDER BY created_at DESC LIMIT $1 OFFSET $2`;
   
   try {
