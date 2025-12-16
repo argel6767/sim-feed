@@ -28,6 +28,8 @@ export const getPool = async (): Promise<Pool> => {
     connectionTimeoutMillis: 2000,
     ssl: useSSL ? { rejectUnauthorized: false } : false,
   });
+  
+  console.log("Pool created successfully");
 
   return pool;
 };

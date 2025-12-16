@@ -63,8 +63,11 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
+          cache-dependency-path: './api/pnpm-lock.yaml'
       - run: pnpm install
+        working-directory: ./api
       - run: pnpm build
+        working-directory: ./api
       
   unit-tests-api-handlers:
     name: Run Unit Tests for API Handlers
@@ -78,9 +81,12 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
+          cache-dependency-path: './api/pnpm-lock.yaml'
       - run: pnpm install
+        working-directory: ./api
       - run: pnpm test
-        
+        working-directory: ./api
+      
   run-all-services:
     name: Run All Services
     runs-on: ubuntu-latest
