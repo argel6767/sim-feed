@@ -5,7 +5,6 @@ let pool: Pool | undefined;
 
 export const getPool = async (): Promise<Pool> => {
   if (pool) return pool;
-  
   const useSSL = process.env.USE_SSL === "true";
 
   const ssm = new SSMClient({});

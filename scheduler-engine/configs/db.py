@@ -3,7 +3,6 @@ from dataclasses import dataclass
 
 @dataclass
 class Database:
-    
     pool: asyncpg.Pool
 
     async def disconnect(self):
