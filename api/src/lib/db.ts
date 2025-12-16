@@ -20,7 +20,6 @@ export const getPool = async (): Promise<Pool> => {
   }
   
   console.log("Database URL fetched, creating pool...");
-  console.log("Connection string format:", param.Parameter.Value.substring(0, 10) + "****");
 
   pool = new Pool({
     connectionString: param.Parameter.Value,
