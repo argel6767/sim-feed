@@ -25,5 +25,5 @@ def create_scheduler(db):
         await asyncio.gather(*tasks)
         logger.info("All agents completed")
 
-    scheduler.add_job(run_all_agents, "interval", minutes=5)
+    scheduler.add_job(run_all_agents, "interval", minutes=30)
     return scheduler
