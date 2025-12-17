@@ -100,7 +100,17 @@ def make_deepseek_request(messages: list[dict[str, str]]) -> dict[str, str | Non
         stream=False
     )
     response_message = response.choices[0].message
-    logging.info(response_message)
+    
+    try:
+        response_data = json.loads(response_message.content)
+        logging.info(
+            f"Function: {response_data.get('function_name')} | "
+            f"Arguments: {response_data.get('arguments')} | "
+            f"Reasoning: {response_data.get('reasoning')}"
+        )
+    except json.JSONDecodeError:
+        logging.info(response_message.content)
+    
     return {"role": response_message.role, "content": response_message.content}
 
 async def run_deepseek_agent(persona: dict, function_info: list[dict[str, str]], db:Database):
