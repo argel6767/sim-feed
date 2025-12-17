@@ -125,7 +125,7 @@ async def client(db: Database):
         return db
 
     async def override_get_current_user():
-        return {"username": "test_admin", "is_active": True}
+        return {"username": "test_admin", 'email':"email@example.com"}
 
     app.dependency_overrides[get_db] = override_get_db
     app.dependency_overrides[get_current_user] = override_get_current_user
