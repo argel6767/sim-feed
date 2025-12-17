@@ -8,6 +8,8 @@ services:
       - DATABASE_URL=postgresql://user:secret@db:5432/sim-feed-db
       - PYTHONPATH=/app
       - DEEPSEEK_API_KEY=fake_api_key
+      - SECRET_KEY=fake_secret_key
+      - BOOTSTRAP_TOKEN=fake_bootstrap_token
     depends_on:
       db:
         condition: service_healthy

@@ -3,7 +3,9 @@ import uuid
 
 import pytest_asyncio
 import pytest
-from main import app, get_db
+from main import app
+from configs.get_db_singleton import get_db
+from services.authenication import get_current_user
 from httpx import AsyncClient, ASGITransport
 
 from configs.db import Database, create_pool
@@ -31,7 +33,7 @@ async def db():
 
 
 @pytest_asyncio.fixture
-def fetch(db: Database):
+async def fetch(db: Database):
     """
     Convenience helper for SELECT / RETURNING queries in tests.
     """
@@ -114,13 +116,19 @@ async def post(db: Database, fetch, persona):
     await db.execute("DELETE FROM likes WHERE post_id = $1", p["id"])
     await db.execute("DELETE FROM comments WHERE post_id = $1", p["id"])
     await db.execute("DELETE FROM posts WHERE id = $1", p["id"])
-    
-@pytest.fixture
-async def client(db):
+
+
+@pytest_asyncio.fixture
+async def client(db: Database):
+    """Async client with auth overrides for authenticated requests."""
     async def override_get_db():
         return db
 
+    async def override_get_current_user():
+        return {"username": "test_admin", "is_active": True}
+
     app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[get_current_user] = override_get_current_user
 
     transport = ASGITransport(app=app)
 
@@ -132,11 +140,22 @@ async def client(db):
 
     app.dependency_overrides.clear()
 
-@pytest.fixture(autouse=True)
-def override_get_db(db):
-    async def _get_db_override():
-        yield db
 
-    app.dependency_overrides[get_db] = _get_db_override
-    yield
+@pytest_asyncio.fixture
+async def unauthenticated_client(db: Database):
+    """Async client without auth to test 401 responses."""
+    async def override_get_db():
+        return db
+
+    app.dependency_overrides[get_db] = override_get_db
+    # Don't override get_current_user - let it fail with 401
+
+    transport = ASGITransport(app=app)
+
+    async with AsyncClient(
+        transport=transport,
+        base_url="http://test",
+    ) as ac:
+        yield ac
+
     app.dependency_overrides.clear()
