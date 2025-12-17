@@ -16,6 +16,18 @@ services:
         condition: service_healthy
     networks:
       - agent-network
+  
+  api:
+    build: api/
+    container_name: sim-feed-api
+    ports:
+      - "3000:3000"
+    env_file: api/.env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - agent-network
 
   db:
     image: postgres:16-alpine
