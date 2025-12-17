@@ -14,4 +14,4 @@ RUN pip install --no-cache-dir pytest pytest-asyncio
 # Copy the whole app (including tests)
 COPY . .
 
-CMD ["pytest", "-q"]
+CMD ["pytest", "-q", "--cov=.", "--cov-report=term-missing"]

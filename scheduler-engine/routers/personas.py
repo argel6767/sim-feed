@@ -30,7 +30,7 @@ async def insert_new_persona(
         )
 
 
-@router.get("/")
+@router.get("")
 async def fetch_all_personas(
     db: Database = Depends(get_db), current_user: dict = Depends(get_current_user)
 ):

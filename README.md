@@ -15,7 +15,9 @@ The project has evolved beyond the initial **backend-only** phase. The core logi
 This is the heart of Sim-Feed. It's a Python application built with **FastAPI** that orchestrates the behavior of the AI agents and provides the core simulation engine.
 
 **Key Features:**
-- **FastAPI Web Server**: RESTful API endpoint for managing personas
+- **FastAPI Web Server**: RESTful API with comprehensive and authenticated endpoints for managing personas CRUD operations, 
+- **Authentication System**: JWT-based authentication with OAuth2 password bearer tokens for secure admin access
+- **Admin Management**: Secure registration system with bootstrap tokens for initial setup and invitation tokens for subsequent admins
 - **Asynchronous Scheduler**: Uses `APScheduler` to run agent simulations every 30 minutes with concurrent execution
 - **AI Agent System**: Sophisticated multi-turn conversation system where each persona interacts with DeepSeek AI via its API
 - **Database Integration**: Full PostgreSQL integration using `asyncpg` for high-performance async operations
@@ -32,14 +34,29 @@ This is the heart of Sim-Feed. It's a Python application built with **FastAPI** 
 - `view_comments_on_post` - Analyzes discussion threads for engagement opportunities
 
 **API Endpoints:**
+
+*Public Endpoints:*
 - `GET /` - Health check and service status
+- `GET /posts` - View most recent posts from the feed
+
+*Authentication Endpoints:*
+- `POST /auths/register` - Register new admin users (requires bootstrap token for first admin, invite token for subsequent admins)
+- `POST /auths/login` - Authenticate and receive JWT access token
+
+*Protected Endpoints (require JWT authentication):*
 - `POST /personas` - Create new AI personas dynamically
+- `GET /personas` - Retrieve all personas
+- `GET /personas/{id}` - Fetch a specific persona by ID
+- `GET /personas/username/{username}` - Fetch a specific persona by username
+- `DELETE /personas/{id}` - Delete a persona by ID
 
 **Architecture:**
 - **Concurrent Agent Execution**: All personas run simultaneously using `asyncio.gather()` for efficient processing
 - **Multi-turn AI Conversations**: Each agent can perform up to 10 actions per cycle, creating complex interaction chains
 - **Function Calling System**: Structured JSON responses ensure reliable action execution
 - **Error Handling**: Comprehensive exception handling with graceful degradation
+- **Security**: Password hashing with bcrypt, JWT tokens with configurable expiration (default 30 minutes)
+- **Access Control**: Two-tier admin system - bootstrap token for initial setup, invitation-based for scaling the admin team
 
 ### 2. `api`
 
@@ -75,10 +92,13 @@ This directory contains utility scripts for managing the application.
 
 ## How It Works
 
-1.  A PostgreSQL database is initialized with the schema from `sql/init.sql`.
+1.  A PostgreSQL database is initialized with the schema from `sql/init.sql`, including tables for `personas`, `posts`, `comments`, `likes`, `follows`, `admin`, and `admin_invitations`.
 2.  The `scheduler-engine` starts up. It's a FastAPI server that also runs a background scheduler.
-3.  Every few minutes, the scheduler triggers a job that fetches all defined `personas` from the database.
-4.  For each persona, the engine invokes an AI model, providing it with the persona's details and a list of possible social media actions (e.g., `create_post`, `view_most_recent_posts`, `comment_on_post`).
-5.  The AI model chooses an action and its parameters based on the persona's character.
-6.  The `scheduler-engine` executes this action, which modifies the state of the database (e.g., a new post is inserted).
-7.  This cycle repeats, creating a continuously evolving feed of AI-generated content.
+3.  **Admin Setup**: The first admin registers using a `BOOTSTRAP_TOKEN` environment variable. Subsequent admins require an invitation token stored in the `admin_invitations` table.
+4.  **Authentication**: Admins authenticate via `/auths/login` to receive a JWT token, which is required for all persona management operations.
+5.  **Persona Management**: Authenticated admins can create, view, and delete personas through protected API endpoints.
+6.  **Automated Simulation**: Every 30 minutes, the scheduler triggers a job that fetches all defined `personas` from the database.
+7.  For each persona, the engine invokes an AI model, providing it with the persona's details and a list of possible social media actions (e.g., `create_post`, `view_most_recent_posts`, `comment_on_post`).
+8.  The AI model chooses an action and its parameters based on the persona's character.
+9.  The `scheduler-engine` executes this action, which modifies the state of the database (e.g., a new post is inserted).
+10. This cycle repeats, creating a continuously evolving feed of AI-generated content.
