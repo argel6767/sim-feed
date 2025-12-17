@@ -27,7 +27,7 @@ async def test_insert_new_persona_failure(client):
 
 @pytest.mark.asyncio
 async def test_fetch_all_personas_empty(client):
-    response = await client.get("/personas/")
+    response = await client.get("/personas")
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)
@@ -41,7 +41,7 @@ async def test_fetch_all_personas_with_data(client, fetch):
     }
 
     await client.post("/personas", json=payload)
-    response = await client.get("/personas/")
+    response = await client.get("/personas")
 
     assert response.status_code == 200
     data = response.json()
@@ -169,7 +169,7 @@ async def test_authentication_required_for_all_endpoints(
     )
     assert response.status_code == 401
 
-    response = await unauthenticated_client.get("/personas/")
+    response = await unauthenticated_client.get("/personas")
     assert response.status_code == 401
 
     response = await unauthenticated_client.get("/personas/1")
@@ -215,7 +215,7 @@ async def test_fetch_personas_returns_correct_structure(client, fetch):
     }
 
     await client.post("/personas", json=payload)
-    response = await client.get("/personas/")
+    response = await client.get("/personas")
 
     assert response.status_code == 200
     data = response.json()
