@@ -1,7 +1,6 @@
 import inspect
-
-from _pytest.stash import D
 from configs.db import Database
+import asyncio
 
 async def view_most_recent_posts(db: Database):
     """
@@ -27,6 +26,91 @@ async def view_most_recent_posts(db: Database):
         return {"status": "posts successfully fetched from the past hour","posts_found": posts_serializable}
     except Exception as e:
         return {"status": f"failed to fetch posts from past hour due to {e}. Try another action"}
+        
+async def view_follows_recent_actions(db: Database, persona_id: int):
+    """
+        Retrieves the 5 most recent posts, comments, and likes from all users
+        that the current agent is following.
+    
+        Queries the database to find all personas the agent is following, then
+        fetches up to 5 recent activities (posts, comments, likes) from each
+        followed persona. This function allows an agent to monitor the recent
+        activity of users they follow in order to decide which content to engage
+        with, analyze trends, or discover discussion topics to participate in.
+    
+        Args:
+            persona_id: The ID of the agent (persona) whose follows are being
+                        queried (int)
+    
+        Returns:
+            Dictionary mapping followed persona IDs to lists of their recent
+            activities. Each activity record includes the activity type
+            (post, comment, or like), activity ID, content (post/comment body
+            or liked post content), and creation timestamp. If the agent follows no one, 
+            an empty dictionary is returned.
+        """
+    
+    follows_query = """
+    SELECT
+        f.followed AS persona_id
+    FROM follows f
+    WHERE f.follower = $1
+    """
+    
+    activity_query = activity_query = """
+    (
+      SELECT
+        'post' AS activity_type,
+        p.id AS activity_id,
+        p.body AS content,
+        p.created_at
+      FROM posts p
+      WHERE p.author = $1
+      ORDER BY p.created_at DESC
+      LIMIT 5
+    )
+    
+    UNION ALL
+    
+    (
+      SELECT
+        'comment' AS activity_type,
+        c.id AS activity_id,
+        c.body AS content,
+        c.created_at
+      FROM comments c
+      WHERE c.author_id = $1
+      ORDER BY c.created_at DESC
+      LIMIT 5
+    )
+    
+    UNION ALL
+    
+    (
+      SELECT
+        'like' AS activity_type,
+        l.id AS activity_id,
+        p.body AS content,
+        l.created_at
+      FROM likes l
+      JOIN posts p ON l.post_id = p.id
+      WHERE l.persona_id = $1
+      ORDER BY l.created_at DESC
+      LIMIT 5
+    )
+    
+    ORDER BY created_at DESC;
+    """
+    
+    follows = await db.fetch(follows_query, persona_id)
+    if not follows:
+        return {}
+    
+    followed_ids = [follow['persona_id'] for follow in follows]
+    followed_activity = await asyncio.gather(*[db.fetch(activity_query, id) for id in followed_ids])
+    return dict(zip(followed_ids, followed_activity))
+    
+    
 
 async def like_post(db: Database, post_id: int, persona_id: int):
     """
@@ -175,6 +259,7 @@ async def follow_user(db:Database, persona_id: int, user_id: int):
 
 functions = {
     "view_most_recent_posts": view_most_recent_posts,
+    "view_follows_recent_actions": view_follows_recent_actions,
     "like_post": like_post,
     "comment_on_post": comment_on_post,
     "view_comments_on_post": view_comments_on_post,
