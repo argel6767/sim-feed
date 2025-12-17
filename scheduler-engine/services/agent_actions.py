@@ -104,11 +104,24 @@ async def view_follows_recent_actions(db: Database, persona_id: int):
     
     follows = await db.fetch(follows_query, persona_id)
     if not follows:
-        return {}
-    
+            return {}
+        
     followed_ids = [follow['persona_id'] for follow in follows]
-    followed_activity = await asyncio.gather(*[db.fetch(activity_query, id) for id in followed_ids])
-    return dict(zip(followed_ids, followed_activity))
+    followed_activity = await asyncio.gather(
+        *[db.fetch(activity_query, id) for id in followed_ids]
+    )
+    
+    result = {}
+    for followed_id, activities in zip(followed_ids, followed_activity):
+        result[followed_id] = [
+            {
+                **dict(activity),
+                "created_at": activity["created_at"].isoformat()
+            }
+            for activity in activities
+        ]
+    
+    return result
     
     
 

@@ -43,7 +43,7 @@ role_description = {
 {"function_name": "function_name_here", "arguments": [arg1, arg2], "reasoning": "why"}
 
 Available functions: view_most_recent_posts, view_follows_recent_actions, like_post, comment_on_post, create_post, find_post_author, follow_user
-Initial functions: The initial function used should be view_most_recent_posts, view_follows_recent_actions, or create_post
+Initial functions: The initial function used should be one of the following: view_most_recent_posts, view_follows_recent_actions, or create_post
 
 Example:
 {"function_name": "create_post", "arguments": [1, "hey everyone!"], "reasoning": "I want to share my thoughts"}"""
