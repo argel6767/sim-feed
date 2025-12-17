@@ -23,15 +23,18 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       p.body,
       p.author,
       p.created_at,
-      json_agg(
-        json_build_object(
-          'id', c.id,
-          'body', c.body,
-          'author_id', c.author_id,
-          'created_at', c.created_at
-        )
-        ORDER BY c.created_at ASC
-      ) FILTER (WHERE c.id IS NOT NULL) AS comments
+      COALESCE(
+        json_agg(
+          json_build_object(
+            'id', c.id,
+            'body', c.body,
+            'author_id', c.author_id,
+            'created_at', c.created_at
+          )
+          ORDER BY c.created_at ASC
+        ) FILTER (WHERE c.id IS NOT NULL),
+        '[]'::json
+      ) AS comments
     FROM posts p
     LEFT JOIN comments c ON p.id = c.post_id
     GROUP BY p.id, p.body, p.author, p.created_at
@@ -49,7 +52,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   } catch (error) {
     console.error("Failed to fetch posts with comments", error);
     let message = "Internal Server Error";
-    
+
     if (error instanceof Error) {
       message = error.message;
     }

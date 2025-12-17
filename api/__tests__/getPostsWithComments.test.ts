@@ -203,4 +203,39 @@ describe("getPostsWithComments Handler", () => {
     expect(response.statusCode).toBe(200);
     expect(JSON.parse(response.body!)).toEqual([]);
   });
+
+  it("should return post with empty array for comments when post has no comments", async () => {
+    const event = createEvent("1");
+    mockQuery.mockResolvedValue({
+      rows: [
+        {
+          id: 3,
+          body: "Test Post Without Comments",
+          author: 5,
+          created_at: "2023-01-03T00:00:00Z",
+          comments: [],
+        },
+      ],
+    });
+
+    const response = (await handler(
+      event,
+      context,
+      callback,
+    )) as APIGatewayProxyStructuredResultV2;
+
+    expect(response.statusCode).toBe(200);
+    const result = JSON.parse(response.body!);
+    expect(result).toEqual([
+      {
+        id: 3,
+        body: "Test Post Without Comments",
+        author: 5,
+        created_at: "2023-01-03T00:00:00Z",
+        comments: [],
+      },
+    ]);
+    expect(result[0].comments).toEqual([]);
+    expect(result[0].comments).not.toBeNull();
+  });
 });
