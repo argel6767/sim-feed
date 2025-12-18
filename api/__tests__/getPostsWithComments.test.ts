@@ -154,7 +154,7 @@ describe("getPostsWithComments Handler", () => {
     expect(response.statusCode).toBe(400);
     expect(JSON.parse(response.body!)).toEqual({
       error: "Bad Request",
-      message: "Missing page parameter",
+      message: "Invalid page parameter",
     });
   });
 
@@ -170,7 +170,7 @@ describe("getPostsWithComments Handler", () => {
     expect(response.statusCode).toBe(400);
     expect(JSON.parse(response.body!)).toEqual({
       error: "Bad Request",
-      message: "Missing page parameter",
+      message: "Invalid page parameter",
     });
   });
 
@@ -186,7 +186,7 @@ describe("getPostsWithComments Handler", () => {
     expect(response.statusCode).toBe(400);
     expect(JSON.parse(response.body!)).toEqual({
       error: "Bad Request",
-      message: "Missing page parameter",
+      message: "Invalid page parameter",
     });
   });
 

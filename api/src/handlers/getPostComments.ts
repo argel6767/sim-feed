@@ -11,7 +11,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   if (!postId || isNaN(Number(postId)) || Number(postId) < 0) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ error: 'Bad Request', message: 'Missing post_id parameter' }),
+      body: JSON.stringify({ error: 'Bad Request', message: 'Invalid post_id parameter' }),
     };
   }
   const query = `

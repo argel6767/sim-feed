@@ -100,7 +100,7 @@ describe("getPersonaInfo Handler", () => {
     expect(result.statusCode).toBe(400);
     expect(JSON.parse(result.body!)).toStrictEqual({
       error: "Bad Request",
-      message: "Missing persona_id parameter",
+      message: "Invalid persona_id parameter",
     });
   });
 
@@ -116,7 +116,7 @@ describe("getPersonaInfo Handler", () => {
     expect(result.statusCode).toBe(400);
     expect(JSON.parse(result.body!)).toStrictEqual({
       error: "Bad Request",
-      message: "Missing persona_id parameter",
+      message: "Invalid persona_id parameter",
     });
   });
   
@@ -132,7 +132,7 @@ describe("getPersonaInfo Handler", () => {
     expect(result.statusCode).toBe(400);
     expect(JSON.parse(result.body!)).toStrictEqual({
       error: "Bad Request",
-      message: "Missing persona_id parameter",
+      message: "Invalid persona_id parameter",
     });
   });
 });

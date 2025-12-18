@@ -73,7 +73,7 @@ describe("getPostComments Handler", () => {
     expect(response.statusCode).toBe(400);
     expect(JSON.parse(response.body!)).toEqual({
       error: "Bad Request",
-      message: "Missing post_id parameter",
+      message: "Invalid post_id parameter",
     });
   });
 
@@ -89,7 +89,7 @@ describe("getPostComments Handler", () => {
     expect(response.statusCode).toBe(400);
     expect(JSON.parse(response.body!)).toEqual({
       error: "Bad Request",
-      message: "Missing post_id parameter",
+      message: "Invalid post_id parameter",
     });
   });
   
@@ -105,7 +105,7 @@ describe("getPostComments Handler", () => {
     expect(response.statusCode).toBe(400);
     expect(JSON.parse(response.body!)).toEqual({
       error: "Bad Request",
-      message: "Missing post_id parameter",
+      message: "Invalid post_id parameter",
     });
   });
   });

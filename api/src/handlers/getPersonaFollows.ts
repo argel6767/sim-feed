@@ -19,14 +19,14 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   if (!personaId || isNaN(Number(personaId)) || Number(personaId) < 0) {
     return {
       statusCode: 400,
-      body: JSON.stringify({error: 'Bad Request', message: 'Missing persona_id parameter'}),
+      body: JSON.stringify({error: 'Bad Request', message: 'Invalid persona_id parameter'}),
     };
   }
   
   if (!relation || !relations[relation]) {
     return {
       statusCode: 400,
-      body: JSON.stringify({error: 'Bad Request', message: 'Missing relation parameter'}),
+      body: JSON.stringify({error: 'Bad Request', message: 'Invalid relation parameter'}),
     };
   }
 

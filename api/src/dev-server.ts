@@ -7,6 +7,7 @@ import { handler as getPersonaInfo } from "./handlers/getPersonaInfo";
 import { handler as getPersonaFollows } from "./handlers/getPersonaFollows";
 import { handler as getPostsWithComments } from "./handlers/getPostsWithComments";
 import { handler as getRandomPosts } from "./handlers/getRandomPosts";
+import { handler as getPost } from "./handlers/getPost";
 
 dotenv.config();
 
@@ -32,7 +33,8 @@ const lambdaWrapper =
     }
   };
 
-app.get("/posts/:page", lambdaWrapper(getPosts));
+app.get("/posts/:post_id", lambdaWrapper(getPost));
+app.get("/posts/page/:page", lambdaWrapper(getPosts));
 app.get("/posts/:post_id/comments", lambdaWrapper(getPostComments));
 app.get("/persona/:persona_id", lambdaWrapper(getPersonaInfo));
 app.get("/persona/:persona_id/relations", lambdaWrapper(getPersonaFollows));

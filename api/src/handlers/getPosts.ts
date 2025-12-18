@@ -12,7 +12,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event): Promise<APIGatew
   if (!page || isNaN(Number(page)) || Number(page) < 0) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ error: 'Bad Request', message: 'Missing page parameter' }),
+      body: JSON.stringify({ error: 'Bad Request', message: 'Invalid page parameter' }),
     };
   }
   

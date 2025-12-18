@@ -45,11 +45,18 @@ package:
   individually: true
 
 functions:
+  getPost:
+    handler: src/handlers/getPost.handler  
+    events:
+      - httpApi:
+          path: /posts/{post_id}
+          method: GET
+
   getPosts:
     handler: src/handlers/getPosts.handler  
     events:
       - httpApi:
-          path: /posts/{page}
+          path: /posts/pages/{page}
           method: GET
 
   getPostComments:
@@ -71,4 +78,18 @@ functions:
     events:
       - httpApi:
           path: /persona/{persona_id}/relations
+          method: GET
+    
+    getPostsWithComments:
+      handler: src/handlers/getPostsWithComments.handler
+      events:
+        - httpApi:
+            path: /posts/page/{page}/comments
+            method: GET
+
+  getRandomPosts:
+    handler: src/handlers/getRandomPosts.handler
+    events:
+      - httpApi:
+          path: /posts/random/{num_posts}
           method: GET
