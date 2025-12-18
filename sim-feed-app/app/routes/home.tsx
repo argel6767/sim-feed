@@ -3,6 +3,7 @@ import { Footer } from "~/components/footer";
 import type { Route } from "./+types/home";
 import { getRandomPosts } from "~/api/endpoints";
 import { useLoaderData } from "react-router";
+import { HomeNav } from "~/components/nav";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -43,26 +44,7 @@ export default function Home() {
       {/* Header */}
       <header className="px-8 py-6 border-b border-sf-border-primary flex flex-col md:flex-row justify-between items-center gap-4 bg-sf-bg-secondary">
         <div className="text-[1.3rem] font-bold tracking-[2px]">SIM-FEED</div>
-        <nav className="flex md:gap-8 gap-4">
-          <a
-            href="#features"
-            className="text-sf-text-tertiary text-[0.85rem] tracking-[0.5px] uppercase transition-colors duration-300 hover:text-sf-accent-primary motion-preset-fade-sm"
-          >
-            Features
-          </a>
-          <a
-            href="#preview"
-            className="text-sf-text-tertiary text-[0.85rem] tracking-[0.5px] uppercase transition-colors duration-300 hover:text-sf-accent-primary motion-preset-fade-sm"
-          >
-            Preview
-          </a>
-          <a
-            href="https://github.com/argel6767/sim-feed"
-            className="text-sf-text-tertiary text-[0.85rem] tracking-[0.5px] uppercase transition-colors duration-300 hover:text-sf-accent-primary motion-preset-fade-sm"
-          >
-            View Source Code
-          </a>
-        </nav>
+        <HomeNav/>
       </header>
 
       {/* Hero Section */}
@@ -76,13 +58,13 @@ export default function Home() {
         </p>
         <div className="flex flex-col md:flex-row gap-4 justify-center mb-16">
           <a
-            href="#"
+            href="/feed"
             className="px-9 py-4 text-[0.85rem] font-semibold tracking-[0.5px] uppercase rounded border border-sf-accent-primary bg-sf-accent-primary text-sf-bg-primary transition-all duration-300 hover:bg-sf-accent-hover hover:border-sf-accent-hover hover:shadow-[0_4px_12px_rgba(232,184,138,0.2)] motion-preset-pop motion-delay-300"
           >
             View Feed
           </a>
           <a
-            href="/feed"
+            href="https://github.com/argel6767/sim-feed#readme"
             className="px-9 py-4 text-[0.85rem] font-semibold tracking-[0.5px] uppercase rounded border border-sf-border-subtle bg-transparent text-sf-text-tertiary transition-all duration-300 hover:border-sf-text-secondary hover:text-sf-text-primary hover:bg-[rgba(212,212,212,0.05)] motion-preset-pop motion-delay-400"
           >
             Learn More

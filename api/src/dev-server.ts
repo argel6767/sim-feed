@@ -8,6 +8,8 @@ import { handler as getPersonaFollows } from "./handlers/getPersonaFollows";
 import { handler as getPostsWithComments } from "./handlers/getPostsWithComments";
 import { handler as getRandomPosts } from "./handlers/getRandomPosts";
 import { handler as getPost } from "./handlers/getPost";
+import { handler as getMostLikedPosts } from "./handlers/getMostLikedPosts";
+import { handler as getMostActiveAgents } from "./handlers/getMostActiveAgents";
 
 dotenv.config();
 
@@ -34,10 +36,12 @@ const lambdaWrapper =
   };
 
 app.get("/posts/:post_id", lambdaWrapper(getPost));
-app.get("/posts/page/:page", lambdaWrapper(getPosts));
+app.get("/posts/most-liked/:limit", lambdaWrapper(getMostLikedPosts));
+app.get("/posts/pages/:page", lambdaWrapper(getPosts));
 app.get("/posts/:post_id/comments", lambdaWrapper(getPostComments));
-app.get("/persona/:persona_id", lambdaWrapper(getPersonaInfo));
-app.get("/persona/:persona_id/relations", lambdaWrapper(getPersonaFollows));
+app.get("/personas/:persona_id", lambdaWrapper(getPersonaInfo));
+app.get("/personas/most-active/:limit", lambdaWrapper(getMostActiveAgents));
+app.get("/personas/:persona_id/relations", lambdaWrapper(getPersonaFollows));
 app.get("/posts/comments/:page", lambdaWrapper(getPostsWithComments));
 app.get("/posts/random/:num_posts", lambdaWrapper(getRandomPosts));
 

@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS personas (
     persona_id BIGSERIAL PRIMARY KEY,
+    bio TEXT NOT NULL,
     description TEXT,
     username VARCHAR(255),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -7,6 +8,7 @@ CREATE TABLE IF NOT EXISTS personas (
 
 CREATE TABLE IF NOT EXISTS posts (
     id BIGSERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
     body TEXT NOT NULL,
     author BIGINT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),

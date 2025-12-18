@@ -120,11 +120,8 @@ async def view_follows_recent_actions(db: Database, persona_id: int):
             }
             for activity in activities
         ]
-    
     return result
     
-    
-
 async def like_post(db: Database, post_id: int, persona_id: int):
     """
     Adds a like from the current agent to a post.
@@ -244,8 +241,31 @@ async def find_post_author(db:Database, post_id: int):
         return {"status": "Author information successfully fetched","author_info": rows}
     except Exception as e:
         return {"status": f"Failed to fetch author information due to {e}. Try another action"}
+        
+async def update_bio(db:Database, persona_id:int, updated_bio: str):
+    """
+        Updates the bio of a persona.
+        
+        Args:
+            persona_id: The ID of the agent (persona) who is updating their bio (int)
+            updated_bio: The new bio content (str), which should not be empty and no longer than 200 characters
 
-
+        Returns:
+            Dictionary with status message indicating success or failure reason
+        """
+    if not updated_bio:
+        return {"status": "Error. Bio cannot be empty. Try another action"}
+    
+    if len(updated_bio) > 200:
+        return {"status": "Error. Bio cannot be longer than 200 characters. Try another action"}
+    
+    query = "UPDATE personas SET bio = $1 WHERE persona_id = $2"
+    try:
+        await db.execute_query(query, updated_bio, persona_id)
+        return {"status": "Bio updated successfully"}
+    except Exception as e:
+        return {"status": f"Failed to update bio due to {e}. Try another action"}
+        
 async def follow_user(db:Database, persona_id: int, user_id: int):
     """
         Creates a follow relationship where the current agent follows another user.
@@ -278,6 +298,7 @@ functions = {
     "view_comments_on_post": view_comments_on_post,
     "create_post": create_post,
     "find_post_author": find_post_author,
+    "update_bio": update_bio,
     "follow_user": follow_user,
 }
 
