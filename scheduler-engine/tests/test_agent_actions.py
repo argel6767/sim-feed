@@ -5,6 +5,7 @@ from services.agent_actions import (
     find_post_author,
     follow_user,
     like_post,
+    update_bio,
     view_comments_on_post,
     view_follows_recent_actions,
     view_most_recent_posts,
@@ -13,12 +14,14 @@ from services.agent_actions import (
 
 @pytest.mark.asyncio
 async def test_create_post_inserts_row(db, persona, fetch):
-    result = await create_post(db, persona["persona_id"], "post created in test")
+    result = await create_post(
+        db, persona["persona_id"], "test post title", "post created in test"
+    )
     assert "New post created successfully" in result["status"]
 
     rows = await fetch(
         """
-        SELECT id, body, author
+        SELECT id, title, body, author
         FROM posts
         WHERE author = $1
         ORDER BY created_at DESC
@@ -27,6 +30,7 @@ async def test_create_post_inserts_row(db, persona, fetch):
         persona["persona_id"],
     )
     assert rows
+    assert rows[0]["title"] == "test post title"
     assert rows[0]["body"] == "post created in test"
 
 
@@ -117,9 +121,10 @@ async def test_view_follows_recent_actions_returns_followed_posts(
     # Create posts by other_persona
     await fetch(
         """
-        INSERT INTO posts (body, author)
-        VALUES ($1, $2)
+        INSERT INTO posts (title, body, author)
+        VALUES ($1, $2, $3)
         """,
+        "test title",
         "post by followed user",
         other_persona["persona_id"],
     )
@@ -145,10 +150,11 @@ async def test_view_follows_recent_actions_returns_followed_comments(
     # Create a post by persona
     post_rows = await fetch(
         """
-        INSERT INTO posts (body, author)
-        VALUES ($1, $2)
+        INSERT INTO posts (title, body, author)
+        VALUES ($1, $2, $3)
         RETURNING id
         """,
+        "test title",
         "post for commenting",
         persona["persona_id"],
     )
@@ -185,10 +191,11 @@ async def test_view_follows_recent_actions_returns_followed_likes(
     # Create a post by persona
     post_rows = await fetch(
         """
-        INSERT INTO posts (body, author)
-        VALUES ($1, $2)
+        INSERT INTO posts (title, body, author)
+        VALUES ($1, $2, $3)
         RETURNING id
         """,
+        "test title",
         "post to be liked",
         persona["persona_id"],
     )
@@ -225,9 +232,10 @@ async def test_view_follows_recent_actions_limits_to_5_per_type(
     for i in range(10):
         await fetch(
             """
-            INSERT INTO posts (body, author)
-            VALUES ($1, $2)
+            INSERT INTO posts (title, body, author)
+            VALUES ($1, $2, $3)
             """,
+            f"post title {i}",
             f"post number {i}",
             other_persona["persona_id"],
         )
@@ -249,11 +257,12 @@ async def test_view_follows_recent_actions_multiple_follows(
     # Create a third persona
     third_persona_rows = await fetch(
         """
-        INSERT INTO personas (description, username)
-        VALUES ($1, $2)
+        INSERT INTO personas (description, bio, username)
+        VALUES ($1, $2, $3)
         RETURNING persona_id, username
         """,
         "third persona",
+        "third persona bio",
         f"test_third_{persona['persona_id']}",
     )
     third_persona = third_persona_rows[0]
@@ -265,17 +274,19 @@ async def test_view_follows_recent_actions_multiple_follows(
     # Create posts by both
     await fetch(
         """
-        INSERT INTO posts (body, author)
-        VALUES ($1, $2)
+        INSERT INTO posts (title, body, author)
+        VALUES ($1, $2, $3)
         """,
+        "test title",
         "post by second user",
         other_persona["persona_id"],
     )
     await fetch(
         """
-        INSERT INTO posts (body, author)
-        VALUES ($1, $2)
+        INSERT INTO posts (title, body, author)
+        VALUES ($1, $2, $3)
         """,
+        "test title",
         "post by third user",
         third_persona["persona_id"],
     )
@@ -307,10 +318,11 @@ async def test_view_follows_recent_actions_mixed_activity_types(
     # Create a post by other_persona
     post_rows = await fetch(
         """
-        INSERT INTO posts (body, author)
-        VALUES ($1, $2)
+        INSERT INTO posts (title, body, author)
+        VALUES ($1, $2, $3)
         RETURNING id
         """,
+        "test title",
         "original post",
         other_persona["persona_id"],
     )
@@ -319,10 +331,11 @@ async def test_view_follows_recent_actions_mixed_activity_types(
     # Create another post for commenting/liking
     another_post_rows = await fetch(
         """
-        INSERT INTO posts (body, author)
-        VALUES ($1, $2)
+        INSERT INTO posts (title, body, author)
+        VALUES ($1, $2, $3)
         RETURNING id
         """,
+        "test title",
         "post for interaction",
         persona["persona_id"],
     )
@@ -359,3 +372,75 @@ async def test_view_follows_recent_actions_mixed_activity_types(
     assert "post" in activity_types
     assert "comment" in activity_types
     assert "like" in activity_types
+
+
+@pytest.mark.asyncio
+async def test_update_bio_success(db, persona, fetch):
+    result = await update_bio(db, persona["persona_id"], "This is my new bio")
+    assert "Bio updated successfully" in result["status"]
+
+    rows = await fetch(
+        """
+        SELECT bio
+        FROM personas
+        WHERE persona_id = $1
+        """,
+        persona["persona_id"],
+    )
+    assert rows
+    assert rows[0]["bio"] == "This is my new bio"
+
+
+@pytest.mark.asyncio
+async def test_update_bio_empty_bio_rejected(db, persona):
+    result = await update_bio(db, persona["persona_id"], "")
+    assert "Bio cannot be empty" in result["status"]
+
+
+@pytest.mark.asyncio
+async def test_update_bio_none_bio_rejected(db, persona):
+    result = await update_bio(db, persona["persona_id"], None)
+    assert "Bio cannot be empty" in result["status"]
+
+
+@pytest.mark.asyncio
+async def test_update_bio_too_long_rejected(db, persona):
+    long_bio = "a" * 201
+    result = await update_bio(db, persona["persona_id"], long_bio)
+    assert "Bio cannot be longer than 200 characters" in result["status"]
+
+
+@pytest.mark.asyncio
+async def test_update_bio_exactly_200_characters_allowed(db, persona, fetch):
+    bio_200_chars = "a" * 200
+    result = await update_bio(db, persona["persona_id"], bio_200_chars)
+    assert "Bio updated successfully" in result["status"]
+
+    rows = await fetch(
+        """
+        SELECT bio
+        FROM personas
+        WHERE persona_id = $1
+        """,
+        persona["persona_id"],
+    )
+    assert rows
+    assert rows[0]["bio"] == bio_200_chars
+
+
+@pytest.mark.asyncio
+async def test_update_bio_overwrites_existing_bio(db, persona, fetch):
+    await update_bio(db, persona["persona_id"], "First bio")
+    result = await update_bio(db, persona["persona_id"], "Second bio")
+    assert "Bio updated successfully" in result["status"]
+
+    rows = await fetch(
+        """
+        SELECT bio
+        FROM personas
+        WHERE persona_id = $1
+        """,
+        persona["persona_id"],
+    )
+    assert rows
+    assert rows[0]["bio"] == "Second bio"

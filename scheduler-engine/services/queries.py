@@ -22,11 +22,11 @@ async def fetch_persona_by_username(username, db:Database):
     return [dict(record) for record in rows][0]
 
 async def insert_persona(persona_data, db:Database):
-    if not persona_data.get("persona") or not persona_data.get("username"):
+    if not persona_data.get("persona") or not persona_data.get("bio") or not persona_data.get("username"):
         raise Exception("Required Persona data is missing")
-    query = "INSERT INTO personas (description, username, created_at) VALUES ($1, $2, $3)"
+    query = "INSERT INTO personas (description, bio, username, created_at) VALUES ($1, $2, $3, $4)"
     date = datetime.now(UTC)
-    await db.execute_query(query, persona_data["persona"], persona_data["username"], date)
+    await db.execute_query(query, persona_data["persona"], persona_data["bio"], persona_data["username"], date)
 
 async def delete_persona_by_id(id, db:Database):
     query = "DELETE FROM personas WHERE persona_id = $1"

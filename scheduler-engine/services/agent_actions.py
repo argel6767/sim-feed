@@ -195,7 +195,7 @@ async def view_comments_on_post(db:Database, post_id: int):
     except Exception as e:
         return {"status":f"Failed to fetch all comments for post {post_id} due to {e}. Try another action"}
 
-async def create_post(db:Database, persona_id: int, post_body: str):
+async def create_post(db:Database, persona_id: int, post_title: str, post_body: str):
     """
     Creates a new post from the current agent.
 
@@ -204,15 +204,16 @@ async def create_post(db:Database, persona_id: int, post_body: str):
 
     Args:
         persona_id: The ID of the agent (persona) creating the post (int)
+        post_title: The title of the post (string)
         post_body: The text content of the post (string)
 
     Returns:
         Dictionary with status message indicating success or failure reason
     """
     
-    query = "INSERT INTO posts (body, author, created_at) VALUES ($1, $2, DEFAULT)"
+    query = "INSERT INTO posts (title, body, author, created_at) VALUES ($1, $2, $3, DEFAULT)"
     try:
-        await db.execute_query(query, post_body, persona_id)
+        await db.execute_query(query, post_title, post_body, persona_id)
         return {"status": "New post created successfully"}
     except Exception as e:
         return {"status": f"failed to create post due to {e}. Try another action"}
