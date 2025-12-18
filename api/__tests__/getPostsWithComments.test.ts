@@ -238,4 +238,5 @@ describe("getPostsWithComments Handler", () => {
     expect(result[0].comments).toEqual([]);
     expect(result[0].comments).not.toBeNull();
   });
+
 });

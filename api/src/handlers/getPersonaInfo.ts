@@ -8,7 +8,7 @@ export const config = {
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   const personaId = event.pathParameters?.persona_id;
   
-  if (!personaId || isNaN(Number(personaId))) {
+  if (!personaId || isNaN(Number(personaId)) || Number(personaId) < 0) {
     return {
       statusCode: 400,
       body: JSON.stringify({error: 'Bad Request', message: 'Missing persona_id parameter'}),

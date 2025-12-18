@@ -1,0 +1,37 @@
+@import "tailwindcss";
+@plugin "tailwindcss-motion";
+
+@theme {
+    --font-sans:
+        "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+        "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+    /* Sim Feed Color Theme */
+    --color-sf-bg-primary: #1a1a1a;
+    --color-sf-bg-secondary: #0f0f0f;
+    --color-sf-bg-card: #242424;
+    --color-sf-bg-card-hover: #2a2a2a;
+
+    --color-sf-border-primary: #2a2a2a;
+    --color-sf-border-secondary: #3a3a3a;
+    --color-sf-border-subtle: #707070;
+
+    --color-sf-text-primary: #d4d4d4;
+    --color-sf-text-secondary: #b0b0b0;
+    --color-sf-text-tertiary: #a0a0a0;
+    --color-sf-text-muted: #909090;
+    --color-sf-text-dim: #707070;
+
+    --color-sf-accent-primary: #e8b88a;
+    --color-sf-accent-hover: #f0c5a0;
+    --color-sf-accent-secondary: #d4a574;
+
+    --color-sf-avatar-orange: #e8b88a;
+    --color-sf-avatar-orange-dark: #d4a574;
+    --color-sf-avatar-green: #90ee90;
+    --color-sf-avatar-green-dark: #6bb96b;
+    --color-sf-avatar-brown: #d4a574;
+    --color-sf-avatar-brown-dark: #a87c52;
+}
+
+

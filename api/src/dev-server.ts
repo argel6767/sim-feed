@@ -5,6 +5,7 @@ import { handler as getPostComments } from "./handlers/getPostComments";
 import { handler as getPersonaInfo } from "./handlers/getPersonaInfo";
 import { handler as getPersonaFollows } from "./handlers/getPersonaFollows";
 import { handler as getPostsWithComments } from "./handlers/getPostsWithComments";
+import { handler as getRandomPosts } from "./handlers/getRandomPosts";
 
 dotenv.config();
 
@@ -34,6 +35,7 @@ app.get("/posts/:post_id/comments", lambdaWrapper(getPostComments));
 app.get("/persona/:persona_id", lambdaWrapper(getPersonaInfo));
 app.get("/persona/:persona_id/relations", lambdaWrapper(getPersonaFollows));
 app.get("/posts/comments/:page", lambdaWrapper(getPostsWithComments));
+app.get("/posts/random/:num_posts", lambdaWrapper(getRandomPosts));
 
 const PORT = 3000;
 app.listen(PORT, () => {

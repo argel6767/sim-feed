@@ -1,10 +1,13 @@
-import { handler } from '../src/handlers/getPersonaFollows';
-import { getPool } from '../src/lib/db';
-import { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
+import { handler } from "../src/handlers/getPersonaFollows";
+import { getPool } from "../src/lib/db";
+import {
+  APIGatewayProxyEventV2,
+  APIGatewayProxyStructuredResultV2,
+} from "aws-lambda";
 
-jest.mock('../src/lib/db');
+jest.mock("../src/lib/db");
 
-describe('getPersonaFollows Handler', () => {
+describe("getPersonaFollows Handler", () => {
   let mockQuery: jest.Mock;
 
   beforeEach(() => {
@@ -16,11 +19,11 @@ describe('getPersonaFollows Handler', () => {
   });
 
   const createEvent = (
-    personaId: string = '1',
-    relation: string = 'follower'
+    personaId: string = "1",
+    relation: string = "follower",
   ): APIGatewayProxyEventV2 => ({
-    version: '2.0',
-    routeKey: 'GET /personas/{persona_id}/follows',
+    version: "2.0",
+    routeKey: "GET /personas/{persona_id}/follows",
     rawPath: `/personas/${personaId}/follows`,
     rawQueryString: `relation=${relation}`,
     headers: {},
@@ -28,35 +31,35 @@ describe('getPersonaFollows Handler', () => {
     queryStringParameters: { relation },
     requestContext: {
       http: {
-        method: 'GET',
+        method: "GET",
         path: `/personas/${personaId}/follows`,
-        protocol: 'HTTP/1.1',
-        sourceIp: '127.0.0.1',
-        userAgent: '',
+        protocol: "HTTP/1.1",
+        sourceIp: "127.0.0.1",
+        userAgent: "",
       },
-      routeKey: 'GET /personas/{persona_id}/follows',
-      stage: '$default',
-      accountId: '123456789012',
-      apiId: 'api-id',
-      domainName: 'example.com',
-      domainPrefix: 'example',
-      requestId: 'request-id',
+      routeKey: "GET /personas/{persona_id}/follows",
+      stage: "$default",
+      accountId: "123456789012",
+      apiId: "api-id",
+      domainName: "example.com",
+      domainPrefix: "example",
+      requestId: "request-id",
       timeEpoch: Date.now(),
-      time: '2023-01-01T00:00:00Z',
+      time: "2023-01-01T00:00:00Z",
     },
-    body: '',
+    body: "",
     isBase64Encoded: false,
   });
 
   const context = {} as any;
   const callback = jest.fn();
 
-  it('should return follows for valid persona_id and relation', async () => {
-    const event = createEvent('1', 'follower');
+  it("should return follows for valid persona_id and relation", async () => {
+    const event = createEvent("1", "follower");
     const result = (await handler(
       event,
       context,
-      callback
+      callback,
     )) as APIGatewayProxyStructuredResultV2;
 
     expect(result.statusCode).toBe(200);
@@ -67,96 +70,111 @@ describe('getPersonaFollows Handler', () => {
     });
   });
 
-  it('should return follows with followed relation', async () => {
-    const event = createEvent('2', 'followed');
+  it("should return follows with followed relation", async () => {
+    const event = createEvent("2", "followed");
     const result = (await handler(
       event,
       context,
-      callback
+      callback,
     )) as APIGatewayProxyStructuredResultV2;
 
     expect(result.statusCode).toBe(200);
     expect(mockQuery).toHaveBeenCalledWith(
-      'SELECT * FROM follows WHERE followed = $1',
-      ['2']
+      "SELECT * FROM follows WHERE followed = $1",
+      ["2"],
     );
   });
 
-  it('should return 404 if no relations found', async () => {
-    const event = createEvent('99', 'follower');
+  it("should return 404 if no relations found", async () => {
+    const event = createEvent("99", "follower");
     mockQuery.mockResolvedValue({ rows: [] });
     const result = (await handler(
       event,
       context,
-      callback
+      callback,
     )) as APIGatewayProxyStructuredResultV2;
 
     expect(result.statusCode).toBe(404);
     expect(JSON.parse(result.body!)).toStrictEqual({
-      error: 'Not Found',
-      message: 'No follower relations found for persona with ID 99',
+      error: "Not Found",
+      message: "No follower relations found for persona with ID 99",
     });
   });
 
-  it('should return 400 if persona_id is missing', async () => {
-    const event = createEvent('1', 'follower');
+  it("should return 400 if persona_id is missing", async () => {
+    const event = createEvent("1", "follower");
     delete event.pathParameters!.persona_id;
     const result = (await handler(
       event,
       context,
-      callback
+      callback,
     )) as APIGatewayProxyStructuredResultV2;
 
     expect(result.statusCode).toBe(400);
     expect(JSON.parse(result.body!)).toStrictEqual({
-      error: 'Bad Request',
-      message: 'Missing persona_id parameter',
+      error: "Bad Request",
+      message: "Missing persona_id parameter",
     });
   });
 
-  it('should return 400 if persona_id is invalid', async () => {
-    const event = createEvent('invalid', 'follower');
+  it("should return 400 if persona_id is invalid", async () => {
+    const event = createEvent("invalid", "follower");
     const result = (await handler(
       event,
       context,
-      callback
+      callback,
     )) as APIGatewayProxyStructuredResultV2;
 
     expect(result.statusCode).toBe(400);
     expect(JSON.parse(result.body!)).toStrictEqual({
-      error: 'Bad Request',
-      message: 'Missing persona_id parameter',
+      error: "Bad Request",
+      message: "Missing persona_id parameter",
     });
   });
 
-  it('should return 400 if relation is missing', async () => {
-    const event = createEvent('1', 'follower');
+  it("should return 400 if relation is missing", async () => {
+    const event = createEvent("1", "follower");
     delete event.queryStringParameters!.relation;
     const result = (await handler(
       event,
       context,
-      callback
+      callback,
     )) as APIGatewayProxyStructuredResultV2;
 
     expect(result.statusCode).toBe(400);
     expect(JSON.parse(result.body!)).toStrictEqual({
-      error: 'Bad Request',
-      message: 'Missing relation parameter',
+      error: "Bad Request",
+      message: "Missing relation parameter",
     });
   });
-
-  it('should return 400 if relation is invalid', async () => {
-    const event = createEvent('1', 'invalid');
+  
+  it("should return a 400 if the persona_id is negative", async () => {
+    const event = createEvent("-1", "follower");
     const result = (await handler(
       event,
       context,
-      callback
+      callback,
     )) as APIGatewayProxyStructuredResultV2;
 
     expect(result.statusCode).toBe(400);
     expect(JSON.parse(result.body!)).toStrictEqual({
-      error: 'Bad Request',
-      message: 'Missing relation parameter',
+      error: "Bad Request",
+      message: "Missing persona_id parameter",
+    });
+  });
+
+  it("should return 400 if relation is invalid", async () => {
+    const event = createEvent("1", "invalid");
+    const result = (await handler(
+      event,
+      context,
+      callback,
+    )) as APIGatewayProxyStructuredResultV2;
+
+    expect(result.statusCode).toBe(400);
+    expect(JSON.parse(result.body!)).toStrictEqual({
+      error: "Bad Request",
+      message: "Missing relation parameter",
     });
   });
 });
