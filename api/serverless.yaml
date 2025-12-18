@@ -93,3 +93,17 @@ functions:
       - httpApi:
           path: /posts/random/{num_posts}
           method: GET
+          
+  getMostActiveAgents:
+    handler: src/handlers/getMostActiveAgents.handler
+    events:
+      - httpApi:
+          path: /personas/most-active/{limit}
+          method: GET
+          
+  getMostLikedPosts:
+    handler: src/handlers/getMostLikedPosts.handler
+    events:
+      - httpApi:
+          path: /posts/most-liked/{limit}
+          method: GET
