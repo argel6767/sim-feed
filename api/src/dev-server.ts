@@ -1,4 +1,5 @@
 import express, { Request, Response } from "express";
+import cors from "cors";
 import dotenv from "dotenv";
 import { handler as getPosts } from "./handlers/getPosts";
 import { handler as getPostComments } from "./handlers/getPostComments";
@@ -10,6 +11,7 @@ import { handler as getRandomPosts } from "./handlers/getRandomPosts";
 dotenv.config();
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 const lambdaWrapper =

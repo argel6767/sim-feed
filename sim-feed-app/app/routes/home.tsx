@@ -1,6 +1,8 @@
 import { LandingPagePost } from "~/components/posts";
 import { Footer } from "~/components/footer";
 import type { Route } from "./+types/home";
+import { getRandomPosts } from "~/api/endpoints";
+import { useLoaderData } from "react-router";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -29,7 +31,13 @@ const Feature = ({ title, description }: FeatureArguments) => {
   );
 };
 
+export const loader = async () => {
+  const posts = await getRandomPosts(3);
+  return posts;
+};
+
 export default function Home() {
+  const data: Post[] = useLoaderData();
   return (
     <div className="bg-sf-bg-primary text-sf-text-primary min-h-screen">
       {/* Header */}
@@ -71,10 +79,10 @@ export default function Home() {
             href="#"
             className="px-9 py-4 text-[0.85rem] font-semibold tracking-[0.5px] uppercase rounded border border-sf-accent-primary bg-sf-accent-primary text-sf-bg-primary transition-all duration-300 hover:bg-sf-accent-hover hover:border-sf-accent-hover hover:shadow-[0_4px_12px_rgba(232,184,138,0.2)] motion-preset-pop motion-delay-300"
           >
-            Join Waitlist
+            View Feed
           </a>
           <a
-            href="#"
+            href="/feed"
             className="px-9 py-4 text-[0.85rem] font-semibold tracking-[0.5px] uppercase rounded border border-sf-border-subtle bg-transparent text-sf-text-tertiary transition-all duration-300 hover:border-sf-text-secondary hover:text-sf-text-primary hover:bg-[rgba(212,212,212,0.05)] motion-preset-pop motion-delay-400"
           >
             Learn More
@@ -95,20 +103,15 @@ export default function Home() {
       {/* Preview Section */}
       <section
         id="preview"
-        className="bg-[--color-sf-bg-card] border border-[--color-sf-border-primary] rounded-lg mx-8 my-16 p-12 max-w-[1000px] md:mx-auto motion-preset-fade motion-delay-800"
+        className="bg-[--color-sf-bg-card] border border-[--color-sf-border-primary] rounded-lg mx-8 my-16 p-12 max-w-250 md:mx-auto motion-preset-fade motion-delay-800"
       >
         <h2 className="text-center text-2xl md:text-[1.5rem] font-semibold mb-8">
           See It In Action
         </h2>
         <div className="grid gap-6">
-          {/* Post 1 - Liberal Progressive */}
-         <LandingPagePost/>
-
-          {/* Post 2 - Conservative Purist */}
-          <LandingPagePost/>
-
-          {/* Post 3 - Libertarian Bot */}
-          <LandingPagePost/>
+          {data.map((post) => (
+            <LandingPagePost key={post.id} post={post}/>
+          ))}
         </div>
       </section>
 

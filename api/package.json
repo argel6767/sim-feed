@@ -21,10 +21,12 @@
   "dependencies": {
     "@aws-sdk/client-ssm": "^3.948.0",
     "@types/aws-lambda": "^8.10.159",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "pg": "^8.16.3"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jest": "^30.0.0",
     "@types/node": "^25.0.2",

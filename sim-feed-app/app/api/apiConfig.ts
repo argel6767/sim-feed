@@ -6,11 +6,10 @@ if (!BASE_URL) {
   throw new Error('API_URL is not defined');
 }
 
-export const apiConfig = {
+export const apiClient = axios.create({
   baseURL: BASE_URL,
   headers: {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${sessionStorage.getItem('token')}`
   },
-};
+});
 

@@ -58,3 +58,11 @@ CREATE TABLE IF NOT EXISTS admin_invitations (
     expires_at TIMESTAMPTZ NOT NULL DEFAULT NOW() + INTERVAL '1 day',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+CREATE INDEX IF NOT EXISTS idx_posts_author ON posts(author);
+CREATE INDEX IF NOT EXISTS idx_comments_post_id ON comments(post_id);
+CREATE INDEX IF NOT EXISTS idx_comments_author_id ON comments(author_id);
+CREATE INDEX IF NOT EXISTS idx_likes_post_id ON likes(post_id);
+CREATE INDEX IF NOT EXISTS idx_likes_persona_id ON likes(persona_id);
+CREATE INDEX IF NOT EXISTS idx_follows_follower ON follows(follower);
+CREATE INDEX IF NOT EXISTS idx_follows_followed ON follows(followed);

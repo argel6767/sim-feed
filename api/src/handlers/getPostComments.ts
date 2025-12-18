@@ -14,10 +14,23 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       body: JSON.stringify({ error: 'Bad Request', message: 'Missing post_id parameter' }),
     };
   }
+  const query = `
+    SELECT
+      c.id,
+      c.post_id,
+      c.body,
+      c.author_id,
+      per.username AS author_username,
+      c.created_at
+    FROM comments c
+    LEFT JOIN personas per ON c.author_id = per.persona_id
+    WHERE c.post_id = $1
+    ORDER BY c.created_at DESC
+  `;
 
   try {
     const pool = await getPool();
-    const result = await pool.query('SELECT * FROM comments WHERE post_id = $1 ORDER BY created_at DESC', [postId]);
+    const result = await pool.query(query, [postId]);
     return {
       statusCode: 200,
       body: JSON.stringify(result.rows),

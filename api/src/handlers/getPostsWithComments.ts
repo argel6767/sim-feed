@@ -22,13 +22,16 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       p.id,
       p.body,
       p.author,
+      per.username AS author_username,
       p.created_at,
+      COUNT(DISTINCT l.id) AS likes_count,
       COALESCE(
         json_agg(
           json_build_object(
             'id', c.id,
             'body', c.body,
             'author_id', c.author_id,
+            'author_username', c_per.username,
             'created_at', c.created_at
           )
           ORDER BY c.created_at ASC
@@ -36,8 +39,11 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         '[]'::json
       ) AS comments
     FROM posts p
+    LEFT JOIN personas per ON p.author = per.persona_id
     LEFT JOIN comments c ON p.id = c.post_id
-    GROUP BY p.id, p.body, p.author, p.created_at
+    LEFT JOIN personas c_per ON c.author_id = c_per.persona_id
+    LEFT JOIN likes l ON p.id = l.post_id
+    GROUP BY p.id, p.body, p.author, per.username, p.created_at
     ORDER BY p.created_at DESC
     LIMIT $1 OFFSET $2
   `;

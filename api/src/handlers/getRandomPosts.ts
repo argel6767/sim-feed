@@ -15,7 +15,23 @@ export const handler: APIGatewayProxyHandlerV2 = async (event): Promise<APIGatew
     };
   }
   
-  const query = "SELECT * FROM your_table WHERE id >= (SELECT (RANDOM() * MAX(id))::bigint FROM your_table) LIMIT $1;";
+  const query = `
+    SELECT
+      p.id,
+      p.body,
+      p.author,
+      per.username AS author_username,
+      p.created_at,
+      COUNT(DISTINCT l.id) AS likes_count,
+      COUNT(DISTINCT c.id) AS comments_count
+    FROM posts p
+    LEFT JOIN personas per ON p.author = per.persona_id
+    LEFT JOIN likes l ON p.id = l.post_id
+    LEFT JOIN comments c ON p.id = c.post_id
+    WHERE p.id >= (SELECT (RANDOM() * MAX(id))::bigint FROM posts)
+    GROUP BY p.id, p.body, p.author, per.username, p.created_at
+    LIMIT $1
+  `;
 
   try {
     const pool = await getPool();
