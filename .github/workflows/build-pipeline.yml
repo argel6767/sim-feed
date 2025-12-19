@@ -15,6 +15,7 @@ jobs:
     outputs:
       scheduler-engine-changed: ${{ steps.filter.outputs.scheduler-engine }}
       api-changed: ${{ steps.filter.outputs.api }}
+      sim-feed-app-changed: ${{ steps.filter.outputs.sim-feed-app }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v2
@@ -26,6 +27,8 @@ jobs:
               - 'scheduler-engine/**'
             api:
               - 'api/**'
+            sim-feed-app:
+              - 'sim-feed-app/**'
 
   build-scheduler-engine:
     name: Build Scheduler Engine
@@ -50,7 +53,7 @@ jobs:
         run: chmod +x ./bin/test_scheduler.sh
       - name: Run Test Script
         run: ./bin/test_scheduler.sh
-        
+
   build-api-handlers:
     name: Build API Handlers
     runs-on: ubuntu-latest
@@ -63,14 +66,14 @@ jobs:
           version: 10.17.1
       - uses: actions/setup-node@v3
         with:
-          node-version: '20'
-          cache: 'pnpm'
-          cache-dependency-path: './api/pnpm-lock.yaml'
+          node-version: "20"
+          cache: "pnpm"
+          cache-dependency-path: "./api/pnpm-lock.yaml"
       - run: pnpm install
         working-directory: ./api
       - run: pnpm build
         working-directory: ./api
-      
+
   unit-tests-api-handlers:
     name: Run Unit Tests for API Handlers
     runs-on: ubuntu-latest
@@ -83,14 +86,54 @@ jobs:
           version: 10.17.1
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'pnpm'
-          cache-dependency-path: './api/pnpm-lock.yaml'
+          node-version: "20"
+          cache: "pnpm"
+          cache-dependency-path: "./api/pnpm-lock.yaml"
       - run: pnpm install
         working-directory: ./api
       - run: pnpm test
         working-directory: ./api
-      
+
+  build-sim-feed-app:
+    name: Build Sim Feed App
+    runs-on: ubuntu-latest
+    needs: check-changes
+    if: needs.check-changes.outputs.sim-feed-app-changed == 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+          cache-dependency-path: "./sim-feed-app/pnpm-lock.yaml"
+      - run: pnpm install
+        working-directory: ./sim-feed-app
+      - run: pnpm build
+        working-directory: ./sim-feed-app
+
+  unit-tests-sim-feed-app:
+    name: Run Unit Tests for Sim Feed App
+    runs-on: ubuntu-latest
+    needs: build-sim-feed-app
+    if: needs.build-sim-feed-app.result == 'success'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+          cache-dependency-path: "./sim-feed-app/pnpm-lock.yaml"
+      - run: pnpm install
+        working-directory: ./sim-feed-app
+      - run: pnpm test:run
+        working-directory: ./sim-feed-app
+
   run-all-services:
     name: Run All Services
     runs-on: ubuntu-latest
@@ -100,6 +143,8 @@ jobs:
       - unit-tests-scheduler-engine
       - build-api-handlers
       - unit-tests-api-handlers
+      - build-sim-feed-app
+      - unit-tests-sim-feed-app
     if: always()
     steps:
       - uses: actions/checkout@v4
@@ -107,7 +152,7 @@ jobs:
         run: chmod +x ./bin/run_all_services.sh
       - name: Run All Services Script
         run: ./bin/run_all_services.sh
-        
+
   deployment-summary:
     name: Deployment Summary
     runs-on: ubuntu-latest
@@ -117,6 +162,8 @@ jobs:
       - unit-tests-scheduler-engine
       - build-api-handlers
       - unit-tests-api-handlers
+      - build-sim-feed-app
+      - unit-tests-sim-feed-app
       - run-all-services
     if: always()
     steps:
@@ -128,6 +175,7 @@ jobs:
             echo "### 🔍 Change Detection"
             echo "- Scheduler Engine changed: **${{ needs.check-changes.outputs.scheduler-engine-changed }}**"
             echo "- API changed: **${{ needs.check-changes.outputs.api-changed }}**"
+            echo "- Sim Feed App changed: **${{ needs.check-changes.outputs.sim-feed-app-changed }}**"
             echo ""
             echo "### 🏗️ Scheduler Engine"
             echo "- Build: **${{ needs.build-scheduler-engine.result || 'skipped' }}**"
@@ -136,6 +184,10 @@ jobs:
             echo "### 🏗️ API Handlers"
             echo "- Build: **${{ needs.build-api-handlers.result || 'skipped' }}**"
             echo "- Tests: **${{ needs.unit-tests-api-handlers.result || 'skipped' }}**"
+            echo ""
+            echo "### 🏗️ Sim Feed App"
+            echo "- Build: **${{ needs.build-sim-feed-app.result || 'skipped' }}**"
+            echo "- Tests: **${{ needs.unit-tests-sim-feed-app.result || 'skipped' }}**"
             echo ""
             echo "### 🏗️ All Services"
             echo "- Run: **${{ needs.run-all-services.result || 'skipped' }}**"
