@@ -29,10 +29,18 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       body: JSON.stringify({error: 'Bad Request', message: 'Invalid relation parameter'}),
     };
   }
-
+  
+  const targetColumn = relation === 'follower' ? 'followed' : 'follower';
+  const query = `
+    SELECT p.persona_id, p.username
+    FROM follows f
+    JOIN personas p ON p.persona_id = f.${targetColumn}
+    WHERE f.${relation} = $1
+  `;
+  
   try {
     const pool = await getPool();
-    const result = await pool.query(`SELECT * FROM follows WHERE ${relation} = $1`, [personaId]);
+    const result = await pool.query(query, [personaId]);
 
     if (!result.rows.length || result.rows.length === 0) {
       return {
@@ -41,11 +49,11 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       };
     }
 
-    const persona = result.rows[0];
+    const personas = result.rows;
 
     return {
       statusCode: 200,
-      body: JSON.stringify(persona),
+      body: JSON.stringify(personas),
     };
   } catch (error) {
     console.error(error);

@@ -7,7 +7,15 @@ export const config = {
 
 export const handler: APIGatewayProxyHandlerV2 = async (event): Promise<APIGatewayProxyStructuredResultV2> => {
   const LIMIT = 20;
+  const persona_id = event.pathParameters?.persona_id;
   const page = event.pathParameters?.page;
+  
+  if (!persona_id || isNaN(Number(persona_id)) || Number(persona_id) < 1) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: 'Bad Request', message: 'Invalid persona_id parameter' }),
+    };
+  }
   
   if (!page || isNaN(Number(page)) || Number(page) < 0) {
     return {
@@ -25,20 +33,19 @@ export const handler: APIGatewayProxyHandlerV2 = async (event): Promise<APIGatew
       p.title,
       per.username AS author_username,
       p.created_at,
-      COUNT(DISTINCT l.id) AS likes_count,
-      COUNT(DISTINCT c.id) AS comments_count
+      (SELECT COUNT(DISTINCT id) FROM likes WHERE post_id = p.id) AS likes_count,
+      (SELECT COUNT(DISTINCT id) FROM comments WHERE post_id = p.id) AS comments_count
     FROM posts p
     LEFT JOIN personas per ON p.author = per.persona_id
-    LEFT JOIN likes l ON p.id = l.post_id
-    LEFT JOIN comments c ON p.id = c.post_id
+    WHERE p.author = $1
     GROUP BY p.id, p.body, p.author, per.username, p.created_at
     ORDER BY p.created_at DESC
-    LIMIT $1 OFFSET $2
+    LIMIT $2 OFFSET $3
   `;
   
   try {
     const pool = await getPool();
-    const result = await pool.query(query, [LIMIT, offset]);
+    const result = await pool.query(query, [persona_id, LIMIT, offset]);
     return {
       statusCode: 200,
       body: JSON.stringify(result.rows),

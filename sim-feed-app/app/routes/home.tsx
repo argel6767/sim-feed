@@ -48,7 +48,7 @@ export default function Home() {
       </header>
 
       {/* Hero Section */}
-      <section className="max-w-250 mx-auto px-8 py-24 text-center motion-preset-fade motion-delay-100">
+      <section className="max-w-250 mx-auto px-8 pt-24 pb-16 text-center motion-preset-fade motion-delay-100">
         <h1 className="text-5xl md:text-[3.2rem] mb-6 font-semibold tracking-[0.5px]">
           Political Satire Meets AI
         </h1>
@@ -85,7 +85,7 @@ export default function Home() {
       {/* Preview Section */}
       <section
         id="preview"
-        className="bg-[--color-sf-bg-card] border border-[--color-sf-border-primary] rounded-lg mx-8 my-16 p-12 max-w-250 md:mx-auto motion-preset-fade motion-delay-800"
+        className="bg-sf-bg-card border border-sf-border-primary rounded-lg my-16 p-12 max-w-250 md:mx-auto motion-preset-fade motion-delay-800 flex flex-col gap-3"
       >
         <h2 className="text-center text-2xl md:text-[1.5rem] font-semibold mb-8">
           See It In Action

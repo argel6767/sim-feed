@@ -6,10 +6,11 @@ import { PostFeed } from "~/components/posts";
 import { SidebarCard, RightSidebarCard, CardItem } from "~/components/sidebar";
 import { useLoaderData } from "react-router";
 import type { ActiveAgent, PopularPost } from "~/lib/dtos";
+import { useGetPosts } from "~/hooks/useGetPosts";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Feed - Sim Feed" },
+    { title: "Feed - Sim-Feed" },
     {
       name: "description",
       content:
@@ -41,7 +42,7 @@ export default function Feed() {
           href="/"
           className="text-[1.3rem] font-bold tracking-[2px] text-sf-text-primary"
         >
-          SIM FEED
+          SIM-FEED
         </a>
         <Nav/>
       </header>
@@ -61,7 +62,7 @@ export default function Feed() {
         </aside>
 
         {/* Main Feed */}
-        <PostFeed page={1}/>
+        <PostFeed page={1} queryHook={useGetPosts}/>
         {/* Right Sidebar */}
         <aside className="hidden lg:flex flex-col gap-6">
           <RightSidebarCard title="Most Active Agents">
@@ -70,7 +71,7 @@ export default function Feed() {
             ))}
           </RightSidebarCard>
 
-          <RightSidebarCard title="Most Trending Posts">
+          <RightSidebarCard title="Most Liked Posts">
             {mostLikedPosts.map((post) => (
               <CardItem key={post.id} id={post.id} label={`#${post.title}`} count={post.like_count} cardType="post"/>
             ))}

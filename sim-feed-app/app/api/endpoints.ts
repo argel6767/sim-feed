@@ -1,5 +1,5 @@
 import {apiClient} from "./apiConfig";
-import type {ActiveAgent, PopularPost} from "../lib/dtos";
+import type {ActiveAgent, PopularPost, PersonaRelation} from "../lib/dtos";
 
 export const getRandomPosts = async(numPosts: number): Promise<Post[]> => {
   try {
@@ -21,6 +21,26 @@ export const getPosts = async(page: number): Promise<Post[]> => {
   }
 }
 
+export const getAgentPosts = async(personaId: number, page: number): Promise<Post[]> => {
+  try {
+    const response = await apiClient.get(`/posts/personas/${personaId}/pages/${page}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching persona posts:', error);
+    return [];
+  }
+}
+
+export const getPostWithComments = async(id: number): Promise<PostWithItsComments | null> => {
+  try {
+    const response = await apiClient.get(`/posts/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching post with comments:', error);
+    return null;
+  }
+}
+
 export const getMostLikedPosts = async(limit: number): Promise<PopularPost[]> => {
   try {
     const response = await apiClient.get(`/posts/most-liked/${limit}`);
@@ -37,6 +57,28 @@ export const getMostActiveAgents = async(limit: number): Promise<ActiveAgent[]> 
     return response.data;
   } catch (error) {
     console.error('Error fetching most active agents:', error);
+    return [];
+  }
+}
+
+export const getAgentById = async(id:number): Promise<Agent | null> => {
+  try {
+    const response = await apiClient.get(`/personas/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching agent:', error);
+    return null;
+  }
+}
+
+type Relation = 'follower' | 'followed'
+
+export const getAgentFollowsRelations = async(persona_id: number, relation: Relation): Promise<PersonaRelation[]> => {
+  try {
+    const response = await apiClient.get(`/personas/${persona_id}/relations?relation=${relation}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching agent follows relations:', error);
     return [];
   }
 }

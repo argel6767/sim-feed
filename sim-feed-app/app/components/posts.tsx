@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Link } from "react-router";
-import { useGetPosts } from "~/hooks/useGetPosts";
+import { formatDistance } from "date-fns";
+import type { UseInfiniteQueryResult, InfiniteData } from "@tanstack/react-query";
 
 type PostFeedSkeletonProps = {
   count?: number;
@@ -57,7 +58,7 @@ type LandingPagePostProps = {
 };
 
 export const LandingPagePost = ({ post }: LandingPagePostProps) => {
-  const { body, author_username, comments_count, likes_count } = post;
+  const { body, author_username, comments_count, likes_count, author } = post;
   const shortenedBody = body.length > 300 ? `${body.slice(0, 300)}...` : body;
   return (
     <>
@@ -68,9 +69,9 @@ export const LandingPagePost = ({ post }: LandingPagePostProps) => {
           </div>
           <div className="flex-1">
             <div className="flex gap-2">
-              <span className="font-semibold text-[0.95rem]">
+              <Link className="font-semibold text-[0.95rem]" to={`/agents/${author}`}>
                 {author_username}
-              </span>
+              </Link>
               <span className="inline-block bg-sf-accent-primary text-sf-bg-primary px-2.5 py-1 rounded-xl text-[0.7rem] font-semibold uppercase ml-2">
                 Agent
               </span>
@@ -84,7 +85,7 @@ export const LandingPagePost = ({ post }: LandingPagePostProps) => {
             <span>❤️ {likes_count}</span>
           </div>
           <Link
-            to={`/posts/${post.id}`}
+            to={`/feed/posts/${post.id}`}
             className="text-sf-text-primary font-semibold text-[0.85rem]"
           >
             Read More
@@ -96,12 +97,13 @@ export const LandingPagePost = ({ post }: LandingPagePostProps) => {
 };
 
 type PostFeedProps = {
-  page: number;
+  persona_id?: number;
+  queryHook: ( persona_id?: number) => UseInfiniteQueryResult<InfiniteData<Post[], unknown>, Error>;
 };
 
-export const PostFeed = ({}: PostFeedProps) => {
+export const PostFeed = ({ persona_id, queryHook}: PostFeedProps) => {
   const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useGetPosts();
+    persona_id? queryHook( persona_id) : queryHook();
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
@@ -178,3 +180,46 @@ export const PostFeed = ({}: PostFeedProps) => {
     </main>
   );
 };
+
+type PostProps = {
+  post: PostWithItsComments;
+};
+
+export const Post = ({post}: PostProps) => {
+  const postDate = formatDistance(post.created_at, new Date(), { addSuffix: true });
+  return (
+    <article className="bg-sf-bg-primary border border-sf-border-primary rounded-lg p-6 motion-preset-slide-up-sm">
+      <div className="flex items-center gap-4 mb-4">
+        <div className="w-12 h-12 rounded-full bg-linear-to-br from-sf-avatar-orange to-sf-avatar-orange-dark flex items-center justify-center font-semibold text-sf-bg-primary text-[1rem]">
+          {post.author_username.charAt(0).toUpperCase()}
+        </div>
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <Link className="font-semibold text-lg text-sf-text-primary px-1" to={`/agents/${post.author}`}>
+              {post.author_username}
+            </Link>
+            <span className="inline-block bg-sf-accent-primary text-sf-bg-primary px-2.5 py-1 rounded-xl text-[0.7rem] font-semibold uppercase">
+              Agent
+            </span>
+          </div>
+        </div>
+      </div>
+  
+      <h1 className="text-[1.5rem] font-bold text-sf-text-primary pt-1 pb-2 leading-tight italic">
+        {post.title}
+      </h1>
+  
+      <p className="text-sf-text-muted leading-relaxed mb-6 text-[0.95rem]">
+        {post.body}
+      </p>
+  
+      <footer className="flex justify-between text-sf-text-dim text-[0.9rem] border-t border-sf-border-primary pt-4">
+        <div className="flex gap-6">
+          <span>❤️ {post.likes_count} likes</span>
+          <span>💬 {post.comments?.length || 0} comments</span>
+        </div>
+        <p>{postDate}</p>
+      </footer>
+    </article>
+  )
+}

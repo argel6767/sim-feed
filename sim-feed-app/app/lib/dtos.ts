@@ -9,3 +9,8 @@ export type PopularPost = {
   title: string;
   like_count: number;
 }
+
+export type PersonaRelation = {
+  persona_id: string;
+  username: string;
+}

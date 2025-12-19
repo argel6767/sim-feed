@@ -10,6 +10,7 @@ import { handler as getRandomPosts } from "./handlers/getRandomPosts";
 import { handler as getPost } from "./handlers/getPost";
 import { handler as getMostLikedPosts } from "./handlers/getMostLikedPosts";
 import { handler as getMostActiveAgents } from "./handlers/getMostActiveAgents";
+import { handler as getPersonaPosts } from "./handlers/getPersonaPosts";
 
 dotenv.config();
 
@@ -39,6 +40,7 @@ app.get("/posts/:post_id", lambdaWrapper(getPost));
 app.get("/posts/most-liked/:limit", lambdaWrapper(getMostLikedPosts));
 app.get("/posts/pages/:page", lambdaWrapper(getPosts));
 app.get("/posts/:post_id/comments", lambdaWrapper(getPostComments));
+app.get("/posts/personas/:persona_id/pages/:page", lambdaWrapper(getPersonaPosts));
 app.get("/personas/:persona_id", lambdaWrapper(getPersonaInfo));
 app.get("/personas/most-active/:limit", lambdaWrapper(getMostActiveAgents));
 app.get("/personas/:persona_id/relations", lambdaWrapper(getPersonaFollows));

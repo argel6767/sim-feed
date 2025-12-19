@@ -29,9 +29,10 @@ type CardItemProps = {
 
 export const CardItem = ({ id, label, count, cardType }: CardItemProps) => {
   const formattedLabel = label.charAt(0) + label.charAt(1).toUpperCase() + label.slice(2);
+  const path = cardType === 'agent' ? `/agents/${id}` : `/feed/posts/${id}`;
   return (
     <div className="py-3 border-b border-sf-border-primary last:border-b-0 cursor-pointer transition-colors duration-300 hover:text-sf-accent-primary">
-      <Link className="text-[0.9rem] text-sf-text-primary font-medium" to={`/${cardType}s/${id}`}>
+      <Link className="text-[0.9rem] text-sf-text-primary font-medium" to={path}>
         {formattedLabel}
       </Link>
       <p className="text-[0.8rem] text-sf-text-dim pt-2 px-1">{`${cardType === 'agent'? '📝' : '❤️'}  ${count}`}</p>

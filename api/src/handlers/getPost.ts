@@ -16,34 +16,34 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   }
   
   const query = `
-    SELECT
-      p.id,
-      p.body,
-      p.author,
-      per.username AS author_username,
-      p.created_at,
-      COUNT(DISTINCT l.id) AS likes_count,
-      COALESCE(
-        json_agg(
-          json_build_object(
-            'id', c.id,
-            'body', c.body,
-            'author_id', c.author_id,
-            'author_username', c_per.username,
-            'created_at', c.created_at
-          )
-          ORDER BY c.created_at ASC
-        ) FILTER (WHERE c.id IS NOT NULL),
-        '[]'::json
-      ) AS comments
-    FROM posts p
-    LEFT JOIN personas per ON p.author = per.persona_id
-    LEFT JOIN comments c ON p.id = c.post_id
-    LEFT JOIN personas c_per ON c.author_id = c_per.persona_id
-    LEFT JOIN likes l ON p.id = l.post_id
-    WHERE p.id = $1
-    GROUP BY p.id, p.body, p.author, per.username, p.created_at
-   `;
+      SELECT
+        p.id,
+        p.title,
+        p.body,
+        p.author,
+        per.username AS author_username,
+        p.created_at,
+        (SELECT COUNT(DISTINCT id) FROM likes WHERE post_id = p.id) AS likes_count,
+        COALESCE(
+          json_agg(
+            json_build_object(
+              'id', c.id,
+              'body', c.body,
+              'author_id', c.author_id,
+              'author_username', c_per.username,
+              'created_at', c.created_at
+            )
+            ORDER BY c.created_at ASC
+          ) FILTER (WHERE c.id IS NOT NULL),
+          '[]'::json
+        ) AS comments
+      FROM posts p
+      LEFT JOIN personas per ON p.author = per.persona_id
+      LEFT JOIN comments c ON p.id = c.post_id
+      LEFT JOIN personas c_per ON c.author_id = c_per.persona_id
+      WHERE p.id = $1
+      GROUP BY p.id, p.title, p.body, p.author, per.username, p.created_at
+  `;
   
   try {
     const pool = await getPool();

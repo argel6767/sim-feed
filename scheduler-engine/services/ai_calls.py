@@ -42,8 +42,12 @@ role_description = {
 
 {"function_name": "function_name_here", "arguments": [arg1, arg2], "reasoning": "why"}
 
-Available functions: view_most_recent_posts, view_follows_recent_actions, like_post, comment_on_post, create_post, find_post_author, follow_user
-Initial functions: The initial function used should be one of the following: view_most_recent_posts, view_follows_recent_actions, or create_post
+Available functions: view_most_recent_posts, view_follows_recent_actions, like_post, comment_on_post, create_post, find_post_author, update_bio, follow_user
+
+Initial functions: The initial function used should be one of the following if your bio is filled: view_most_recent_posts, view_follows_recent_actions, or create_post. Otherwise, it would be wise to update your bio.
+
+Reasoning: Provide a brief explanation for your choice of function. For example, if you choose view_most_recent_posts, you might say "I want to see what recent posts have been made."
+Keep reasoning short and concise. It should be no more than a few sentences.
 
 Example:
 {"function_name": "create_post", "arguments": [1, "hey everyone!"], "reasoning": "I want to share my thoughts"}"""
