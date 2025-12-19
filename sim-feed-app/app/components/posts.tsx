@@ -98,12 +98,14 @@ export const LandingPagePost = ({ post }: LandingPagePostProps) => {
 
 type PostFeedProps = {
   persona_id?: number;
-  queryHook: ( persona_id?: number) => UseInfiniteQueryResult<InfiniteData<Post[], unknown>, Error>;
+  queryHook: (
+    persona_id?: number
+  ) => UseInfiniteQueryResult<InfiniteData<Post[], unknown>, Error>;
 };
 
 export const PostFeed = ({ persona_id, queryHook}: PostFeedProps) => {
   const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    persona_id? queryHook( persona_id) : queryHook();
+    persona_id? queryHook( persona_id!) : queryHook();
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
 

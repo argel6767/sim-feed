@@ -13,7 +13,7 @@ describe("getPersonaFollows Handler", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockQuery = jest.fn().mockResolvedValue({
-      rows: [{ id: 1, follower: 1, followed: 2 }],
+      rows: [{ persona_id: 2, username: "testuser" }],
     });
     (getPool as jest.Mock).mockResolvedValue({ query: mockQuery });
   });
@@ -63,11 +63,9 @@ describe("getPersonaFollows Handler", () => {
     )) as APIGatewayProxyStructuredResultV2;
 
     expect(result.statusCode).toBe(200);
-    expect(JSON.parse(result.body!)).toStrictEqual({
-      id: 1,
-      follower: 1,
-      followed: 2,
-    });
+    expect(JSON.parse(result.body!)).toStrictEqual([
+      { persona_id: 2, username: "testuser" },
+    ]);
   });
 
   it("should return follows with followed relation", async () => {
@@ -80,7 +78,12 @@ describe("getPersonaFollows Handler", () => {
 
     expect(result.statusCode).toBe(200);
     expect(mockQuery).toHaveBeenCalledWith(
-      "SELECT * FROM follows WHERE followed = $1",
+      `
+    SELECT p.persona_id, p.username
+    FROM follows f
+    JOIN personas p ON p.persona_id = f.follower
+    WHERE f.followed = $1
+  `,
       ["2"],
     );
   });
@@ -147,7 +150,7 @@ describe("getPersonaFollows Handler", () => {
       message: "Invalid relation parameter",
     });
   });
-  
+
   it("should return a 400 if the persona_id is negative", async () => {
     const event = createEvent("-1", "follower");
     const result = (await handler(
