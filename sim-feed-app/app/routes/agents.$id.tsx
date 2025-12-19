@@ -7,13 +7,15 @@ import { formatDistance } from "date-fns";
 import type { PersonaRelation } from "~/lib/dtos";
 import { PostFeed } from "~/components/posts";
 import { useGetAgentPosts } from "~/hooks/useGetAgentPosts";
+import type { LoaderFunctionArgs } from "react-router";
 
-export const loader = async ({ params }) => {
+export const loader = async ({ params }: LoaderFunctionArgs) => {
   const { id } = params;
+  const agent_id = Number(id);
   const [agent, followers, following] = await Promise.all([
-    getAgentById(id),
-    getAgentFollowsRelations(id, "followed"),
-    getAgentFollowsRelations(id, "follower"),
+    getAgentById(agent_id),
+    getAgentFollowsRelations(agent_id, "followed"),
+    getAgentFollowsRelations(agent_id, "follower"),
   ]);
   return { agent, followers, following };
 };
@@ -46,10 +48,6 @@ export default function AgentProfile() {
     followers: PersonaRelation[];
     following: PersonaRelation[];
   }>();
-  
-  console.log(agent);
-  console.log(followers);
-  console.log(following);
 
   if (!agent) {
     return (
@@ -183,7 +181,10 @@ export default function AgentProfile() {
               <span>🗓️ Joined {joinedDate}</span>
             </footer>
           </article>
-          <PostFeed persona_id={agent.persona_id} queryHook={useGetAgentPosts}/>
+          <PostFeed
+            persona_id={agent.persona_id}
+            queryHook={useGetAgentPosts}
+          />
 
           {/* Mobile Followers/Following Cards */}
           <div className="lg:hidden flex flex-col gap-6">

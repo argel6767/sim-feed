@@ -5,10 +5,11 @@ import { Nav } from "~/components/nav";
 import { SidebarCard } from "~/components/sidebar";
 import { Post } from "~/components/posts";
 import { formatDistance } from "date-fns";
+import type { LoaderFunctionArgs } from "react-router";
 
-export const loader = async ({ params }) => {
+export const loader = async ({ params }: LoaderFunctionArgs) => {
   const { id } = params;
-  const post = await getPostWithComments(id);
+  const post = await getPostWithComments(Number(id));
   const agent = await getAgentById(post!.author);
   return { post, agent };
 };

@@ -5,7 +5,7 @@ import {
   createMockActiveAgent,
   createMockPopularPost,
 } from "~/test/test-utils";
-import Feed, { loader, meta } from '~/routes/feed';
+import Feed, { loader, meta } from "~/routes/feed";
 
 // Mock the API endpoints module
 vi.mock("~/api/endpoints", () => ({
@@ -93,7 +93,7 @@ describe("Feed Route", () => {
       hasNextPage: false,
       fetchNextPage: vi.fn(),
       isFetchingNextPage: false,
-    }as unknown as ReturnType<typeof useGetPosts>);
+    } as unknown as ReturnType<typeof useGetPosts>);
   });
 
   describe("meta function", () => {
@@ -101,7 +101,7 @@ describe("Feed Route", () => {
       const result = meta({} as Parameters<typeof meta>[0]);
 
       expect(result).toEqual([
-        { title: "Feed - Sim Feed" },
+        { title: "Feed - Sim-Feed" },
         {
           name: "description",
           content:
@@ -163,10 +163,10 @@ describe("Feed Route", () => {
   });
 
   describe("Feed Component", () => {
-    it("should render the header with SIM FEED branding as a link to home", () => {
+    it("should render the header with SIM-FEED branding as a link to home", () => {
       render(<Feed />);
 
-      const brandLink = screen.getByRole("link", { name: /sim feed/i });
+      const brandLink = screen.getByRole("link", { name: /sim-feed/i });
       expect(brandLink).toHaveAttribute("href", "/");
     });
 
@@ -245,10 +245,10 @@ describe("Feed Route", () => {
       });
     });
 
-    it("should render right sidebar with Most Trending Posts section", () => {
+    it("should render right sidebar with Most Liked Posts section", () => {
       render(<Feed />);
 
-      expect(screen.getByText("Most Trending Posts")).toBeInTheDocument();
+      expect(screen.getByText("Most Liked Posts")).toBeInTheDocument();
     });
 
     it("should render most liked posts from loader data", () => {
@@ -281,7 +281,7 @@ describe("Feed Route", () => {
       mockPopularPosts.forEach((post) => {
         const formattedLabel = `#${post.title.charAt(0).toUpperCase()}${post.title.slice(1)}`;
         const link = screen.getByRole("link", { name: formattedLabel });
-        expect(link).toHaveAttribute("href", `/posts/${post.id}`);
+        expect(link).toHaveAttribute("href", `/feed/posts/${post.id}`);
       });
     });
 
@@ -314,7 +314,7 @@ describe("Feed Route", () => {
       render(<Feed />);
 
       // Section should still render
-      expect(screen.getByText("Most Trending Posts")).toBeInTheDocument();
+      expect(screen.getByText("Most Liked Posts")).toBeInTheDocument();
     });
 
     it("should handle completely empty loader data", () => {
@@ -327,10 +327,10 @@ describe("Feed Route", () => {
 
       // Page structure should still render
       expect(
-        screen.getByRole("link", { name: /sim feed/i }),
+        screen.getByRole("link", { name: /sim-feed/i }),
       ).toBeInTheDocument();
       expect(screen.getByText("Most Active Agents")).toBeInTheDocument();
-      expect(screen.getByText("Most Trending Posts")).toBeInTheDocument();
+      expect(screen.getByText("Most Liked Posts")).toBeInTheDocument();
     });
   });
 
