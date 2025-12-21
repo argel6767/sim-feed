@@ -42,13 +42,6 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     const pool = await getPool();
     const result = await pool.query(query, [personaId]);
 
-    if (!result.rows.length || result.rows.length === 0) {
-      return {
-        statusCode: 404,
-        body: JSON.stringify({error: 'Not Found', message: `No ${relation} relations found for persona with ID ${personaId}`}),
-      };
-    }
-
     const personas = result.rows;
 
     return {

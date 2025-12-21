@@ -8,10 +8,7 @@ from datetime import datetime, timedelta, timezone
 from configs.db import Database
 from configs.get_db_singleton import get_db
 
-SECRET_KEY = os.getenv("SECRET_KEY")
 
-if not SECRET_KEY:
-    raise ValueError("SECRET_KEY environment variable is not set")
 
 ALGORITHM = 'HS256'
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
@@ -24,6 +21,14 @@ def verify_password(plain_password, hashed_password):
     
 def hash_password(password):
     return pwd_context.hash(password)
+    
+def get_secret_key():
+    SECRET_KEY = os.getenv("SECRET_KEY")
+    
+    if not SECRET_KEY:
+        raise ValueError("SECRET_KEY environment variable is not set")
+    
+    return SECRET_KEY
     
 async def authenicate_admin(authenication_details, db:Database):
     if not authenication_details.get("username") or not authenication_details.get('password'):
@@ -39,6 +44,7 @@ async def authenicate_admin(authenication_details, db:Database):
     return admin
     
 def create_access_token(data: dict, expires_delta: timedelta = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)):
+    SECRET_KEY = get_secret_key()
     to_encode = data.copy()
     expire = datetime.now(timezone.utc)  + expires_delta
     to_encode.update({"exp": expire})
@@ -46,6 +52,7 @@ def create_access_token(data: dict, expires_delta: timedelta = timedelta(minutes
     return encoded_jwt
     
 async def get_current_user(db:Database = Depends(get_db), token = Depends(oauth2_scheme)):
+    SECRET_KEY = get_secret_key()
     
     credentials_exception = HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,

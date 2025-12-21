@@ -10,9 +10,7 @@ from configs.db import Database
 
 logger = logging.getLogger(__name__)
 
-DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY")
-url = "https://api.deepseek.com"
-deepseek_client = OpenAI(api_key=DEEPSEEK_API_KEY, base_url=url)
+
 
 response_format = {
     "type": "json_object",
@@ -97,6 +95,13 @@ async def run_agent_turn(request_function, context, db:Database):
         })
 
 def make_deepseek_request(messages: list[dict[str, str]]) -> dict[str, str | None]:
+    DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY")
+    if not DEEPSEEK_API_KEY:
+        raise ValueError("DEEPSEEK_API_KEY environment variable is not set")
+    
+    url = "https://api.deepseek.com"
+    
+    deepseek_client = OpenAI(api_key=DEEPSEEK_API_KEY, base_url=url)
     response = deepseek_client.chat.completions.create(
         model="deepseek-chat",
         messages=messages,

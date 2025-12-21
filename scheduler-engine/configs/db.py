@@ -1,5 +1,10 @@
+from urllib3.poolmanager import log
 import asyncpg
 from dataclasses import dataclass
+import os
+
+import logging
+logger = logging.getLogger(__name__)
 
 @dataclass
 class Database:
@@ -35,4 +40,13 @@ class Database:
                 return await conn.execute(query, *args)
 
 async def create_pool(database_url: str) -> asyncpg.Pool:
-    return await asyncpg.create_pool(database_url, ssl="prefer")
+    env = os.environ.get("ENVIRONMENT")
+    logger.info(f"Creating database pool for environment: {env}")
+    if env == "prod":
+        return await asyncpg.create_pool(database_url, ssl="require")
+    elif env == "dev":
+        return await asyncpg.create_pool(database_url, ssl="prefer")
+    else:
+        raise ValueError("Invalid environment")
+        
+

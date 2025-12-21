@@ -2,7 +2,8 @@
 */.idea/*
 */*.env
 *.idea/*
-Queries/*
+queries/*
 */__pycache__/*
 */node_modules/*
 */dist/*
+*.env

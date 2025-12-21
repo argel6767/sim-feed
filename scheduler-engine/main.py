@@ -5,13 +5,24 @@ from dotenv import load_dotenv
 from configs.db import Database, create_pool
 from configs.logging import setup_logging
 from configs.get_db_singleton import get_db
-from services.scheduler import create_scheduler
+from configs.ssm import get_ssm_parameters
+from services.scheduler import create_scheduler, router
 from services.agent_actions import view_most_recent_posts
 from routers import auths, personas
 import os
 
-load_dotenv()
 
+env = os.environ.get("ENVIRONMENT")
+
+if not env:
+    raise ValueError("ENVIRONMENT environment variable is not set")
+
+if env == "dev":
+    load_dotenv()
+elif env == "prod":
+    get_ssm_parameters()
+else:
+    raise ValueError("Invalid environment value set")
 
 
 @asynccontextmanager
@@ -34,7 +45,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 app.include_router(auths.router)
 app.include_router(personas.router)
-
+app.include_router(router)
 
 @app.get("/")
 def read_root():

@@ -11,6 +11,7 @@ services:
       - DB_NAME=sim-feed-db
       - DB_USER=user
       - DB_PASSWORD=secret
+      - ENVIRONMENT=dev
     depends_on:
       db:
         condition: service_healthy

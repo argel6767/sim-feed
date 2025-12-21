@@ -22,8 +22,8 @@ async def register(request: Request, db: Database = Depends(get_db)):
 
 @router.post("/login")
 async def login(request: Request, db: Database = Depends(get_db)):
-   body = await request.json()
-   admin = await authenicate_admin(body, db)
-   data = {"id": admin["id"], "email": admin["email"], "username": admin["username"]}
-   token = create_access_token(data)
-   return {"access_token": token, "token_type": "bearer"}
+    body = await request.json()
+    admin = await authenicate_admin(body, db)
+    data = {"sub": admin["username"], "id": admin["id"], "email": admin["email"]}
+    token = create_access_token(data)
+    return {"access_token": token, "token_type": "bearer"}

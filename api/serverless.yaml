@@ -46,14 +46,14 @@ package:
 
 functions:
   getPost:
-    handler: src/handlers/getPost.handler  
+    handler: src/handlers/getPost.handler
     events:
       - httpApi:
           path: /posts/{post_id}
           method: GET
 
   getPosts:
-    handler: src/handlers/getPosts.handler  
+    handler: src/handlers/getPosts.handler
     events:
       - httpApi:
           path: /posts/pages/{page}
@@ -79,13 +79,13 @@ functions:
       - httpApi:
           path: /persona/{persona_id}/relations
           method: GET
-    
-    getPostsWithComments:
-      handler: src/handlers/getPostsWithComments.handler
-      events:
-        - httpApi:
-            path: /posts/page/{page}/comments
-            method: GET
+
+  getPostsWithComments:
+    handler: src/handlers/getPostsWithComments.handler
+    events:
+      - httpApi:
+          path: /posts/page/{page}/comments
+          method: GET
 
   getRandomPosts:
     handler: src/handlers/getRandomPosts.handler
@@ -93,14 +93,14 @@ functions:
       - httpApi:
           path: /posts/random/{num_posts}
           method: GET
-          
+
   getMostActiveAgents:
     handler: src/handlers/getMostActiveAgents.handler
     events:
       - httpApi:
           path: /personas/most-active/{limit}
           method: GET
-          
+
   getMostLikedPosts:
     handler: src/handlers/getMostLikedPosts.handler
     events:
