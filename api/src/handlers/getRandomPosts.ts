@@ -1,20 +1,42 @@
-import { APIGatewayProxyHandlerV2, APIGatewayProxyStructuredResultV2 } from "aws-lambda";
+import {
+  APIGatewayProxyHandlerV2,
+  APIGatewayProxyStructuredResultV2,
+} from "aws-lambda";
 import { getPool } from "../lib/db";
 
 export const config = {
-  callbackWaitsForEmptyEventLoop: false
+  callbackWaitsForEmptyEventLoop: false,
 };
 
-export const handler: APIGatewayProxyHandlerV2 = async (event): Promise<APIGatewayProxyStructuredResultV2> => {
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "https://sim-feed.vercel.app",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+  "Content-Type": "application/json",
+};
+
+export const handler: APIGatewayProxyHandlerV2 = async (
+  event,
+): Promise<APIGatewayProxyStructuredResultV2> => {
+  // Handle preflight
+  if (event.requestContext.http.method === "OPTIONS") {
+    return {
+      statusCode: 200,
+      headers: corsHeaders,
+      body: "",
+    };
+  }
+
   const numPosts = event.pathParameters?.num_posts;
-  
+
   if (!numPosts || isNaN(Number(numPosts)) || Number(numPosts) < 0) {
     return {
       statusCode: 400,
+      headers: corsHeaders,
       body: JSON.stringify({ error: "Invalid number of posts requested" }),
     };
   }
-  
+
   const query = `
     SELECT
       p.id,
@@ -38,12 +60,14 @@ export const handler: APIGatewayProxyHandlerV2 = async (event): Promise<APIGatew
     const result = await pool.query(query, [numPosts]);
     return {
       statusCode: 200,
+      headers: corsHeaders,
       body: JSON.stringify(result.rows),
     };
   } catch (error) {
     console.error(error);
     return {
       statusCode: 500,
+      headers: corsHeaders,
       body: JSON.stringify({ error: "Internal Server Error" }),
     };
   }

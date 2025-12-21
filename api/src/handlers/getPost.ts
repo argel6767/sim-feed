@@ -2,19 +2,36 @@ import { APIGatewayProxyHandlerV2 } from "aws-lambda";
 import { getPool } from "../lib/db";
 
 export const config = {
-  callbackWaitsForEmptyEventLoop: false
+  callbackWaitsForEmptyEventLoop: false,
+};
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "https://sim-feed.vercel.app",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+  "Content-Type": "application/json",
 };
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
+  // Handle preflight
+  if (event.requestContext.http.method === "OPTIONS") {
+    return {
+      statusCode: 200,
+      headers: corsHeaders,
+      body: "",
+    };
+  }
+
   const post_id = event.pathParameters?.post_id;
-  
+
   if (!post_id || isNaN(Number(post_id)) || Number(post_id) < 0) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ error: 'Invalid post_id parameter' })
+      headers: corsHeaders,
+      body: JSON.stringify({ error: "Invalid post_id parameter" }),
     };
   }
-  
+
   const query = `
       SELECT
         p.id,
@@ -44,19 +61,21 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       WHERE p.id = $1
       GROUP BY p.id, p.title, p.body, p.author, per.username, p.created_at
   `;
-  
+
   try {
     const pool = await getPool();
     const result = await pool.query(query, [post_id]);
     if (!result.rows || result.rows.length === 0) {
       return {
         statusCode: 404,
-        body: JSON.stringify({ error: `Post ID ${post_id} not found` })
+        headers: corsHeaders,
+        body: JSON.stringify({ error: `Post ID ${post_id} not found` }),
       };
     }
     return {
       statusCode: 200,
-      body: JSON.stringify(result.rows[0])
+      headers: corsHeaders,
+      body: JSON.stringify(result.rows[0]),
     };
   } catch (error) {
     let message = "Internal Server Error";
@@ -66,7 +85,11 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     }
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Internal Server Error', message: message }),
+      headers: corsHeaders,
+      body: JSON.stringify({
+        error: "Internal Server Error",
+        message: message,
+      }),
     };
   }
-}
+};

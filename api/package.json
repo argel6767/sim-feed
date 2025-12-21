@@ -11,7 +11,7 @@
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "clean:functions": "pnpm dotenv serverless remove --stage dev",
-    "deploy": "pnpm run build && pnpm run clean:functions && pnpm dotenv serverless deploy --verbose --stage dev",
+    "deploy": "pnpm run build && pnpm dotenv serverless deploy --verbose --stage dev",
     "deploy:prod": "pnpm dotenv serverless deploy --verbose --stage prod"
   },
   "keywords": [],

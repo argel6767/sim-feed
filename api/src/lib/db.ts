@@ -42,3 +42,11 @@ export const getPool = async (): Promise<Pool> => {
 
   return pool;
 };
+
+export const closePool = async (): Promise<void> => {
+  if (pool) {
+    await pool.end();
+    pool = undefined;
+    console.log("Pool closed");
+  }
+};

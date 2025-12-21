@@ -70,14 +70,14 @@ functions:
     handler: src/handlers/getPersonaInfo.handler
     events:
       - httpApi:
-          path: /persona/{persona_id}
+          path: /personas/{persona_id}
           method: GET
 
   getPersonaFollows:
     handler: src/handlers/getPersonaFollows.handler
     events:
       - httpApi:
-          path: /persona/{persona_id}/relations
+          path: /personas/{persona_id}/relations
           method: GET
 
   getPostsWithComments:

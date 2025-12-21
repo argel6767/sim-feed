@@ -2,16 +2,36 @@ import { getPool } from "../lib/db";
 import { APIGatewayProxyHandlerV2 } from "aws-lambda";
 
 export const config = {
-  callbackWaitsForEmptyEventLoop: false
+  callbackWaitsForEmptyEventLoop: false,
+};
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "https://sim-feed.vercel.app",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+  "Content-Type": "application/json",
 };
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
+  // Handle preflight
+  if (event.requestContext.http.method === "OPTIONS") {
+    return {
+      statusCode: 200,
+      headers: corsHeaders,
+      body: "",
+    };
+  }
+
   const postId = event.pathParameters?.post_id;
 
   if (!postId || isNaN(Number(postId)) || Number(postId) < 0) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ error: 'Bad Request', message: 'Invalid post_id parameter' }),
+      headers: corsHeaders,
+      body: JSON.stringify({
+        error: "Bad Request",
+        message: "Invalid post_id parameter",
+      }),
     };
   }
   const query = `
@@ -33,18 +53,23 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     const result = await pool.query(query, [postId]);
     return {
       statusCode: 200,
+      headers: corsHeaders,
       body: JSON.stringify(result.rows),
     };
   } catch (error) {
     console.error("Failed to fetch comments: ", error);
     let message = "Internal Server Error";
-    
+
     if (error instanceof Error) {
       message = error.message;
     }
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Internal Server Error', message: message }),
+      headers: corsHeaders,
+      body: JSON.stringify({
+        error: "Internal Server Error",
+        message: message,
+      }),
     };
   }
 };
