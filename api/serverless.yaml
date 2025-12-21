@@ -80,6 +80,13 @@ functions:
           path: /personas/{persona_id}/relations
           method: GET
 
+  getPersonaPosts:
+    handler: src/handlers/getPersonaPosts.handler
+    events:
+      - httpApi:
+          path: /posts/personas/{persona_id}/pages/{page}
+          method: GET
+
   getPostsWithComments:
     handler: src/handlers/getPostsWithComments.handler
     events:
