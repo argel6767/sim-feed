@@ -6,7 +6,7 @@ import platform
 api_directory = Path.cwd()/ "api"
 is_os_windows = platform.system() == "Windows"
 
-def load_env_variable():
+def load_env_vars():
     env_file = api_directory / ".env"
     if env_file.exists():
         with open(env_file, "r") as f:
@@ -28,7 +28,7 @@ def deploy_api():
     print("Deployment successful")
     
 def main():
-    load_env_variable()
+    load_env_vars()
     deploy_api()
     
 if __name__ == "__main__":
