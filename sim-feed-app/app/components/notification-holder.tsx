@@ -1,6 +1,5 @@
 import { useNotifications } from "~/hooks/useNotification";
 import { useToast } from "./toast";
-import { Analytics } from "@vercel/analytics/next";
 
 export const NotificationHolder = () => { 
   const {addToast} = useToast();
@@ -8,7 +7,6 @@ export const NotificationHolder = () => {
   
   return (
     <div>
-      <Analytics />
       {/* Render notifications */}
     </div>
   )
