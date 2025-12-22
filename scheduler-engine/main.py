@@ -11,7 +11,6 @@ from services.agent_actions import view_most_recent_posts
 from routers import auths, personas
 import os
 
-
 env = os.environ.get("ENVIRONMENT")
 
 if not env:

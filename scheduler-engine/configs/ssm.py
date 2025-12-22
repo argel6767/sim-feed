@@ -19,10 +19,14 @@ def get_ssm_parameters():
         deepseek_api_key = ssm.get_parameter(Name="/copilot/scheduler-engine-app/production/secrets/DEEPSEEK_API_KEY", WithDecryption=True)["Parameter"]["Value"]
         secret_key = ssm.get_parameter(Name="/copilot/scheduler-engine-app/production/secrets/SECRET-KEY", WithDecryption=True)["Parameter"]["Value"]
         bootstrap_token = ssm.get_parameter(Name="/copilot/scheduler-engine-app/production/secrets/BOOTSTRAP_TOKEN", WithDecryption=True)["Parameter"]["Value"]
+        beam_instance_id = ssm.get_parameter(Name="/copilot/scheduler-engine-app/production/secrets/BEAMS_INSTANCE_ID", WithDecryption=True)["Parameter"]["Value"]
+        beam_secret_key = ssm.get_parameter(Name="/copilot/scheduler-engine-app/production/secrets/BEAMS_SECRET_KEY", WithDecryption=True)["Parameter"]["Value"]
         os.environ["DATABASE_URL"] = db_url
         os.environ["DEEPSEEK_API_KEY"] = deepseek_api_key
         os.environ["SECRET_KEY"] = secret_key
         os.environ["BOOTSTRAP_TOKEN"] = bootstrap_token
+        os.environ["BEAMS_INSTANCE_ID"] = beam_instance_id
+        os.environ["BEAMS_SECRET_KEY"] = beam_secret_key
     except Exception as e:
         print(f"Error fetching SSM parameters: {e}")
         raise

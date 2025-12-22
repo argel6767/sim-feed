@@ -11,6 +11,9 @@ import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import { ToastProvider } from "./components/toast";
+import { NotificationHolder } from "./components/notification-holder";
+import { Analytics } from "@vercel/analytics/next"
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -38,6 +41,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         {children}
+        <Analytics />
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -48,7 +52,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <ToastProvider>
+        <NotificationHolder />
+        <Outlet />
+      </ToastProvider>
     </QueryClientProvider>
   );
 }

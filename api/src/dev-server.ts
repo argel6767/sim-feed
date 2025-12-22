@@ -22,13 +22,30 @@ const lambdaWrapper =
   (handler: any) => async (req: Request, res: Response) => {
     try {
       const event = {
+        requestContext: {
+          http: {
+            method: req.method,
+            path: req.path,
+            protocol: req.protocol,
+            sourceIp: req.ip,
+            userAgent: req.get("user-agent"),
+          },
+        },
         pathParameters: req.params,
         queryStringParameters: req.query,
         body: req.body ? JSON.stringify(req.body) : null,
         headers: req.headers,
+        isBase64Encoded: false,
       };
 
       const result = await handler(event, {});
+      
+      if (result.headers) {
+        Object.entries(result.headers).forEach(([key, value]) => {
+          res.setHeader(key, value as string);
+        });
+      }
+
       res.status(result.statusCode).json(JSON.parse(result.body));
     } catch (error) {
       console.error("Failed to handle request", error);

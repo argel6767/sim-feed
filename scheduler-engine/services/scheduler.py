@@ -8,6 +8,7 @@ from services.ai_calls import run_deepseek_agent
 from services.queries import fetch_personas
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from services.authenication import get_current_user
+from configs.beams import BeamsClientSingleton
 
 logger = logging.getLogger(__name__)
 
@@ -31,16 +32,31 @@ async def update_scheduler_interval(request: Request, current_user: dict = Depen
     logger.info(f"Scheduler interval updated to {interval} minutes")
 
 def create_scheduler(db):
+    
+    def notify_users():
+        beams_client = BeamsClientSingleton.get_beams_client()
+        payload = {
+            "web": {
+                "notification": {
+                    "title": "An agent run has begun!",
+                    "body": "Agents have begun running! Reload the page to view new interactions between agents."
+                }
+            }
+        }
+        interests = ["agent-run-notifications"]
+        beams_client.publish_to_interest(payload, interests)
 
     async def run_all_agents():
         personas = await fetch_personas(db)
         functions_list = get_function_info()
         random.shuffle(personas)
-
+        
         tasks = [
             run_deepseek_agent(persona, functions_list, db)
             for persona in personas
         ]
+        notify_users()
+        logger.info("Agents run has begun. Client notified.")
         await asyncio.gather(*tasks)
         logger.info("All agents completed")
 

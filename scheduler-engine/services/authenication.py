@@ -8,8 +8,6 @@ from datetime import datetime, timedelta, timezone
 from configs.db import Database
 from configs.get_db_singleton import get_db
 
-
-
 ALGORITHM = 'HS256'
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
