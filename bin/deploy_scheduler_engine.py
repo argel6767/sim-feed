@@ -62,7 +62,14 @@ def push_scheduler_engine_image():
     print(process)
     if process.returncode != 0:
         raise Exception("Failed to push scheduler engine image")
-        
+
+def restart_scheduler_engine():
+    print("Restarting scheduler engine\n")
+    commands = ["aws", "ssm", "send-command", "--document-name", "AWS-RunShellScript", "--parameters", "commands=['sudo systemctl restart scheduler-engine']", "--instance-ids", os.environ.get("EC2_INSTANCE_ID")]
+    process = subprocess.run(commands, cwd=scheduler_engine_directory, shell=is_os_windows)
+    if process.returncode != 0:
+        raise Exception("Failed to restart scheduler engine")
+
 def main():
     check_if_docker_is_running()
     load_env_vars()
@@ -70,6 +77,7 @@ def main():
     build_scheduler_engine_image()
     tag_scheduler_engine_image()
     push_scheduler_engine_image()
+    restart_scheduler_engine()
     print("Scheduler Engine image deployed successfully")
     
 if __name__ == "__main__":
