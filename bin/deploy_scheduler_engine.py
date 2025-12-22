@@ -1,7 +1,6 @@
 import os
 import subprocess
 from pathlib import Path
-from winreg import LoadKey
 from deploy_api import is_os_windows
 
 scheduler_engine_directory = Path.cwd() / "scheduler-engine"
@@ -29,7 +28,6 @@ def sign_in_to_ecr():
     process = subprocess.run(get_login_commands, stdout=subprocess.PIPE, text=True)
     if process.returncode != 0:
         raise Exception("Failed to sign in to ECR")
-    
     
     docker_login_commands = ["docker", "login", "--username", "AWS", "--password-stdin", os.environ.get("AWS_ACCOUNT_ID")]
     process = subprocess.run(docker_login_commands, input=process.stdout, text=True)
@@ -66,7 +64,7 @@ def push_scheduler_engine_image():
 def restart_scheduler_engine():
     print("Restarting scheduler engine\n")
     commands = ["aws", "ssm", "send-command", "--document-name", "AWS-RunShellScript", "--parameters", "commands=['sudo systemctl restart scheduler-engine']", "--instance-ids", os.environ.get("EC2_INSTANCE_ID")]
-    process = subprocess.run(commands, cwd=scheduler_engine_directory, shell=is_os_windows)
+    process = subprocess.run(commands, cwd=scheduler_engine_directory, shell=is_os_windows, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     if process.returncode != 0:
         raise Exception("Failed to restart scheduler engine")
 
