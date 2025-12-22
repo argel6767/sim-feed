@@ -12,18 +12,18 @@ async def view_most_recent_posts(db: Database):
     which posts to like, comment on, or analyze for interaction.
 
     Returns:
-        A list of post records representing the 20 most recent posts
-        created within the past hour. If no posts exist in this time
+        A list of post records representing the 25 most recent posts
+        created within the past 6 hours. If no posts exist in this time
         window, an empty list is returned.
     """
-    query = "SELECT * FROM posts WHERE created_at >= NOW() - INTERVAL '1 hour' ORDER BY created_at DESC LIMIT 20"
+    query = "SELECT * FROM posts WHERE created_at >= NOW() - INTERVAL '6 hour' ORDER BY created_at DESC LIMIT 25"
     try:
         posts = await db.execute_query(query)
         posts_serializable = [
             {**dict(post), "created_at": post["created_at"].isoformat()}
             for post in posts
         ]
-        return {"status": "posts successfully fetched from the past hour","posts_found": posts_serializable}
+        return {"status": "posts successfully fetched from the past 6 hours","posts_found": posts_serializable}
     except Exception as e:
         return {"status": f"failed to fetch posts from past hour due to {e}. Try another action"}
         
