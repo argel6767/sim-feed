@@ -5,10 +5,15 @@ import type { ToastType } from '~/components/toast';
 export const useNotifications = (addToast: (message: string, type?: ToastType, duration?: number, children?: React.ReactNode) => void, children?: React.ReactNode) => {
   useEffect(() => {
     const initBeams = () => {
+      if (typeof navigator !== 'undefined' && /iPad|iPhone|iPod/i.test(navigator.userAgent)) {
+         console.log('Push notifications disabled on iOS');
+         return;
+       }
+       
       const PUSHER_INSTANCE_ID: string = import.meta.env.VITE_INSTANCE_ID;
-
       if (!PUSHER_INSTANCE_ID) {
-        throw new Error('VITE_INSTANCE_ID is not defined');
+        console.error('VITE_INSTANCE_ID is not defined');
+        return;
       }
 
       const beamsClient = new PusherNotifications.Client({
@@ -35,5 +40,5 @@ export const useNotifications = (addToast: (message: string, type?: ToastType, d
 
     const cleanup = initBeams();
     return cleanup;
-  }, [addToast]);
+  }, [addToast, children]);
 };
