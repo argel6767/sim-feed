@@ -1,6 +1,14 @@
 name: Build Pipeline
 
 on:
+  workflow_call:
+    outputs:
+      scheduler-engine-changed:
+        value: ${{ jobs.check-changes.outputs.scheduler-engine-changed }}
+      api-changed:
+        value: ${{ jobs.check-changes.outputs.api-changed }}
+      sim-feed-app-changed:
+        value: ${{ jobs.check-changes.outputs.sim-feed-app-changed }}
   push:
     branches:
       - '**'
