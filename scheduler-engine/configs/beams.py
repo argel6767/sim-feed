@@ -2,7 +2,6 @@ import os
 from pusher_push_notifications import PushNotifications
 from typing import Any, Dict, List, Optional
 
-
 class BeamsClient:
     beams_client: PushNotifications
     

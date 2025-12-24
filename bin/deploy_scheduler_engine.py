@@ -1,9 +1,10 @@
 import os
 import subprocess
 from pathlib import Path
-from deploy_api import is_os_windows
+import platform
 
 scheduler_engine_directory = Path.cwd() / "scheduler-engine"
+is_os_windows = platform.system() == "Windows"
 
 def check_if_docker_is_running():
     try:
