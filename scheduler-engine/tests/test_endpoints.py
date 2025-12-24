@@ -10,7 +10,6 @@ async def test_read_root(client):
         "status": "OK",
     }
 
-    
 @pytest.mark.asyncio
 async def test_read_posts_returns_recent(client, persona, post):
     response = await client.get("/posts")
