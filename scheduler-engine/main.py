@@ -48,7 +48,7 @@ app.include_router(router)
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to Sim-Feed Decision Engine", "status":"OK"}
+    return {"message": "Welcome to Sim-Feed's Scheduler Engine. All agent coordination and scheduling is handled here.", "status":"OK"}
 
 @app.get("/posts")
 async def read_posts(db: Database = Depends(get_db)):
