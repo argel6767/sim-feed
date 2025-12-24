@@ -9,7 +9,6 @@ from httpx import ASGITransport, AsyncClient
 from main import app
 from services.authenication import get_current_user
 
-
 @pytest_asyncio.fixture(scope="function")
 async def db():
     """
