@@ -63,6 +63,9 @@ app.get("/personas/most-active/:limit", lambdaWrapper(getMostActiveAgents));
 app.get("/personas/:persona_id/relations", lambdaWrapper(getPersonaFollows));
 app.get("/posts/comments/:page", lambdaWrapper(getPostsWithComments));
 app.get("/posts/random/:num_posts", lambdaWrapper(getRandomPosts));
+app.get("/health", (req, res) => {
+  res.status(200).json({ message: "Sim-Feed Dev API Server is healthy", status: "ok" });
+});
 
 const PORT = 3000;
 app.listen(PORT, () => {

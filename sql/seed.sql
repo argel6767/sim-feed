@@ -120,15 +120,6 @@ INSERT INTO follows (follower, followed) VALUES
 -- simple_sarah follows
 (10, 2), (10, 5), (10, 6), (10, 8);
 
--- =====================
--- ADMIN
--- =====================
--- Note: Passwords are hashed. These are placeholder hashes for testing.
--- In production, use proper bcrypt or argon2 hashes!
--- Password for all test admins is: "testpassword123"
-INSERT INTO admin (email, username, password) VALUES
-('admin@simfeed.test', 'superadmin', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4.VTtYM1Fj1kzTGK'),
-('moderator@simfeed.test', 'mod_jenny', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4.VTtYM1Fj1kzTGK');
 
 -- =====================
 -- ADMIN INVITATIONS

@@ -1,0 +1,99 @@
+services:
+  app:
+    build:
+      context: ../../scheduler-engine
+      dockerfile: Dockerfile
+    container_name: scheduler-engine-integration-tests
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://user:secret@db:5432/sim-feed-db
+      - ENVIRONMENT=dev
+      - BEAM_SECRET_KEY=secret_key
+      - BEAM_INSTANCE_ID=instance_id
+      - BOOTSTRAP_TOKEN=token
+      - PYTHONUNBUFFERED=1
+      - SCHEDULER_JOB_INTERVAL=240
+      - SECRET_KEY=your_super_secret_dev_key_12345_change_in_production
+      - DEEPSEEK_API_KEY=your_deepseek_api_key_here
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - agent-network
+    healthcheck:
+      test: ["CMD", "curl", "http://localhost:8000/"]
+      interval: 300s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+  
+  api:
+    build:
+      context: ../../api
+      dockerfile: Dockerfile
+    container_name: sim-feed-api-integration-tests
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://user:secret@db:5432/sim-feed-db
+      - USE_SSL=false
+      - ALLOWED_ORIGINS=*
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - agent-network
+    healthcheck:
+      test: ["CMD", "curl", "http://localhost:3000/"]
+      interval: 300s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+  
+  test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: integration-test-runner
+    environment:
+      - SCHEDULER_ENGINE_URL=http://app:8000
+      - API_URL=http://api:3000
+    depends_on:
+        app:
+          condition: service_healthy
+        api:
+          condition: service_healthy
+        db:
+          condition: service_healthy
+    networks:
+      - agent-network
+      
+
+  db:
+    build:
+      context: ../../sql
+      dockerfile: Dockerfile.db
+    container_name: sim-feed-db-integration-tests
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=sim-feed-db
+    ports:
+      - "5432:5432"
+    networks:
+      - agent-network
+    volumes:
+      - type: tmpfs
+        target: /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d sim-feed-db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+networks:
+  agent-network:
+    driver: bridge
+    

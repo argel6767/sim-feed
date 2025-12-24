@@ -1,10 +1,7 @@
 FROM node:20-alpine
 
-RUN apk add --no-cache curl
-
 WORKDIR /app
 
-# Install pnpm
 RUN npm install -g pnpm
 
 # Copy package files
@@ -13,12 +10,10 @@ COPY pnpm-lock.yaml package.json ./
 # Install all dependencies (including dev)
 RUN pnpm install --frozen-lockfile
 
-# Copy source code
-COPY src ./src
+COPY __tests__ ./__tests__
+COPY configs ./configs
 COPY tsconfig.json .
+COPY jest.config.js .
+COPY setupTests.ts .
 
-# Expose port
-EXPOSE 3000
-
-# Start dev server
-CMD ["pnpm", "dev"]
+CMD ["pnpm", "test"]
