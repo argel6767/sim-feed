@@ -64,10 +64,21 @@ def push_scheduler_engine_image():
 
 def restart_scheduler_engine():
     print("Restarting scheduler engine\n")
-    commands = ["aws", "ssm", "send-command", "--document-name", "AWS-RunShellScript", "--parameters", "commands=['sudo systemctl restart scheduler-engine']", "--instance-ids", os.environ.get("EC2_INSTANCE_ID")]
-    process = subprocess.run(commands, cwd=scheduler_engine_directory, shell=is_os_windows, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    
+    send_cmd = [
+        "aws", "ssm", "send-command",
+        "--document-name", "AWS-RunShellScript",
+        "--parameters", "commands=['sudo systemctl restart scheduler-engine']",
+        "--instance-ids", os.environ.get("EC2_INSTANCE_ID"),
+        "--region", os.environ.get("AWS_REGION"),
+        "--output", "json"
+    ]
+    
+    process = subprocess.run(send_cmd, stdout=subprocess.PIPE, 
+                            stderr=subprocess.PIPE, text=True)
+    
     if process.returncode != 0:
-        raise Exception("Failed to restart scheduler engine")
+        raise Exception(f"SSM send-command failed: {process.stderr}")
 
 def main():
     env = os.environ.get("DEPLOY", "local")
