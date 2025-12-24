@@ -1,6 +1,5 @@
 import os
 import uuid
-
 import pytest
 import pytest_asyncio
 from configs.db import Database, create_pool

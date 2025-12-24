@@ -1,9 +1,6 @@
 import { handler } from "../src/handlers/getMostActiveAgents";
 import { getPool } from "../src/lib/db";
-import {
-  APIGatewayProxyEventV2,
-  APIGatewayProxyStructuredResultV2,
-} from "aws-lambda";
+import { APIGatewayProxyEventV2,APIGatewayProxyStructuredResultV2,} from "aws-lambda";
 
 jest.mock("../src/lib/db");
 
