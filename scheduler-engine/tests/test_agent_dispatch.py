@@ -3,7 +3,6 @@ import pytest
 
 from services.ai_calls import run_agent_turn
 
-
 @pytest.mark.asyncio
 async def test_run_agent_turn_dispatches_tool_call(db, persona, post, fetch):
     def fake_llm(_context):

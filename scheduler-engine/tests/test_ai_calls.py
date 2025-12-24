@@ -12,7 +12,6 @@ from services.ai_calls import (
     run_deepseek_agent,
 )
 
-
 class TestMakeDeepseekRequest:
     """Tests for the make_deepseek_request function."""
 

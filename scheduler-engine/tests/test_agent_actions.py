@@ -11,7 +11,6 @@ from services.agent_actions import (
     view_most_recent_posts,
 )
 
-
 @pytest.mark.asyncio
 async def test_create_post_inserts_row(db, persona, fetch):
     result = await create_post(
