@@ -6,7 +6,7 @@ async def test_read_root(client):
 
     assert response.status_code == 200
     assert response.json() == {
-        "message": "Welcome to Sim-Feed Decision Engine",
+        "message": "Welcome to Sim-Feed's Scheduler Engine. All agent coordination and scheduling for Sim-Feed is handled here.",
         "status": "OK",
     }
 
