@@ -2,7 +2,6 @@ import json
 import os
 from datetime import date, datetime
 from unittest.mock import AsyncMock, MagicMock, patch
-
 import pytest
 from services.ai_calls import (
     make_deepseek_request,
