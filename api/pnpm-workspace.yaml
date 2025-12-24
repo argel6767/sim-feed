@@ -1,5 +1,7 @@
 onlyBuiltDependencies:
   - '@parcel/watcher'
   - aws-sdk
+  - es5-ext
   - esbuild
+  - serverless
   - unrs-resolver
