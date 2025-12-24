@@ -69,8 +69,11 @@ def restart_scheduler_engine():
         raise Exception("Failed to restart scheduler engine")
 
 def main():
-    check_if_docker_is_running()
-    load_env_vars()
+    env = os.environ.get("DEPLOY", "local")
+    if env == "local":
+        check_if_docker_is_running()
+        load_env_vars()
+    
     sign_in_to_ecr()
     build_scheduler_engine_image()
     tag_scheduler_engine_image()

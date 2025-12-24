@@ -1,0 +1,76 @@
+name: Deploy Pipeline
+
+on:
+  push:
+    branches:
+      - prod
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-pipeline.yml
+
+  deploy-scheduler-engine:
+    name: Deploy Scheduler Engine
+    runs-on: ubuntu-latest
+    needs: build
+    if: needs.build.outputs.scheduler-engine-changed == 'true'
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      AWS_REGION: us-east-2
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      AWS_REPO: ${{ secrets.AWS_REPO }}
+      EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
+      ROLE_ARN: ${{ secrets.ROLE_ARN }}
+      DEPLOY: cicd
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Run Deploy Script
+        run: python bin/deploy_scheduler_engine.py
+
+  deploy-api:
+    name: Deploy Lambda Handlers
+    runs-on: ubuntu-latest
+    needs: build
+    if: needs.build.outputs.api-changed == 'true'
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      AWS_REGION: us-east-2
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      AWS_REPO: ${{ secrets.AWS_REPO }}
+      EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
+      SECURITY_GROUP_ID: ${{ secrets.SECURITY_GROUP_ID }}
+      PRIVATE_SUBNET_1_ID: ${{ secrets.PRIVATE_SUBNET_1_ID }}
+      PRIVATE_SUBNET_2_ID: ${{ secrets.PRIVATE_SUBNET_2_ID }}
+      ROLE_ARN: ${{ secrets.ROLE_ARN }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.26.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+          cache-dependency-path: "./api/pnpm-lock.yaml"
+      - run: pnpm install
+        working-directory: ./api
+      - run: pnpm run deploy
+        working-directory: ./api

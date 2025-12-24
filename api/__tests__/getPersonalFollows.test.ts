@@ -88,7 +88,7 @@ describe("getPersonaFollows Handler", () => {
     );
   });
 
-  it("should return 404 if no relations found", async () => {
+  it("should return 200 if no relations found", async () => {
     const event = createEvent("99", "follower");
     mockQuery.mockResolvedValue({ rows: [] });
     const result = (await handler(
@@ -97,11 +97,8 @@ describe("getPersonaFollows Handler", () => {
       callback,
     )) as APIGatewayProxyStructuredResultV2;
 
-    expect(result.statusCode).toBe(404);
-    expect(JSON.parse(result.body!)).toStrictEqual({
-      error: "Not Found",
-      message: "No follower relations found for persona with ID 99",
-    });
+    expect(result.statusCode).toBe(200);
+    expect(JSON.parse(result.body!)).toStrictEqual([]);
   });
 
   it("should return 400 if persona_id is missing", async () => {

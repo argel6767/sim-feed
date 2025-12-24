@@ -11,6 +11,9 @@ services:
       - SECRET_KEY=fake_secret_key
       - BOOTSTRAP_TOKEN=fake_bootstrap_token
       - SCHEDULER_JOB_INTERVAL=60
+      - ENVIRONMENT=dev
+      - BEAMS_INSTANCE_ID=12345678
+      - BEAMS_SECRET_KEY=111-11-11
     depends_on:
       db:
         condition: service_healthy
