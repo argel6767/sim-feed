@@ -1,5 +1,8 @@
 import { useNotifications } from "~/hooks/useNotification";
 import { useToast } from "./toast";
+import { useLocation } from "react-router";
+import { useGoogleAnalytics } from "~/hooks/useGoogleAnalytics";
+
 
 export const NotificationHolder = () => {
   const {addToast} = useToast();
@@ -8,6 +11,17 @@ export const NotificationHolder = () => {
   return (
     <div>
       {/* Render notifications */}
+    </div>
+  )
+  
+}
+
+export const GoogleAnalyticsHolder = () => {
+  const location = useLocation();
+  useGoogleAnalytics(location);
+  return (
+    <div>
+      {/* Render Google Analytics */}
     </div>
   )
   

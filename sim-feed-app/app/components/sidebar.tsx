@@ -11,9 +11,9 @@ export const SidebarCard = ({ title, children }: SidebarCardProps) => {
       <h3 className="text-[0.9rem] uppercase tracking-[0.5px] text-sf-text-primary mb-2 font-semibold">
         {title}
       </h3>
-      <p className="text-[0.85rem] text-sf-text-muted leading-relaxed">
+      <div className="text-[0.85rem] text-sf-text-muted leading-relaxed">
         {children}
-      </p>
+      </div>
     </div>
   );
 };
