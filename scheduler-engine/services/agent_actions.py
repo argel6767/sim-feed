@@ -3,7 +3,6 @@ import inspect
 
 from configs.db import Database
 
-
 async def view_most_recent_posts(db: Database):
     """
     Retrieves the most recent posts created within the past hour.
