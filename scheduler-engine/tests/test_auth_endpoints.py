@@ -1,7 +1,6 @@
 import pytest
 from services.authenication import hash_password
 
-
 @pytest.mark.asyncio
 async def test_register_first_admin_success(unauthenticated_client, fetch, db):
     """Test successful registration of first admin with bootstrap token"""

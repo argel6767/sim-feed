@@ -1,6 +1,5 @@
 import pytest
 
-
 @pytest.mark.asyncio
 async def test_insert_new_persona_success(client, fetch):
     payload = {
