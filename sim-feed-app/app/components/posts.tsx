@@ -1,7 +1,10 @@
 import { useEffect, useRef } from "react";
 import { Link } from "react-router";
 import { formatDistance } from "date-fns";
-import type { UseInfiniteQueryResult, InfiniteData } from "@tanstack/react-query";
+import type {
+  UseInfiniteQueryResult,
+  InfiniteData,
+} from "@tanstack/react-query";
 
 type PostFeedSkeletonProps = {
   count?: number;
@@ -62,31 +65,36 @@ export const LandingPagePost = ({ post }: LandingPagePostProps) => {
   const shortenedBody = body.length > 300 ? `${body.slice(0, 300)}...` : body;
   return (
     <>
-      <div className="bg-sf-bg-primary border border-sf-border-primary rounded-md p-6 motion-preset-slide-right-sm motion-delay-900">
+      <div className="bg-sf-bg-primary border border-sf-border-primary rounded-md p-3 sm:p-6 motion-preset-slide-right-sm motion-delay-900">
         <div className="flex items-center gap-4 mb-4">
-          <div className="w-10 h-10 rounded-full bg-linear-to-br from-sf-avatar-orange to-sf-avatar-orange-dark flex items-center justify-center font-semibold text-sf-bg-primary text-[0.85rem]">
+          <div className="w-10 h-10 rounded-full bg-linear-to-br from-sf-avatar-orange to-sf-avatar-orange-dark flex items-center justify-center font-semibold text-sf-bg-primary text-[0.75rem] sm:text-[0.85rem]">
             {author_username.charAt(0).toUpperCase()}
           </div>
           <div className="flex-1">
             <div className="flex gap-2">
-              <Link className="font-semibold text-[0.95rem]" to={`/agents/${author}`}>
+              <Link
+                className="font-semibold text-[0.85rem] sm:text-[0.95rem]"
+                to={`/agents/${author}`}
+              >
                 {author_username}
               </Link>
-              <span className="inline-block bg-sf-accent-primary text-sf-bg-primary px-2.5 py-1 rounded-xl text-[0.7rem] font-semibold uppercase ml-2">
+              <span className="inline-block bg-sf-accent-primary text-sf-bg-primary px-2.5 py-1 rounded-xl text-[0.6rem] sm:text-[0.7rem] font-semibold uppercase ml-2">
                 Agent
               </span>
             </div>
           </div>
         </div>
-        <div className="mb-4 leading-relaxed">{shortenedBody}</div>
+        <div className="mb-4 leading-relaxed text-[0.85rem] sm:text-[0.95rem]">
+          {shortenedBody}
+        </div>
         <footer className="flex justify-between px-2">
-          <div className="flex gap-8 text-sf-text-dim text-[0.85rem]">
+          <div className="flex gap-4 sm:gap-8 text-sf-text-dim text-[0.75rem] sm:text-[0.85rem]">
             <span>💬 {comments_count}</span>
             <span>❤️ {likes_count}</span>
           </div>
           <Link
             to={`/feed/posts/${post.id}`}
-            className="text-sf-text-primary font-semibold text-[0.85rem]"
+            className="text-sf-text-primary font-semibold text-[0.75rem] sm:text-[0.85rem]"
           >
             Read More
           </Link>
@@ -99,13 +107,13 @@ export const LandingPagePost = ({ post }: LandingPagePostProps) => {
 type PostFeedProps = {
   persona_id?: number;
   queryHook: (
-    persona_id?: number
+    persona_id?: number,
   ) => UseInfiniteQueryResult<InfiniteData<Post[], unknown>, Error>;
 };
 
-export const PostFeed = ({ persona_id, queryHook}: PostFeedProps) => {
+export const PostFeed = ({ persona_id, queryHook }: PostFeedProps) => {
   const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    persona_id? queryHook( persona_id!) : queryHook();
+    persona_id ? queryHook(persona_id!) : queryHook();
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
@@ -166,10 +174,12 @@ export const PostFeed = ({ persona_id, queryHook}: PostFeedProps) => {
             </div>
           </>
         ) : (
-          <div className="flex flex-col gap-8 justify-center bg-sf-bg-card border border-sf-border-primary rounded-lg p-8 text-center motion-preset-fade min-h-64">
-            <p className="text-sf-text-muted">No posts available yet.</p>
+          <div className="flex flex-col gap-8 justify-center bg-sf-bg-card border border-sf-border-primary rounded-lg p-4 sm:p-8 text-center motion-preset-fade min-h-64">
+            <p className="text-sf-text-muted text-sm sm:text-base">
+              No posts available yet.
+            </p>
             <button
-              className="text-sf-text-tertiary text-[0.85rem] tracking-[0.5px] uppercase transition-colors duration-300 hover:text-sf-accent-primary hover:cursor-pointer"
+              className="text-sf-text-tertiary text-[0.75rem] sm:text-[0.85rem] tracking-[0.5px] uppercase transition-colors duration-300 hover:text-sf-accent-primary hover:cursor-pointer"
               onClick={() => {
                 window.location.reload();
               }}
@@ -187,41 +197,46 @@ type PostProps = {
   post: PostWithItsComments;
 };
 
-export const Post = ({post}: PostProps) => {
-  const postDate = formatDistance(post.created_at, new Date(), { addSuffix: true });
+export const Post = ({ post }: PostProps) => {
+  const postDate = formatDistance(post.created_at, new Date(), {
+    addSuffix: true,
+  });
   return (
-    <article className="bg-sf-bg-primary border border-sf-border-primary rounded-lg p-6 motion-preset-slide-up-sm">
+    <article className="bg-sf-bg-primary border border-sf-border-primary rounded-lg p-3 sm:p-6 motion-preset-slide-up-sm">
       <div className="flex items-center gap-4 mb-4">
-        <div className="w-12 h-12 rounded-full bg-linear-to-br from-sf-avatar-orange to-sf-avatar-orange-dark flex items-center justify-center font-semibold text-sf-bg-primary text-[1rem]">
+        <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-full bg-linear-to-br from-sf-avatar-orange to-sf-avatar-orange-dark flex items-center justify-center font-semibold text-sf-bg-primary text-[0.85rem] sm:text-[1rem]">
           {post.author_username.charAt(0).toUpperCase()}
         </div>
         <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <Link className="font-semibold text-lg text-sf-text-primary px-1" to={`/agents/${post.author}`}>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Link
+              className="font-semibold text-sm sm:text-lg text-sf-text-primary px-1"
+              to={`/agents/${post.author}`}
+            >
               {post.author_username}
             </Link>
-            <span className="inline-block bg-sf-accent-primary text-sf-bg-primary px-2.5 py-1 rounded-xl text-[0.7rem] font-semibold uppercase">
+            <span className="inline-block bg-sf-accent-primary text-sf-bg-primary px-2.5 py-1 rounded-xl text-[0.6rem] sm:text-[0.7rem] font-semibold uppercase">
               Agent
             </span>
           </div>
         </div>
       </div>
-  
-      <h1 className="text-[1.5rem] font-bold text-sf-text-primary pt-1 pb-2 leading-tight italic">
+
+      <h1 className="text-[1.25rem] sm:text-[1.5rem] font-bold text-sf-text-primary pt-1 pb-2 leading-tight italic">
         {post.title}
       </h1>
-  
-      <p className="text-sf-text-muted leading-relaxed mb-6 text-[0.95rem]">
+
+      <p className="text-sf-text-muted leading-relaxed mb-6 text-[0.8rem] sm:text-[0.95rem]">
         {post.body}
       </p>
-  
-      <footer className="flex justify-between text-sf-text-dim text-[0.9rem] border-t border-sf-border-primary pt-4">
-        <div className="flex gap-6">
+
+      <footer className="flex flex-col sm:flex-row sm:justify-between gap-2 sm:gap-0 text-sf-text-dim text-[0.75rem] sm:text-[0.9rem] border-t border-sf-border-primary pt-4">
+        <div className="flex gap-4 sm:gap-6">
           <span>❤️ {post.likes_count} likes</span>
           <span>💬 {post.comments?.length || 0} comments</span>
         </div>
         <p>{postDate}</p>
       </footer>
     </article>
-  )
-}
+  );
+};

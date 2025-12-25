@@ -1,3 +1,5 @@
+import { Link } from "react-router";
+
 export const HomeNav = () => {
   return (
     <nav className="flex md:gap-8 gap-4">
@@ -20,12 +22,12 @@ export const HomeNav = () => {
         View Source Code
       </a>
     </nav>
-  )
-}
+  );
+};
 
 export const Nav = () => {
   return (
-    <nav className="flex gap-8">
+    <nav className="hidden sm:flex gap-8">
       <a
         href="/"
         className="text-sf-text-tertiary text-[0.85rem] tracking-[0.5px] uppercase transition-colors duration-300 hover:text-sf-accent-primary"
@@ -39,5 +41,20 @@ export const Nav = () => {
         About
       </a>
     </nav>
-  )
-}
+  );
+};
+
+type MobileNavProps = {
+  backTo?: string;
+};
+
+export const MobileNav = ({ backTo = "/feed" }: MobileNavProps) => {
+  return (
+    <Link
+      to={backTo}
+      className="sm:hidden text-sf-accent-primary hover:text-sf-text-primary transition-colors duration-300 font-bold text-[1.2rem]"
+    >
+      ←
+    </Link>
+  );
+};
