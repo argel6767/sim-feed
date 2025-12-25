@@ -1,6 +1,6 @@
-const axios = require("axios");
-const { SCHEDULER_ENGINE_URL } = require("../../configs/urls");
-const { ADMIN_CREDS } = require("../../setupTests");
+import axios from "axios";
+import { SCHEDULER_ENGINE_URL } from "../../configs/urls.ts";
+import { ADMIN_CREDS } from "../../setupTests.ts";
 
 const AUTHS_URL = `${SCHEDULER_ENGINE_URL}/auths`;
 
@@ -313,6 +313,3 @@ describe("Auth Endpoints", () => {
     });
   });
 });
-
-// Export credentials for other test files
-module.exports = { BOOTSTRAP_TOKEN };

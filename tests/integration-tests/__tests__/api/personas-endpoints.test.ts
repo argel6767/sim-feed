@@ -1,5 +1,5 @@
-const axios = require("axios");
-const { API_URL } = require("../../configs/urls.mjs");
+import axios from "axios";
+import { API_URL } from "../../configs/urls.ts";
 
 const PERSONAS_URL = `${API_URL}/personas`;
 

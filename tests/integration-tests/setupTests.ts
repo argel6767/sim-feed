@@ -1,5 +1,5 @@
-const { SCHEDULER_ENGINE_URL } = require("./configs/urls");
-const axios = require("axios");
+import { SCHEDULER_ENGINE_URL } from "./configs/urls.ts";
+import axios from "axios";
 
 const BOOTSTRAP_TOKEN = "token";
 type AdminCredentials = {
@@ -9,15 +9,11 @@ type AdminCredentials = {
   auth_token: string;
 };
 
-const ADMIN_CREDS: AdminCredentials = {
+export const ADMIN_CREDS: AdminCredentials = {
   username: "coolestAdmin",
   password: "coolestAdminPassword",
   email: "coolestAdmin@example.com",
   auth_token: "",
-};
-
-module.exports = {
-  ADMIN_CREDS,
 };
 
 beforeAll(async () => {
