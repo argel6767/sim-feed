@@ -8,8 +8,11 @@ from services.agent_actions import (
     update_bio,
     view_comments_on_post,
     view_follows_recent_actions,
+    view_most_commented_posts,
+    view_most_popular_posts,
     view_most_recent_posts,
 )
+
 
 @pytest.mark.asyncio
 async def test_create_post_inserts_row(db, persona, fetch):
@@ -443,3 +446,371 @@ async def test_update_bio_overwrites_existing_bio(db, persona, fetch):
     )
     assert rows
     assert rows[0]["bio"] == "Second bio"
+
+
+@pytest.mark.asyncio
+async def test_view_most_popular_posts_returns_posts_ordered_by_likes(
+    db, persona, other_persona, fetch
+):
+    # Create multiple posts
+    post1_rows = await fetch(
+        """
+        INSERT INTO posts (title, body, author)
+        VALUES ($1, $2, $3)
+        RETURNING id
+        """,
+        "post 1",
+        "first post",
+        persona["persona_id"],
+    )
+    post1_id = post1_rows[0]["id"]
+
+    post2_rows = await fetch(
+        """
+        INSERT INTO posts (title, body, author)
+        VALUES ($1, $2, $3)
+        RETURNING id
+        """,
+        "post 2",
+        "second post",
+        persona["persona_id"],
+    )
+    post2_id = post2_rows[0]["id"]
+
+    post3_rows = await fetch(
+        """
+        INSERT INTO posts (title, body, author)
+        VALUES ($1, $2, $3)
+        RETURNING id
+        """,
+        "post 3",
+        "third post",
+        other_persona["persona_id"],
+    )
+    post3_id = post3_rows[0]["id"]
+
+    # Like post2 twice, post3 once, post1 zero times
+    await fetch(
+        """
+        INSERT INTO likes (post_id, persona_id)
+        VALUES ($1, $2)
+        """,
+        post2_id,
+        persona["persona_id"],
+    )
+    await fetch(
+        """
+        INSERT INTO likes (post_id, persona_id)
+        VALUES ($1, $2)
+        """,
+        post2_id,
+        other_persona["persona_id"],
+    )
+    await fetch(
+        """
+        INSERT INTO likes (post_id, persona_id)
+        VALUES ($1, $2)
+        """,
+        post3_id,
+        persona["persona_id"],
+    )
+
+    result = await view_most_popular_posts(db)
+    assert "Most popular posts retrieved successfully" in result["status"]
+
+    posts = result.get("posts", [])
+    assert len(posts) > 0
+
+    # Find our test posts in the results
+    our_posts = [p for p in posts if p["id"] in [post1_id, post2_id, post3_id]]
+    assert len(our_posts) == 3
+
+    # Verify ordering by like count
+    post2_result = next(p for p in our_posts if p["id"] == post2_id)
+    post3_result = next(p for p in our_posts if p["id"] == post3_id)
+    post1_result = next(p for p in our_posts if p["id"] == post1_id)
+
+    assert post2_result["like_count"] == 2
+    assert post3_result["like_count"] == 1
+    assert post1_result["like_count"] == 0
+
+    # Cleanup
+    await db.execute(
+        "DELETE FROM likes WHERE post_id IN ($1, $2, $3)", post1_id, post2_id, post3_id
+    )
+    await db.execute(
+        "DELETE FROM posts WHERE id IN ($1, $2, $3)", post1_id, post2_id, post3_id
+    )
+
+
+@pytest.mark.asyncio
+async def test_view_most_popular_posts_returns_empty_when_no_posts(db, fetch):
+    # Delete all posts temporarily
+    await fetch("DELETE FROM likes")
+    await fetch("DELETE FROM comments")
+    await fetch("DELETE FROM posts")
+
+    result = await view_most_popular_posts(db)
+    assert "Most popular posts retrieved successfully" in result["status"]
+    assert result.get("posts", []) == []
+
+
+@pytest.mark.asyncio
+async def test_view_most_popular_posts_limits_to_10(db, persona, fetch):
+    # Create 15 posts
+    post_ids = []
+    for i in range(15):
+        rows = await fetch(
+            """
+            INSERT INTO posts (title, body, author)
+            VALUES ($1, $2, $3)
+            RETURNING id
+            """,
+            f"post {i}",
+            f"post body {i}",
+            persona["persona_id"],
+        )
+        post_ids.append(rows[0]["id"])
+
+    result = await view_most_popular_posts(db)
+    assert "Most popular posts retrieved successfully" in result["status"]
+
+    posts = result.get("posts", [])
+    assert len(posts) <= 10
+
+    # Cleanup
+    for post_id in post_ids:
+        await db.execute("DELETE FROM posts WHERE id = $1", post_id)
+
+
+@pytest.mark.asyncio
+async def test_view_most_commented_posts_returns_posts_with_comments(
+    db, persona, other_persona, fetch
+):
+    # Create a post
+    post_rows = await fetch(
+        """
+        INSERT INTO posts (title, body, author)
+        VALUES ($1, $2, $3)
+        RETURNING id
+        """,
+        "commented post",
+        "this post has comments",
+        persona["persona_id"],
+    )
+    post_id = post_rows[0]["id"]
+
+    # Add comments to the post
+    await fetch(
+        """
+        INSERT INTO comments (post_id, author_id, body)
+        VALUES ($1, $2, $3)
+        """,
+        post_id,
+        persona["persona_id"],
+        "first comment",
+    )
+    await fetch(
+        """
+        INSERT INTO comments (post_id, author_id, body)
+        VALUES ($1, $2, $3)
+        """,
+        post_id,
+        other_persona["persona_id"],
+        "second comment",
+    )
+
+    result = await view_most_commented_posts(db)
+    assert "Most commented posts retrieved successfully" in result["status"]
+
+    posts = result.get("posts", [])
+    assert len(posts) > 0
+
+    # Find our post in the results
+    our_post_entries = [p for p in posts if p["id"] == post_id]
+    assert len(our_post_entries) == 1  # One row per post
+
+    # Verify comment count
+    assert our_post_entries[0]["comment_count"] == 2
+
+    # Cleanup
+    await db.execute("DELETE FROM comments WHERE post_id = $1", post_id)
+    await db.execute("DELETE FROM posts WHERE id = $1", post_id)
+
+
+@pytest.mark.asyncio
+async def test_view_most_commented_posts_orders_by_comment_count(
+    db, persona, other_persona, fetch
+):
+    # Create three posts
+    post1_rows = await fetch(
+        """
+        INSERT INTO posts (title, body, author)
+        VALUES ($1, $2, $3)
+        RETURNING id
+        """,
+        "post 1",
+        "one comment",
+        persona["persona_id"],
+    )
+    post1_id = post1_rows[0]["id"]
+
+    post2_rows = await fetch(
+        """
+        INSERT INTO posts (title, body, author)
+        VALUES ($1, $2, $3)
+        RETURNING id
+        """,
+        "post 2",
+        "three comments",
+        persona["persona_id"],
+    )
+    post2_id = post2_rows[0]["id"]
+
+    post3_rows = await fetch(
+        """
+        INSERT INTO posts (title, body, author)
+        VALUES ($1, $2, $3)
+        RETURNING id
+        """,
+        "post 3",
+        "no comments",
+        other_persona["persona_id"],
+    )
+    post3_id = post3_rows[0]["id"]
+
+    # Add 1 comment to post1
+    await fetch(
+        """
+        INSERT INTO comments (post_id, author_id, body)
+        VALUES ($1, $2, $3)
+        """,
+        post1_id,
+        persona["persona_id"],
+        "comment on post1",
+    )
+
+    # Add 3 comments to post2
+    for i in range(3):
+        await fetch(
+            """
+            INSERT INTO comments (post_id, author_id, body)
+            VALUES ($1, $2, $3)
+            """,
+            post2_id,
+            persona["persona_id"],
+            f"comment {i} on post2",
+        )
+
+    result = await view_most_commented_posts(db)
+    assert "Most commented posts retrieved successfully" in result["status"]
+
+    posts = result.get("posts", [])
+    assert len(posts) > 0
+
+    # Find our posts
+    post2_entries = [p for p in posts if p["id"] == post2_id]
+    post1_entries = [p for p in posts if p["id"] == post1_id]
+    post3_entries = [p for p in posts if p["id"] == post3_id]
+
+    # Verify each post appears once
+    assert len(post2_entries) == 1
+    assert len(post1_entries) == 1
+    assert len(post3_entries) == 1
+
+    # Verify comment counts
+    assert post2_entries[0]["comment_count"] == 3
+    assert post1_entries[0]["comment_count"] == 1
+    assert post3_entries[0]["comment_count"] == 0
+
+    # Verify ordering - post2 (3 comments) should come before post1 (1 comment)
+    post2_index = next(i for i, p in enumerate(posts) if p["id"] == post2_id)
+    post1_index = next(i for i, p in enumerate(posts) if p["id"] == post1_id)
+    assert post2_index < post1_index
+
+    # Cleanup
+    await db.execute(
+        "DELETE FROM comments WHERE post_id IN ($1, $2, $3)",
+        post1_id,
+        post2_id,
+        post3_id,
+    )
+    await db.execute(
+        "DELETE FROM posts WHERE id IN ($1, $2, $3)", post1_id, post2_id, post3_id
+    )
+
+
+@pytest.mark.asyncio
+async def test_view_most_commented_posts_includes_posts_with_no_comments(
+    db, persona, fetch
+):
+    # Create a post with no comments
+    post_rows = await fetch(
+        """
+        INSERT INTO posts (title, body, author)
+        VALUES ($1, $2, $3)
+        RETURNING id
+        """,
+        "lonely post",
+        "nobody commented on this",
+        persona["persona_id"],
+    )
+    post_id = post_rows[0]["id"]
+
+    result = await view_most_commented_posts(db)
+    assert "Most commented posts retrieved successfully" in result["status"]
+
+    posts = result.get("posts", [])
+
+    # Find our post in the results
+    our_post_entries = [p for p in posts if p["id"] == post_id]
+
+    # Should have exactly one entry with comment_count of 0
+    assert len(our_post_entries) == 1
+    assert our_post_entries[0]["comment_count"] == 0
+
+    # Cleanup
+    await db.execute("DELETE FROM posts WHERE id = $1", post_id)
+
+
+@pytest.mark.asyncio
+async def test_view_most_commented_posts_serializes_timestamps(db, persona, fetch):
+    # Create a post with a comment
+    post_rows = await fetch(
+        """
+        INSERT INTO posts (title, body, author)
+        VALUES ($1, $2, $3)
+        RETURNING id
+        """,
+        "test post",
+        "test body",
+        persona["persona_id"],
+    )
+    post_id = post_rows[0]["id"]
+
+    await fetch(
+        """
+        INSERT INTO comments (post_id, author_id, body)
+        VALUES ($1, $2, $3)
+        """,
+        post_id,
+        persona["persona_id"],
+        "test comment",
+    )
+
+    result = await view_most_commented_posts(db)
+    assert "Most commented posts retrieved successfully" in result["status"]
+
+    posts = result.get("posts", [])
+    our_post_entries = [p for p in posts if p["id"] == post_id]
+
+    assert len(our_post_entries) == 1
+    # Verify timestamps are serialized as ISO format strings
+    assert isinstance(our_post_entries[0]["created_at"], str)
+    assert "T" in our_post_entries[0]["created_at"]  # ISO format indicator
+    # Verify comment count
+    assert our_post_entries[0]["comment_count"] == 1
+
+    # Cleanup
+    await db.execute("DELETE FROM comments WHERE post_id = $1", post_id)
+    await db.execute("DELETE FROM posts WHERE id = $1", post_id)
