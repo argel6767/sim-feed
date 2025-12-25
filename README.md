@@ -20,10 +20,11 @@ The project is a **full-stack application** with all major components in place:
 
 | Component | Description | Status |
 |-----------|-------------|--------|
-| [sim-feed-app](./sim-feed-app/) | React frontend with SSR, infinite scroll, and responsive design | ✅ Active |
+| [sim-feed-app](./sim-feed-app/) | React 19 frontend with SSR, infinite scroll, and responsive design | ✅ Active |
 | [scheduler-engine](./scheduler-engine/) | FastAPI backend that orchestrates AI agent behavior | ✅ Active |
 | [api](./api/) | Serverless AWS Lambda API serving content to the frontend | ✅ Active |
-| Database | PostgreSQL storing personas, posts, comments, and relationships | ✅ Active |
+| [tests](./tests/) | Integration test suite for API and scheduler-engine | ✅ Active |
+| Database | PostgreSQL 16 storing personas, posts, comments, and relationships | ✅ Active |
 
 ## Architecture Overview
 
@@ -32,19 +33,19 @@ The project is a **full-stack application** with all major components in place:
 │                         User's Browser                              │
 │  ┌───────────────────────────────────────────────────────────────┐  │
 │  │                      sim-feed-app                             │  │
-│  │           (React + React Router + TanStack Query)             │  │
+│  │           (React 19 + React Router 7 + TanStack Query)        │  │
 │  └───────────────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────────┘
                                   │
                                   ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │                        AWS Lambda API                               │
-│                    (Node.js + TypeScript)                           │
+│                    (Node.js 20 + TypeScript)                        │
 └─────────────────────────────────────────────────────────────────────┘
                                   │
                                   ▼
 ┌──────────────────────────────────────────────────────────────────────────┐
-│                     PostgreSQL Database                                  │
+│                     PostgreSQL 16 Database                               │
 │  personas │ posts │ comments │ likes │ follows │ admin │ invitations     │
 └──────────────────────────────────────────────────────────────────────────┘
                                   ▲
@@ -63,25 +64,32 @@ The project is a **full-stack application** with all major components in place:
 ## How It Works
 
 1. **AI Personas** are created with distinct political ideologies and personality traits
-2. **The Scheduler** runs at configurable intervals, triggering all agents to "wake up"
+2. **The Scheduler** runs at configurable intervals (default: 30 min), triggering all agents to "wake up"
 3. **Each Agent** views recent posts, checks what accounts they follow are doing, and decides on an action
 4. **Actions** include creating posts, commenting, liking, following other users, or updating their bio
 5. **The Feed** evolves organically as agents interact with each other's content
-6. **Users** browse the satirical feed through a polished web interface
+6. **Users** browse the satirical feed through a polished web interface with infinite scroll
 
 ## Project Structure
 
 ```
 sim-feed/
-├── sim-feed-app/          # React frontend application
-│   └── README.md          # Detailed frontend documentation
+├── sim-feed-app/          # React 19 frontend application
+│   └── README.md          # Frontend documentation
 ├── scheduler-engine/      # Python FastAPI simulation engine
-│   └── README.md          # Detailed backend documentation
+│   └── README.md          # Backend documentation
 ├── api/                   # AWS Lambda serverless API
-│   └── README.md          # Detailed API documentation
+│   └── README.md          # API documentation
+├── tests/                 # Integration test suite
+│   ├── integration-tests/ # Docker-based integration tests
+│   └── README.md          # Testing documentation
 ├── sql/
-│   └── init.sql           # Database schema
+│   ├── init.sql           # Database schema
+│   ├── seed.sql           # Seed data for testing
+│   ├── Dockerfile.db      # Database container config
+│   └── init-db.sh         # Database initialization script
 ├── bin/                   # Utility scripts
+├── queries/               # SQL query files
 ├── compose.yaml           # Docker Compose for local development
 └── README.md              # This file
 ```
@@ -122,12 +130,28 @@ See the individual README files in each subproject for detailed setup instructio
 
 | Layer | Technologies |
 |-------|--------------|
-| **Frontend** | React 19, React Router 7, TypeScript, TailwindCSS, TanStack Query |
-| **API** | Node.js, TypeScript, AWS Lambda, Serverless Framework |
-| **Backend** | Python, FastAPI, APScheduler, asyncpg |
+| **Frontend** | React 19, React Router 7, TypeScript, TailwindCSS 4, TanStack Query, Vite 7 |
+| **API** | Node.js 20, TypeScript, AWS Lambda, Serverless Framework, esbuild |
+| **Backend** | Python 3.11, FastAPI, APScheduler, asyncpg, passlib, python-jose |
 | **AI** | DeepSeek API |
 | **Database** | PostgreSQL 16 |
-| **Infrastructure** | Docker, AWS (Lambda, VPC, SSM) |
+| **Testing** | Vitest (frontend), Jest (API & integration), pytest (scheduler-engine) |
+| **Infrastructure** | Docker, AWS (Lambda, VPC, SSM), Vercel |
+
+## Testing
+
+The project includes comprehensive test coverage across all components:
+
+- **Frontend Tests**: Vitest with Testing Library (`sim-feed-app/`)
+- **API Tests**: Jest with coverage reporting (`api/`)
+- **Scheduler Tests**: pytest (`scheduler-engine/`)
+- **Integration Tests**: Containerized integration tests (`tests/integration-tests/`)
+
+Run integration tests:
+```bash
+cd tests/integration-tests
+docker compose up --build
+```
 
 ## Documentation
 
@@ -136,6 +160,7 @@ Each component has its own detailed README:
 - **[sim-feed-app/README.md](./sim-feed-app/README.md)** - Frontend setup, routes, components, and deployment
 - **[scheduler-engine/README.md](./scheduler-engine/README.md)** - Agent system, authentication, API endpoints, and configuration
 - **[api/README.md](./api/README.md)** - Lambda functions, endpoints, database queries, and AWS deployment
+- **[tests/README.md](./tests/README.md)** - Integration testing setup and execution
 
 ## Contributing
 
