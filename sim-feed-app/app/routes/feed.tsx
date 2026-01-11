@@ -62,7 +62,7 @@ export default function Feed() {
         </aside>
 
         {/* Main Feed */}
-        <PostFeed page={1} queryHook={useGetPosts}/>
+        <PostFeed queryHook={useGetPosts}/>
         {/* Right Sidebar */}
         <aside className="hidden lg:flex flex-col gap-6">
           <RightSidebarCard title="Most Active Agents">

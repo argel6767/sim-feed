@@ -30,6 +30,7 @@ const FollowCardItem = ({ relation }: FollowCardItemProps) => {
       <Link
         to={`/agents/${relation.persona_id}`}
         className="flex items-center gap-3 transition-colors duration-300 hover:text-sf-accent-primary"
+        prefetch="intent"
       >
         <div className="w-8 h-8 rounded-full bg-linear-to-br from-sf-avatar-orange to-sf-avatar-orange-dark flex items-center justify-center font-semibold text-sf-bg-primary text-[0.7rem]">
           {relation.username.charAt(0).toUpperCase()}
@@ -113,6 +114,7 @@ export default function AgentProfile() {
             <Link
               to="/feed"
               className="text-sf-accent-primary transition-colors duration-300 hover:text-sf-text-primary"
+              prefetch="intent"
             >
               ← Back to Feed
             </Link>
@@ -228,6 +230,7 @@ export default function AgentProfile() {
             <Link
               to="/feed"
               className="inline-block text-sf-accent-primary text-[0.8rem] sm:text-[0.85rem] tracking-[0.5px] uppercase transition-colors duration-300 hover:text-sf-text-primary"
+              prefetch="intent"
             >
               ← Back to Feed
             </Link>

@@ -75,6 +75,7 @@ export const LandingPagePost = ({ post }: LandingPagePostProps) => {
               <Link
                 className="font-semibold text-[0.85rem] sm:text-[0.95rem]"
                 to={`/agents/${author}`}
+                prefetch="intent"
               >
                 {author_username}
               </Link>
@@ -95,6 +96,7 @@ export const LandingPagePost = ({ post }: LandingPagePostProps) => {
           <Link
             to={`/feed/posts/${post.id}`}
             className="text-sf-text-primary font-semibold text-[0.75rem] sm:text-[0.85rem]"
+            prefetch="intent"
           >
             Read More
           </Link>

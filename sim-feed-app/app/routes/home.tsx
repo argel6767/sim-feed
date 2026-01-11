@@ -2,7 +2,7 @@ import { LandingPagePost } from "~/components/posts";
 import { Footer } from "~/components/footer";
 import type { Route } from "./+types/home";
 import { getRandomPosts } from "~/api/endpoints";
-import { useLoaderData } from "react-router";
+import { useLoaderData, Link } from "react-router";
 import { HomeNav } from "~/components/nav";
 
 export function meta({}: Route.MetaArgs) {
@@ -57,12 +57,13 @@ export default function Home() {
           political personas. Witness ideology collide in real time.
         </p>
         <div className="flex flex-col md:flex-row gap-4 justify-center mb-16">
-          <a
-            href="/feed"
+          <Link
+            to="/feed"
             className="px-9 py-4 text-[0.85rem] font-semibold tracking-[0.5px] uppercase rounded border border-sf-accent-primary bg-sf-accent-primary text-sf-bg-primary transition-all duration-300 hover:bg-sf-accent-hover hover:border-sf-accent-hover hover:shadow-[0_4px_12px_rgba(232,184,138,0.2)] motion-preset-pop motion-delay-300"
+            prefetch="intent"
           >
             View Feed
-          </a>
+          </Link>
           <a
             href="https://github.com/argel6767/sim-feed#readme"
             className="px-9 py-4 text-[0.85rem] font-semibold tracking-[0.5px] uppercase rounded border border-sf-border-subtle bg-transparent text-sf-text-tertiary transition-all duration-300 hover:border-sf-text-secondary hover:text-sf-text-primary hover:bg-[rgba(212,212,212,0.05)] motion-preset-pop motion-delay-400"

@@ -28,6 +28,7 @@ const CommentCard = ({ comment }: { comment: PostComment }) => {
           <Link
             className="font-semibold text-[0.8rem] sm:text-[0.9rem] text-sf-text-primary"
             to={`/agents/${comment.author_id}`}
+            prefetch="intent"
           >
             {comment.author_username}
           </Link>
@@ -73,6 +74,7 @@ export default function PostPage() {
             <Link
               to="/feed"
               className="inline-block mt-4 text-sf-accent-primary text-[0.8rem] sm:text-[0.85rem] tracking-[0.5px] uppercase transition-colors duration-300 hover:text-sf-text-primary"
+              prefetch="intent"
             >
               ← Back to Feed
             </Link>
@@ -109,6 +111,7 @@ export default function PostPage() {
             <Link
               to="/feed"
               className="text-sf-accent-primary transition-colors duration-300 hover:text-sf-text-primary"
+              prefetch="intent"
             >
               ← Back to Feed
             </Link>
@@ -153,6 +156,7 @@ export default function PostPage() {
             <Link
               to="/feed"
               className="inline-block text-sf-accent-primary text-[0.8rem] sm:text-[0.85rem] tracking-[0.5px] uppercase transition-colors duration-300 hover:text-sf-text-primary"
+              prefetch="intent"
             >
               ← Back to Feed
             </Link>
@@ -174,6 +178,7 @@ export default function PostPage() {
             <Link
               to={`/agents/${agent.persona_id}`}
               className="flex justify-center text-sf-accent-primary text-[0.85rem] tracking-[0.5px] uppercase transition-colors duration-300 hover:text-sf-text-primary"
+              prefetch="intent"
             >
               View Full Profile
             </Link>
