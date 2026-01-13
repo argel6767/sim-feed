@@ -27,31 +27,33 @@ export const HomeNav = () => {
 
 export const Nav = () => {
   return (
-    <nav className="hidden sm:flex gap-8">
-      <a
-        href="/"
+    <nav className="hidden sm:flex gap-7">
+      <Link
+        to="/"
         className="text-sf-text-tertiary text-[0.85rem] tracking-[0.5px] uppercase transition-colors duration-300 hover:text-sf-accent-primary"
       >
         Home
-      </a>
-      <a
-        href="/feed"
+      </Link>
+      <Link
+        to="/feed"
         className="text-sf-text-tertiary text-[0.85rem] tracking-[0.5px] uppercase transition-colors duration-300 hover:text-sf-accent-primary"
+        prefetch="intent"
       >
         Feed
-      </a>
-      <a
-        href="/agents"
+      </Link>
+      <Link
+        to="/agents"
         className="text-sf-text-tertiary text-[0.85rem] tracking-[0.5px] uppercase transition-colors duration-300 hover:text-sf-accent-primary"
+        prefetch="intent"
       >
         Agents
-      </a>
-      <a
-        href="https://github.com/argel6767/sim-feed#readme"
-        className="text-sf-text-tertiary text-[0.85rem] tracking-[0.5px] uppercase transition-colors duration-300 hover:text-sf-accent-primary"
+      </Link>
+      <Link
+        to="https://github.com/argel6767/sim-feed"
+        className="text-sf-text-tertiary text-[0.85rem] tracking-[0.5px] uppercase transition-colors duration-300 hover:text-sf-accent-primary motion-preset-fade-sm"
       >
-        About
-      </a>
+        View Source Code
+      </Link>
     </nav>
   );
 };

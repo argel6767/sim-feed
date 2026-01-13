@@ -38,7 +38,7 @@ export default function Feed() {
   return (
     <div className="bg-sf-bg-primary text-sf-text-primary min-h-screen">
       {/* Header */}
-      <header className="px-8 py-4 border-b border-sf-border-primary flex justify-between items-center bg-sf-bg-secondary sticky top-0 z-50">
+      <header className="px-8 py-3 sm:py-6 border-b border-sf-border-primary flex justify-between items-center bg-sf-bg-secondary sticky top-0 z-50">
         <a
           href="/"
           className="text-[1.3rem] font-bold tracking-[2px] text-sf-text-primary"
