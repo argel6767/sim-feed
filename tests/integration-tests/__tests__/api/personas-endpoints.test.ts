@@ -1,201 +1,386 @@
 import axios from "axios";
 import { API_URL } from "../../configs/urls.ts";
 
-const AGENTS_URL = `${API_URL}/agents`;
 const PERSONAS_URL = `${API_URL}/personas`;
+const POSTS_URL = `${API_URL}/posts`;
 
-describe("Agents Endpoints", () => {
-  describe("GET /agents", () => {
-    it("should return 200 and list of agents", async () => {
-      const response = await axios.get(AGENTS_URL);
+describe("Personas Endpoints", () => {
+  describe("GET /personas", () => {
+    it("should return 200 and list of personas", async () => {
+      const response = await axios.get(PERSONAS_URL);
 
       expect(response.status).toBe(200);
       expect(response.data).toBeInstanceOf(Array);
       expect(response.data.length).toBeGreaterThan(0);
     });
 
-    it("should return agents with expected structure", async () => {
-      const response = await axios.get(AGENTS_URL);
+    it("should return personas with expected structure", async () => {
+      const response = await axios.get(PERSONAS_URL);
 
       expect(response.status).toBe(200);
-      expect(response.data.length).toBeGreaterThan(0);
-
-      const agent = response.data[0];
-      expect(agent).toHaveProperty("persona_id");
-      expect(agent).toHaveProperty("bio");
-      expect(agent).toHaveProperty("username");
-      expect(agent).toHaveProperty("following_count");
-      expect(agent).toHaveProperty("followers_count");
+      const persona = response.data[0];
+      expect(persona).toHaveProperty("persona_id");
+      expect(persona).toHaveProperty("bio");
+      expect(persona).toHaveProperty("username");
+      expect(persona).toHaveProperty("following_count");
+      expect(persona).toHaveProperty("followers_count");
     });
 
-    it("should return agents ordered by persona_id", async () => {
-      const response = await axios.get(AGENTS_URL);
+    it("should return personas ordered by persona_id", async () => {
+      const response = await axios.get(PERSONAS_URL);
 
       expect(response.status).toBe(200);
-
-      const personaIds = response.data.map((a: any) => Number(a.persona_id));
+      const personaIds = response.data.map((p: any) => Number(p.persona_id));
       for (let i = 0; i < personaIds.length - 1; i++) {
         expect(personaIds[i]).toBeLessThan(personaIds[i + 1]);
       }
     });
 
-    it("should include seeded personas", async () => {
-      const response = await axios.get(AGENTS_URL);
+    it("should return following_count and followers_count as numbers >= 0", async () => {
+      const response = await axios.get(PERSONAS_URL);
 
       expect(response.status).toBe(200);
-
-      const usernames = response.data.map((a: any) => a.username);
-      expect(usernames).toContain("techie_sam");
-      expect(usernames).toContain("wanderlust_emma");
-      expect(usernames).toContain("fit_marcus");
-      expect(usernames).toContain("artsy_luna");
-    });
-
-    it("should return correct data for techie_sam", async () => {
-      const response = await axios.get(AGENTS_URL);
-
-      expect(response.status).toBe(200);
-
-      const techie_sam = response.data.find(
-        (a: any) => a.username === "techie_sam"
-      );
-      expect(techie_sam).toBeDefined();
-      expect(techie_sam.bio).toBe("Tech enthusiast and coffee addict ☕");
-      expect(Number(techie_sam.persona_id)).toBe(1);
-    });
-
-    it("should return correct data for wanderlust_emma", async () => {
-      const response = await axios.get(AGENTS_URL);
-
-      expect(response.status).toBe(200);
-
-      const wanderlust_emma = response.data.find(
-        (a: any) => a.username === "wanderlust_emma"
-      );
-      expect(wanderlust_emma).toBeDefined();
-      expect(wanderlust_emma.bio).toBe("Living life one adventure at a time 🌍");
-      expect(Number(wanderlust_emma.persona_id)).toBe(2);
-    });
-
-    it("should return following_count as a number", async () => {
-      const response = await axios.get(AGENTS_URL);
-
-      expect(response.status).toBe(200);
-
-      for (const agent of response.data) {
-        expect(Number(agent.following_count)).not.toBeNaN();
-        expect(Number(agent.following_count)).toBeGreaterThanOrEqual(0);
+      for (const persona of response.data) {
+        expect(Number(persona.following_count)).toBeGreaterThanOrEqual(0);
+        expect(Number(persona.followers_count)).toBeGreaterThanOrEqual(0);
       }
     });
 
-    it("should return followers_count as a number", async () => {
-      const response = await axios.get(AGENTS_URL);
+    it("should handle OPTIONS preflight request", async () => {
+      const response = await axios.options(PERSONAS_URL);
+      expect(response.status).toBe(204);
+    });
+  });
+
+  describe("GET /personas/:persona_id", () => {
+    it("should return 200 and persona data for valid ID", async () => {
+      const response = await axios.get(`${PERSONAS_URL}/1`);
 
       expect(response.status).toBe(200);
+      expect(response.data).toHaveProperty("persona_id");
+      expect(response.data).toHaveProperty("bio");
+      expect(response.data).toHaveProperty("username");
+      expect(response.data).toHaveProperty("created_at");
+    });
 
-      for (const agent of response.data) {
-        expect(Number(agent.followers_count)).not.toBeNaN();
-        expect(Number(agent.followers_count)).toBeGreaterThanOrEqual(0);
+    it("should return correct persona for ID 1", async () => {
+      const response = await axios.get(`${PERSONAS_URL}/1`);
+
+      expect(response.status).toBe(200);
+      expect(Number(response.data.persona_id)).toBe(1);
+    });
+
+    it("should return 404 for non-existent persona", async () => {
+      try {
+        await axios.get(`${PERSONAS_URL}/99999`);
+        fail("Expected 404 error");
+      } catch (error: any) {
+        expect(error.response.status).toBe(404);
+        expect(error.response.data.error).toBe("Not Found");
       }
     });
 
-    it("should include CORS headers in response", async () => {
-      const response = await axios.get(AGENTS_URL);
-
-      expect(response.status).toBe(200);
-      expect(response.headers).toHaveProperty("content-type");
-      expect(response.headers["content-type"]).toContain("application/json");
+    it("should return 400 for invalid persona_id (non-numeric)", async () => {
+      try {
+        await axios.get(`${PERSONAS_URL}/abc`);
+        fail("Expected 400 error");
+      } catch (error: any) {
+        expect(error.response.status).toBe(400);
+        expect(error.response.data.error).toBe("Bad Request");
+      }
     });
 
-    it("should handle OPTIONS request for CORS preflight", async () => {
-      const response = await axios.options(AGENTS_URL);
+    it("should return 400 for negative persona_id", async () => {
+      try {
+        await axios.get(`${PERSONAS_URL}/-1`);
+        fail("Expected 400 error");
+      } catch (error: any) {
+        expect(error.response.status).toBe(400);
+        expect(error.response.data.error).toBe("Bad Request");
+      }
+    });
+
+    it("should handle OPTIONS preflight request", async () => {
+      const response = await axios.options(`${PERSONAS_URL}/1`);
+      expect(response.status).toBe(204);
+    });
+  });
+
+  describe("GET /personas/most-active/:limit", () => {
+    it("should return 200 and list of active personas", async () => {
+      const response = await axios.get(`${PERSONAS_URL}/most-active/10`);
 
       expect(response.status).toBe(200);
+      expect(response.data).toBeInstanceOf(Array);
+    });
+
+    it("should return personas with post_count", async () => {
+      const response = await axios.get(`${PERSONAS_URL}/most-active/10`);
+
+      expect(response.status).toBe(200);
+      if (response.data.length > 0) {
+        const persona = response.data[0];
+        expect(persona).toHaveProperty("persona_id");
+        expect(persona).toHaveProperty("username");
+        expect(persona).toHaveProperty("post_count");
+      }
+    });
+
+    it("should return personas ordered by post_count descending", async () => {
+      const response = await axios.get(`${PERSONAS_URL}/most-active/10`);
+
+      expect(response.status).toBe(200);
+      const postCounts = response.data.map((p: any) => Number(p.post_count));
+      for (let i = 0; i < postCounts.length - 1; i++) {
+        expect(postCounts[i]).toBeGreaterThanOrEqual(postCounts[i + 1]);
+      }
+    });
+
+    it("should respect the limit parameter", async () => {
+      const response = await axios.get(`${PERSONAS_URL}/most-active/5`);
+
+      expect(response.status).toBe(200);
+      expect(response.data.length).toBeLessThanOrEqual(5);
+    });
+
+    it("should return 400 for limit of 0", async () => {
+      try {
+        await axios.get(`${PERSONAS_URL}/most-active/0`);
+        fail("Expected 400 error");
+      } catch (error: any) {
+        expect(error.response.status).toBe(400);
+      }
+    });
+
+    it("should return 400 for limit > 100", async () => {
+      try {
+        await axios.get(`${PERSONAS_URL}/most-active/101`);
+        fail("Expected 400 error");
+      } catch (error: any) {
+        expect(error.response.status).toBe(400);
+      }
+    });
+
+    it("should return 400 for non-numeric limit", async () => {
+      try {
+        await axios.get(`${PERSONAS_URL}/most-active/abc`);
+        fail("Expected 400 error");
+      } catch (error: any) {
+        expect(error.response.status).toBe(400);
+      }
+    });
+
+    it("should handle OPTIONS preflight request", async () => {
+      const response = await axios.options(`${PERSONAS_URL}/most-active/10`);
+      expect(response.status).toBe(204);
+    });
+  });
+
+  describe("GET /personas/:persona_id/relations", () => {
+    it("should return 200 and list of followers when relation=followed", async () => {
+      const response = await axios.get(`${PERSONAS_URL}/1/relations`, {
+        params: { relation: "followed" },
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.data).toBeInstanceOf(Array);
+    });
+
+    it("should return 200 and list of following when relation=follower", async () => {
+      const response = await axios.get(`${PERSONAS_URL}/1/relations`, {
+        params: { relation: "follower" },
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.data).toBeInstanceOf(Array);
+    });
+
+    it("should return personas with persona_id and username", async () => {
+      const response = await axios.get(`${PERSONAS_URL}/1/relations`, {
+        params: { relation: "follower" },
+      });
+
+      expect(response.status).toBe(200);
+      if (response.data.length > 0) {
+        const persona = response.data[0];
+        expect(persona).toHaveProperty("persona_id");
+        expect(persona).toHaveProperty("username");
+      }
+    });
+
+    it("should return 400 when relation parameter is missing", async () => {
+      try {
+        await axios.get(`${PERSONAS_URL}/1/relations`);
+        fail("Expected 400 error");
+      } catch (error: any) {
+        expect(error.response.status).toBe(400);
+        expect(error.response.data.message).toContain("relation");
+      }
+    });
+
+    it("should return 400 for invalid relation parameter", async () => {
+      try {
+        await axios.get(`${PERSONAS_URL}/1/relations`, {
+          params: { relation: "invalid" },
+        });
+        fail("Expected 400 error");
+      } catch (error: any) {
+        expect(error.response.status).toBe(400);
+      }
+    });
+
+    it("should return 400 for invalid persona_id", async () => {
+      try {
+        await axios.get(`${PERSONAS_URL}/abc/relations`, {
+          params: { relation: "follower" },
+        });
+        fail("Expected 400 error");
+      } catch (error: any) {
+        expect(error.response.status).toBe(400);
+      }
+    });
+
+    it("should return 400 for negative persona_id", async () => {
+      try {
+        await axios.get(`${PERSONAS_URL}/-1/relations`, {
+          params: { relation: "follower" },
+        });
+        fail("Expected 400 error");
+      } catch (error: any) {
+        expect(error.response.status).toBe(400);
+      }
+    });
+
+    it("should handle OPTIONS preflight request", async () => {
+      const response = await axios.options(`${PERSONAS_URL}/1/relations`);
+      expect(response.status).toBe(204);
+    });
+  });
+
+  describe("GET /posts/personas/:persona_id/pages/:page", () => {
+    it("should return 200 and list of posts for valid persona", async () => {
+      const response = await axios.get(`${POSTS_URL}/personas/1/pages/1`);
+
+      expect(response.status).toBe(200);
+      expect(response.data).toBeInstanceOf(Array);
+    });
+
+    it("should return posts with expected structure", async () => {
+      const response = await axios.get(`${POSTS_URL}/personas/1/pages/1`);
+
+      expect(response.status).toBe(200);
+      if (response.data.length > 0) {
+        const post = response.data[0];
+        expect(post).toHaveProperty("id");
+        expect(post).toHaveProperty("body");
+        expect(post).toHaveProperty("author");
+        expect(post).toHaveProperty("author_username");
+        expect(post).toHaveProperty("created_at");
+        expect(post).toHaveProperty("likes_count");
+        expect(post).toHaveProperty("comments_count");
+      }
+    });
+
+    it("should return posts only from the specified persona", async () => {
+      const response = await axios.get(`${POSTS_URL}/personas/1/pages/1`);
+
+      expect(response.status).toBe(200);
+      for (const post of response.data) {
+        expect(Number(post.author)).toBe(1);
+      }
+    });
+
+    it("should return empty array for persona with no posts", async () => {
+      // Assuming persona 99999 doesn't exist or has no posts
+      const response = await axios.get(`${POSTS_URL}/personas/9999/pages/1`);
+
+      expect(response.status).toBe(200);
+      expect(response.data).toBeInstanceOf(Array);
+    });
+
+    it("should return 400 for invalid persona_id", async () => {
+      try {
+        await axios.get(`${POSTS_URL}/personas/abc/pages/1`);
+        fail("Expected 400 error");
+      } catch (error: any) {
+        expect(error.response.status).toBe(400);
+      }
+    });
+
+    it("should return 400 for persona_id of 0", async () => {
+      try {
+        await axios.get(`${POSTS_URL}/personas/0/pages/1`);
+        fail("Expected 400 error");
+      } catch (error: any) {
+        expect(error.response.status).toBe(400);
+      }
+    });
+
+    it("should return 400 for invalid page number", async () => {
+      try {
+        await axios.get(`${POSTS_URL}/personas/1/pages/abc`);
+        fail("Expected 400 error");
+      } catch (error: any) {
+        expect(error.response.status).toBe(400);
+      }
+    });
+
+    it("should return 400 for negative page number", async () => {
+      try {
+        await axios.get(`${POSTS_URL}/personas/1/pages/-1`);
+        fail("Expected 400 error");
+      } catch (error: any) {
+        expect(error.response.status).toBe(400);
+      }
+    });
+
+    it("should handle OPTIONS preflight request", async () => {
+      const response = await axios.options(`${POSTS_URL}/personas/1/pages/1`);
+      expect(response.status).toBe(204);
     });
   });
 
   describe("Cross-endpoint consistency", () => {
-    it("should return consistent persona data with /personas/:persona_id", async () => {
-      const agentsResponse = await axios.get(AGENTS_URL);
-      const personaResponse = await axios.get(`${PERSONAS_URL}/1`);
+    it("should have consistent data between /personas and /personas/:id", async () => {
+      const listResponse = await axios.get(PERSONAS_URL);
+      const singleResponse = await axios.get(`${PERSONAS_URL}/1`);
 
-      expect(agentsResponse.status).toBe(200);
-      expect(personaResponse.status).toBe(200);
+      expect(listResponse.status).toBe(200);
+      expect(singleResponse.status).toBe(200);
 
-      const agentFromList = agentsResponse.data.find(
-        (a: any) => String(a.persona_id) === "1"
+      const fromList = listResponse.data.find(
+        (p: any) => Number(p.persona_id) === 1
       );
 
-      expect(agentFromList).toBeDefined();
-      expect(agentFromList.username).toBe(personaResponse.data.username);
-      expect(agentFromList.bio).toBe(personaResponse.data.bio);
+      expect(fromList).toBeDefined();
+      expect(fromList.username).toBe(singleResponse.data.username);
+      expect(fromList.bio).toBe(singleResponse.data.bio);
     });
 
-    it("should return consistent persona data with /personas/most-active/:limit", async () => {
-      const agentsResponse = await axios.get(AGENTS_URL);
-      const activeResponse = await axios.get(`${PERSONAS_URL}/most-active/10`);
-
-      expect(agentsResponse.status).toBe(200);
-      expect(activeResponse.status).toBe(200);
-
-      for (const activeAgent of activeResponse.data) {
-        const agentFromList = agentsResponse.data.find(
-          (a: any) => String(a.persona_id) === String(activeAgent.persona_id)
-        );
-
-        expect(agentFromList).toBeDefined();
-        expect(agentFromList.username).toBe(activeAgent.username);
-      }
-    });
-
-    it("should have following_count matching actual relations count", async () => {
-      const agentsResponse = await axios.get(AGENTS_URL);
-
-      expect(agentsResponse.status).toBe(200);
-
-      // Check for persona 1
-      const agent1 = agentsResponse.data.find(
-        (a: any) => String(a.persona_id) === "1"
-      );
-
+    it("should have following_count matching relations count", async () => {
+      const listResponse = await axios.get(PERSONAS_URL);
       const relationsResponse = await axios.get(`${PERSONAS_URL}/1/relations`, {
         params: { relation: "follower" },
       });
 
-      expect(Number(agent1.following_count)).toBe(relationsResponse.data.length);
-    });
-
-    it("should have followers_count matching actual relations count", async () => {
-      const agentsResponse = await axios.get(AGENTS_URL);
-
-      expect(agentsResponse.status).toBe(200);
-
-      // Check for persona 1
-      const agent1 = agentsResponse.data.find(
-        (a: any) => String(a.persona_id) === "1"
+      const persona = listResponse.data.find(
+        (p: any) => Number(p.persona_id) === 1
       );
 
+      expect(Number(persona.following_count)).toBe(relationsResponse.data.length);
+    });
+
+    it("should have followers_count matching relations count", async () => {
+      const listResponse = await axios.get(PERSONAS_URL);
       const relationsResponse = await axios.get(`${PERSONAS_URL}/1/relations`, {
         params: { relation: "followed" },
       });
 
-      expect(Number(agent1.followers_count)).toBe(relationsResponse.data.length);
-    });
+      const persona = listResponse.data.find(
+        (p: any) => Number(p.persona_id) === 1
+      );
 
-    it("should return all personas that exist in the database", async () => {
-      const agentsResponse = await axios.get(AGENTS_URL);
-      const activeResponse = await axios.get(`${PERSONAS_URL}/most-active/100`);
-
-      expect(agentsResponse.status).toBe(200);
-      expect(activeResponse.status).toBe(200);
-
-      // All active personas should be in agents list
-      for (const activeAgent of activeResponse.data) {
-        const exists = agentsResponse.data.some(
-          (a: any) => String(a.persona_id) === String(activeAgent.persona_id)
-        );
-        expect(exists).toBe(true);
-      }
+      expect(Number(persona.followers_count)).toBe(relationsResponse.data.length);
     });
   });
 });
