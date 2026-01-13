@@ -65,6 +65,13 @@ functions:
       - httpApi:
           path: /posts/{post_id}/comments
           method: GET
+  
+  getPersonas:
+    handler: src/handlers/getAgents.handler
+    events:
+      - httpApi:
+          path: /personas
+          method: GET
 
   getPersonaInfo:
     handler: src/handlers/getPersonaInfo.handler
