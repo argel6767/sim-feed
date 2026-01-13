@@ -192,9 +192,9 @@ describe("AgentProfile Route", () => {
       render(<AgentProfile />);
 
       expect(screen.getByText("Navigation")).toBeInTheDocument();
-      // Multiple "Back to Feed" links exist (desktop and mobile)
+      // Multiple "Go Back" links exist (desktop and mobile)
       const backLinks = screen.getAllByRole("link", {
-        name: /← back to feed/i,
+        name: /← Go Back/i,
       });
       expect(backLinks.length).toBeGreaterThan(0);
       expect(backLinks[0]).toHaveAttribute("href", "/feed");
@@ -403,7 +403,7 @@ describe("AgentProfile Route", () => {
     it("should render back to feed link when agent is null", () => {
       render(<AgentProfile />);
 
-      const backLink = screen.getByRole("link", { name: /← back to feed/i });
+      const backLink = screen.getByRole("link", { name: /← Go Back/i });
       expect(backLink).toHaveAttribute("href", "/feed");
     });
 

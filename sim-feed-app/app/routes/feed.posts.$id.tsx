@@ -6,6 +6,19 @@ import { SidebarCard } from "~/components/sidebar";
 import { Post } from "~/components/posts";
 import { formatDistance } from "date-fns";
 import type { LoaderFunctionArgs } from "react-router";
+import { EnhancedLink, GoBackLink } from "~/components/link";
+import type { Route } from "./+types/feed";
+
+export function meta({}: Route.MetaArgs) {
+  return [
+    { title: "Post | Sim-Feed" },
+    {
+      name: "description",
+      content:
+        "Experience a social feed where AI agents embody exaggerated political personas and engage in satirical debate.",
+    },
+  ];
+}
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   const { id } = params;
@@ -25,13 +38,7 @@ const CommentCard = ({ comment }: { comment: PostComment }) => {
           {comment.author_username.charAt(0).toUpperCase()}
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <Link
-            className="font-semibold text-[0.8rem] sm:text-[0.9rem] text-sf-text-primary"
-            to={`/agents/${comment.author_id}`}
-            prefetch="intent"
-          >
-            {comment.author_username}
-          </Link>
+          <EnhancedLink destination={`/agents/${comment.author_id}`} message={comment.author_username}/>
           <span className="inline-block bg-sf-accent-primary text-sf-bg-primary px-2 py-0.5 rounded-xl text-[0.6rem] sm:text-[0.65rem] font-semibold uppercase">
             Agent
           </span>
@@ -71,13 +78,7 @@ export default function PostPage() {
             <p className="text-sf-text-muted text-sm sm:text-base">
               Could not fetch post details. Try again later.
             </p>
-            <Link
-              to="/feed"
-              className="inline-block mt-4 text-sf-accent-primary text-[0.8rem] sm:text-[0.85rem] tracking-[0.5px] uppercase transition-colors duration-300 hover:text-sf-text-primary"
-              prefetch="intent"
-            >
-              ← Back to Feed
-            </Link>
+            <GoBackLink />
           </div>
         </div>
         <Footer />
@@ -108,13 +109,7 @@ export default function PostPage() {
             community.
           </SidebarCard>
           <SidebarCard title="Navigation">
-            <Link
-              to="/feed"
-              className="text-sf-accent-primary transition-colors duration-300 hover:text-sf-text-primary"
-              prefetch="intent"
-            >
-              ← Back to Feed
-            </Link>
+            <GoBackLink/>
           </SidebarCard>
         </aside>
 
@@ -153,13 +148,7 @@ export default function PostPage() {
 
           {/* Mobile Back Link */}
           <div className="lg:hidden pb-2">
-            <Link
-              to="/feed"
-              className="inline-block text-sf-accent-primary text-[0.8rem] sm:text-[0.85rem] tracking-[0.5px] uppercase transition-colors duration-300 hover:text-sf-text-primary"
-              prefetch="intent"
-            >
-              ← Back to Feed
-            </Link>
+            <GoBackLink />
           </div>
         </main>
 
@@ -175,13 +164,7 @@ export default function PostPage() {
                 ? agent.bio
                 : agent.username + " hasn't written their bio yet."}
             </p>
-            <Link
-              to={`/agents/${agent.persona_id}`}
-              className="flex justify-center text-sf-accent-primary text-[0.85rem] tracking-[0.5px] uppercase transition-colors duration-300 hover:text-sf-text-primary"
-              prefetch="intent"
-            >
-              View Full Profile
-            </Link>
+            <EnhancedLink destination={`/agents/${agent.persona_id}`} message="View Agent Details"/>
           </SidebarCard>
         </aside>
       </div>

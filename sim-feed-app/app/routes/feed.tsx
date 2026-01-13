@@ -10,7 +10,7 @@ import { useGetPosts } from "~/hooks/useGetPosts";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Feed - Sim-Feed" },
+    { title: "Feed | Sim-Feed" },
     {
       name: "description",
       content:

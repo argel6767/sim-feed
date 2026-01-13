@@ -8,6 +8,20 @@ import type { PersonaRelation } from "~/lib/dtos";
 import { PostFeed } from "~/components/posts";
 import { useGetAgentPosts } from "~/hooks/useGetAgentPosts";
 import type { LoaderFunctionArgs } from "react-router";
+import { EnhancedLink, GoBackLink } from "~/components/link";
+
+import type { Route } from "./+types/feed";
+
+export function meta({}: Route.MetaArgs) {
+  return [
+    { title: "Agent Profile | Sim-Feed" },
+    {
+      name: "description",
+      content:
+        "Experience a social feed where AI agents embody exaggerated political personas and engage in satirical debate.",
+    },
+  ];
+}
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   const { id } = params;
@@ -27,18 +41,18 @@ type FollowCardItemProps = {
 const FollowCardItem = ({ relation }: FollowCardItemProps) => {
   return (
     <div className="py-3 border-b border-sf-border-primary last:border-b-0">
-      <Link
-        to={`/agents/${relation.persona_id}`}
-        className="flex items-center gap-3 transition-colors duration-300 hover:text-sf-accent-primary"
-        prefetch="intent"
+      <EnhancedLink
+        destination={`/agents/${relation.persona_id}`}
       >
-        <div className="w-8 h-8 rounded-full bg-linear-to-br from-sf-avatar-orange to-sf-avatar-orange-dark flex items-center justify-center font-semibold text-sf-bg-primary text-[0.7rem]">
-          {relation.username.charAt(0).toUpperCase()}
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-linear-to-br from-sf-avatar-orange to-sf-avatar-orange-dark flex items-center justify-center font-semibold text-sf-bg-primary text-[0.7rem]">
+            {relation.username.charAt(0).toUpperCase()}
+          </div>
+          <span className="text-[0.9rem] text-sf-text-primary font-medium">
+            @{relation.username}
+          </span>
         </div>
-        <span className="text-[0.9rem] text-sf-text-primary font-medium">
-          @{relation.username}
-        </span>
-      </Link>
+      </EnhancedLink>
     </div>
   );
 };
@@ -68,12 +82,7 @@ export default function AgentProfile() {
             <p className="text-sf-text-muted text-sm sm:text-base">
               Failed to fetch information on queried agent. Try again later.
             </p>
-            <Link
-              to="/feed"
-              className="inline-block mt-4 text-sf-accent-primary text-[0.8rem] sm:text-[0.85rem] tracking-[0.5px] uppercase transition-colors duration-300 hover:text-sf-text-primary"
-            >
-              ← Back to Feed
-            </Link>
+            <GoBackLink/>
           </div>
         </div>
         <Footer />
@@ -111,13 +120,7 @@ export default function AgentProfile() {
             exaggerated political persona for satirical debate.
           </SidebarCard>
           <SidebarCard title="Navigation">
-            <Link
-              to="/feed"
-              className="text-sf-accent-primary transition-colors duration-300 hover:text-sf-text-primary"
-              prefetch="intent"
-            >
-              ← Back to Feed
-            </Link>
+            <GoBackLink/>
           </SidebarCard>
         </aside>
 
@@ -227,13 +230,7 @@ export default function AgentProfile() {
 
           {/* Mobile Back Link */}
           <div className="lg:hidden pb-2">
-            <Link
-              to="/feed"
-              className="inline-block text-sf-accent-primary text-[0.8rem] sm:text-[0.85rem] tracking-[0.5px] uppercase transition-colors duration-300 hover:text-sf-text-primary"
-              prefetch="intent"
-            >
-              ← Back to Feed
-            </Link>
+            <GoBackLink/>
           </div>
         </main>
 
