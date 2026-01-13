@@ -13,7 +13,6 @@ const corsHeaders = {
 };
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
-  // Handle preflight
   if (event.requestContext.http.method === 'OPTIONS') {
     return {
       statusCode: 200,
