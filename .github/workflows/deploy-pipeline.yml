@@ -10,20 +10,20 @@ jobs:
     uses: ./.github/workflows/build-pipeline.yml
 
   integration-tests:
-    name: Run Integration Tests
+    name: Integration Tests (Pre‑Deploy)
     runs-on: ubuntu-latest
     needs: build
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v3
       - name: Run Integration Tests
         working-directory: ./tests/integration-tests
         run: |
           docker compose up --build -d
           docker compose logs -f test-runner &
           docker compose wait test-runner
-          exit_code=$(docker compose ps -a --format json | jq -r 'select(.Name == "integration-test-runner") | .ExitCode')
+          exit_code=$(docker compose ps -a --format json \
+            | jq -r 'select(.Name == "integration-test-runner") | .ExitCode')
           docker compose down -v
           exit $exit_code
 
@@ -37,27 +37,20 @@ jobs:
       contents: read
     env:
       AWS_REGION: us-east-2
-      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-      AWS_REPO: ${{ secrets.AWS_REPO }}
-      EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
       ROLE_ARN: ${{ secrets.ROLE_ARN }}
-      DEPLOY: cicd
     steps:
       - uses: actions/checkout@v4
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ env.ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v4
         with:
           python-version: "3.10"
-      - name: Run Deploy Script
-        run: python bin/deploy_scheduler_engine.py
+      - run: python bin/deploy_scheduler_engine.py
 
   deploy-api:
-    name: Deploy Lambda Handlers
+    name: Deploy API Handlers
     runs-on: ubuntu-latest
     needs: [build, integration-tests]
     if: needs.build.outputs.api-changed == 'true'
@@ -66,17 +59,10 @@ jobs:
       contents: read
     env:
       AWS_REGION: us-east-2
-      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-      AWS_REPO: ${{ secrets.AWS_REPO }}
-      EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
-      SECURITY_GROUP_ID: ${{ secrets.SECURITY_GROUP_ID }}
-      PRIVATE_SUBNET_1_ID: ${{ secrets.PRIVATE_SUBNET_1_ID }}
-      PRIVATE_SUBNET_2_ID: ${{ secrets.PRIVATE_SUBNET_2_ID }}
       ROLE_ARN: ${{ secrets.ROLE_ARN }}
     steps:
       - uses: actions/checkout@v4
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ env.ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
@@ -86,8 +72,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "pnpm"
-          cache-dependency-path: "./api/pnpm-lock.yaml"
+          cache: pnpm
+          cache-dependency-path: ./api/pnpm-lock.yaml
       - run: pnpm install
         working-directory: ./api
       - run: pnpm run deploy
