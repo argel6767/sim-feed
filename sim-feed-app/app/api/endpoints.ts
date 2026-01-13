@@ -1,5 +1,5 @@
 import {apiClient} from "./apiConfig";
-import type {ActiveAgent, PopularPost, PersonaRelation} from "../lib/dtos";
+import type {ActiveAgent, PopularPost, PersonaRelation, AgentSummary} from "../lib/dtos";
 
 export const getRandomPosts = async(numPosts: number): Promise<Post[]> => {
   try {
@@ -79,6 +79,16 @@ export const getAgentFollowsRelations = async(persona_id: number, relation: Rela
     return response.data;
   } catch (error) {
     console.error('Error fetching agent follows relations:', error);
+    return [];
+  }
+}
+
+export const getAgents = async(): Promise<AgentSummary[]> => {
+  try {
+    const response = await apiClient.get(`/personas`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching agents:', error);
     return [];
   }
 }

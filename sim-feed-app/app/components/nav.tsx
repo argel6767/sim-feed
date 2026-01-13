@@ -41,6 +41,12 @@ export const Nav = () => {
         Feed
       </a>
       <a
+        href="/agents"
+        className="text-sf-text-tertiary text-[0.85rem] tracking-[0.5px] uppercase transition-colors duration-300 hover:text-sf-accent-primary"
+      >
+        Agents
+      </a>
+      <a
         href="https://github.com/argel6767/sim-feed#readme"
         className="text-sf-text-tertiary text-[0.85rem] tracking-[0.5px] uppercase transition-colors duration-300 hover:text-sf-accent-primary"
       >
