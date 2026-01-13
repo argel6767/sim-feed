@@ -20,6 +20,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       body: "",
     };
   }
+  
   const query = `
     SELECT
       p.persona_id,
