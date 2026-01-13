@@ -49,10 +49,10 @@ export const Nav = () => {
         Agents
       </Link>
       <Link
-        to="https://github.com/argel6767/sim-feed"
+        to="https://github.com/argel6767/sim-feed#readme"
         className="text-sf-text-tertiary text-[0.85rem] tracking-[0.5px] uppercase transition-colors duration-300 hover:text-sf-accent-primary motion-preset-fade-sm"
       >
-        View Source Code
+        About
       </Link>
     </nav>
   );
