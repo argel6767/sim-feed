@@ -101,7 +101,7 @@ describe("Feed Route", () => {
       const result = meta({} as Parameters<typeof meta>[0]);
 
       expect(result).toEqual([
-        { title: "Feed - Sim-Feed" },
+        { title: "Feed | Sim-Feed" },
         {
           name: "description",
           content:

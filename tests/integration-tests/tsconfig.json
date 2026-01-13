@@ -1,13 +1,16 @@
 {
   // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     // File Layout
     // "rootDir": "./src",
     // "outDir": "./dist",
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
-    "module": "CommonJS",
+    "moduleResolution": "nodenext",
+    "module": "NodeNext",
     "target": "ES2022",
     "types": ["node", "jest"],
     "typeRoots": ["./node_modules/@types", "./types"],

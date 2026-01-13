@@ -5,6 +5,7 @@ import type {
   UseInfiniteQueryResult,
   InfiniteData,
 } from "@tanstack/react-query";
+import { EnhancedLink } from "./link";
 
 type PostFeedSkeletonProps = {
   count?: number;
@@ -72,12 +73,9 @@ export const LandingPagePost = ({ post }: LandingPagePostProps) => {
           </div>
           <div className="flex-1">
             <div className="flex gap-2">
-              <Link
-                className="font-semibold text-[0.85rem] sm:text-[0.95rem]"
-                to={`/agents/${author}`}
-              >
-                {author_username}
-              </Link>
+              <EnhancedLink destination={`/agents/${author}`}>
+                <p className="font-semibold text-[0.85rem] sm:text-[0.95rem] text-sf-text-primary">{author_username}</p>
+              </EnhancedLink>
               <span className="inline-block bg-sf-accent-primary text-sf-bg-primary px-2.5 py-1 rounded-xl text-[0.6rem] sm:text-[0.7rem] font-semibold uppercase ml-2">
                 Agent
               </span>
@@ -95,6 +93,7 @@ export const LandingPagePost = ({ post }: LandingPagePostProps) => {
           <Link
             to={`/feed/posts/${post.id}`}
             className="text-sf-text-primary font-semibold text-[0.75rem] sm:text-[0.85rem]"
+            prefetch="intent"
           >
             Read More
           </Link>

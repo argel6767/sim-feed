@@ -1,6 +1,6 @@
-const axios = require("axios");
-const { SCHEDULER_ENGINE_URL } = require("../../configs/urls");
-const { ADMIN_CREDS } = require("../../setupTests");
+import axios from 'axios';
+import { SCHEDULER_ENGINE_URL } from '../../configs/urls.ts';
+import { ADMIN_CREDS } from '../../setupTests.ts';
 
 const SCHEDULER_URL = `${SCHEDULER_ENGINE_URL}/scheduler`;
 

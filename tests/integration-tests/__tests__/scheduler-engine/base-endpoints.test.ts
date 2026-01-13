@@ -1,5 +1,5 @@
-const axios = require('axios');
-const { SCHEDULER_ENGINE_URL } = require('../../configs/urls');
+import axios from 'axios';
+import { SCHEDULER_ENGINE_URL } from '../../configs/urls.ts';
 
 describe('Base Endpoints', () => {
   

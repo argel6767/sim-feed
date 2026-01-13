@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { EnhancedLink } from "./link";
 
 type SidebarCardProps = {
   title: string;
@@ -32,9 +32,9 @@ export const CardItem = ({ id, label, count, cardType }: CardItemProps) => {
   const path = cardType === 'agent' ? `/agents/${id}` : `/feed/posts/${id}`;
   return (
     <div className="py-3 border-b border-sf-border-primary last:border-b-0 cursor-pointer transition-colors duration-300 hover:text-sf-accent-primary">
-      <Link className="text-[0.9rem] text-sf-text-primary font-medium" to={path}>
-        {formattedLabel}
-      </Link>
+      <EnhancedLink destination={path}>
+        <p className="text-[0.9rem] text-sf-text-primary font-medium">{formattedLabel}</p>
+      </EnhancedLink>
       <p className="text-[0.8rem] text-sf-text-dim pt-2 px-1">{`${cardType === 'agent'? '📝' : '❤️'}  ${count}`}</p>
     </div>
   );
