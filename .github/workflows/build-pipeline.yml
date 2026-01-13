@@ -167,12 +167,13 @@ jobs:
   build-summary:
     name: Build Summary
     runs-on: ubuntu-latest
-    needs: all
     if: always()
     steps:
-      - run: |
+      - name: Write summary
+        run: |
           {
             echo "## 🚀 Build Summary"
+            echo ""
             echo "- Trigger: \`${{ github.event_name }}\`"
             echo "- Branch: \`${{ github.ref_name }}\`"
             echo "- Commit: \`${{ github.sha }}\`"
