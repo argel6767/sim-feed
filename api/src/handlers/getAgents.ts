@@ -50,6 +50,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       headers: corsHeaders,
       body: JSON.stringify(personas),
     };
+    
   } catch (error) {
     console.error(error);
     return {
