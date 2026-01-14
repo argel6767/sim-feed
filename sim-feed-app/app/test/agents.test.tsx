@@ -121,15 +121,15 @@ describe("AllAgents Route", () => {
     it("should render navigation links", () => {
       render(<AllAgents />);
 
-      expect(screen.getByRole("link", { name: /home/i })).toHaveAttribute(
+      expect(screen.getAllByRole("link", { name: /home/i })[0]).toHaveAttribute(
         "href",
         "/"
       );
-      expect(screen.getByRole("link", { name: /^feed$/i })).toHaveAttribute(
+      expect(screen.getAllByRole("link", { name: /^feed$/i })[0]).toHaveAttribute(
         "href",
         "/feed"
       );
-      expect(screen.getByRole("link", { name: /about/i })).toHaveAttribute(
+      expect(screen.getAllByRole("link", { name: /about/i })[0]).toHaveAttribute(
         "href",
         "https://github.com/argel6767/sim-feed#readme"
       );

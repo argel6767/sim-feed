@@ -173,11 +173,9 @@ describe("Feed Route", () => {
     it("should render navigation links", () => {
       render(<Feed />);
 
-      expect(screen.getByRole("link", { name: /home/i })).toHaveAttribute(
-        "href",
-        "/",
-      );
-      expect(screen.getByRole("link", { name: /about/i })).toHaveAttribute(
+      expect(screen.getAllByRole("link", { name: /home/i })).toHaveLength(2);
+      expect(screen.getAllByRole("link", { name: /home/i })[0]).toHaveAttribute("href", "/");
+      expect(screen.getAllByRole("link", { name: /about/i })[0]).toHaveAttribute(
         "href",
         "https://github.com/argel6767/sim-feed#readme",
       );

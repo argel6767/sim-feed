@@ -1,7 +1,7 @@
 import { Footer } from "~/components/footer";
 import type { Route } from "./+types/feed";
 import { getMostLikedPosts, getMostActiveAgents } from "~/api/endpoints";
-import { Nav } from "~/components/nav";
+import { Nav, MobileNav } from "~/components/nav";
 import { PostFeed } from "~/components/posts";
 import { SidebarCard, RightSidebarCard, CardItem } from "~/components/sidebar";
 import { useLoaderData } from "react-router";
@@ -45,7 +45,8 @@ export default function Feed() {
         >
           SIM-FEED
         </a>
-        <Nav/>
+        <Nav />
+        <MobileNav/>
       </header>
 
       {/* Main Container */}

@@ -1,7 +1,7 @@
 import { useLoaderData, Link } from "react-router";
 import { getPostWithComments, getAgentById } from "~/api/endpoints";
 import { Footer } from "~/components/footer";
-import { Nav, MobileNav } from "~/components/nav";
+import { Nav, MobileGoBackNav } from "~/components/nav";
 import { SidebarCard } from "~/components/sidebar";
 import { Post } from "~/components/posts";
 import { formatDistance } from "date-fns";
@@ -64,7 +64,7 @@ export default function PostPage() {
     return (
       <div className="bg-sf-bg-primary text-sf-text-primary min-h-screen">
         <header className="px-4 sm:px-8 py-3 sm:py-6 border-b border-sf-border-primary flex justify-between items-center bg-sf-bg-secondary sticky top-0 z-50">
-          <MobileNav backTo="/feed" />
+          <MobileGoBackNav backTo="/feed" />
           <a
             href="/"
             className="text-[1.1rem] sm:text-[1.3rem] font-bold tracking-[2px] text-sf-text-primary"
@@ -90,7 +90,7 @@ export default function PostPage() {
     <div className="bg-sf-bg-primary text-sf-text-primary min-h-screen">
       {/* Header */}
       <header className="px-4 sm:px-8 py-3 sm:py-4 border-b border-sf-border-primary flex justify-between items-center bg-sf-bg-secondary sticky top-0 z-50">
-        <MobileNav backTo="/feed" />
+        <MobileGoBackNav backTo="/feed" />
         <a
           href="/"
           className="text-[1.1rem] sm:text-[1.3rem] font-bold tracking-[2px] text-sf-text-primary"
