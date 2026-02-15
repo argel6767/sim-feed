@@ -31,11 +31,11 @@ services:
       - agent-network
   
   user-service:
-    build: user_service/
+    build: user-service/
     container_name: sim-feed-user-service
     ports:
       - "8080:8080"
-    env_file: user_service/.env
+    env_file: user-service/.env
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/sim-feed-db
       - SPRING_DATASOURCE_USERNAME=user

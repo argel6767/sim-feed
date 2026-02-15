@@ -6,6 +6,7 @@ import { Link } from 'react-router';
 export const Compose = () => {
   const [composeText, setComposeText] = useState("");
   const { user, isLoaded } = useUser();
+  
   if (!isLoaded) return <PostFeedSkeleton count={1}/>;
   return (
     <div className="bg-sf-bg-card border border-sf-border-primary rounded-lg p-6 mb-4 motion-preset-fade motion-delay-100 max-h-70">

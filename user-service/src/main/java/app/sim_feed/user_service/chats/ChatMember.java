@@ -7,6 +7,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
 import app.sim_feed.user_service.users.User;
@@ -39,15 +40,15 @@ public class ChatMember {
     private Long id;
     
     @ManyToOne
-    @Column(name = "chat_id", nullable = false)
+    @JoinColumn(name = "chat_id", nullable = false)
     private Chat chat;
     
     @ManyToOne
-    @Column(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
     
     @ManyToOne
-    @Column(name = "persona_id", nullable = false)
+    @JoinColumn(name = "persona_id", nullable = false)
     private Persona persona;
     
     @Column(name = "joined_at", nullable = false)
