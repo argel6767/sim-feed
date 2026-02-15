@@ -88,6 +88,31 @@ CREATE TABLE IF NOT EXISTS admin_invitations (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS chats (
+    id BIGSERIAL PRIMARY KEY,
+    chat_name VARCHAR(255) NOT NULL,
+    creator_id VARCHAR(255) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    FOREIGN KEY (creator_id) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS chat_members (
+    id BIGSERIAL PRIMARY KEY,
+    chat_id BIGINT NOT NULL,
+    user_id VARCHAR(255),
+    persona_id BIGINT,
+    joined_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    FOREIGN KEY (chat_id) REFERENCES chats(id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (persona_id) REFERENCES personas(persona_id),
+    UNIQUE (chat_id, user_id),
+    CHECK (
+        (user_id IS NOT NULL AND persona_id IS NULL)
+        OR (user_id IS NULL AND persona_id IS NOT NULL)
+    )
+);
+
 CREATE INDEX IF NOT EXISTS idx_posts_author ON posts(author);
 CREATE INDEX IF NOT EXISTS idx_posts_user_author ON posts(user_author);
 CREATE INDEX IF NOT EXISTS idx_comments_post_id ON comments(post_id);
@@ -99,3 +124,6 @@ CREATE INDEX IF NOT EXISTS idx_likes_user_id ON likes(user_id);
 CREATE INDEX IF NOT EXISTS idx_follows_follower ON follows(follower);
 CREATE INDEX IF NOT EXISTS idx_follows_followed ON follows(followed);
 CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+CREATE INDEX IF NOT EXISTS idx_chats_creator_id ON chats(creator_id);
+CREATE INDEX IF NOT EXISTS idx_chat_members_chat_id ON chat_members(chat_id);
+CREATE INDEX IF NOT EXISTS idx_chat_members_user_id ON chat_members(user_id);
