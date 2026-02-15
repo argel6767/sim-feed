@@ -121,3 +121,24 @@ functions:
       - httpApi:
           path: /posts/most-liked/{limit}
           method: GET
+
+  deleteUser:
+    handler: src/handlers/deleteUser.handler
+    events:
+      - httpApi:
+          path: /users/delete/web-hook
+          method: POST
+          
+  updateUserUsername:
+    handler: src/handlers/updateUserUsername.handler
+    events:
+      - httpApi:
+          path: /users/update/web-hook
+          method: POST
+          
+  addNewUser:
+    handler: src/handlers/addNewUser.handler
+    events:
+      - httpApi:
+          path: /users/web-hook
+          method: POST
