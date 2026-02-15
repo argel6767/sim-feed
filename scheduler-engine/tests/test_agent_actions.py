@@ -13,6 +13,7 @@ from services.agent_actions import (
     view_most_recent_posts,
 )
 
+
 @pytest.mark.asyncio
 async def test_create_post_inserts_row(db, persona, fetch):
     result = await create_post(
@@ -63,7 +64,57 @@ async def test_comment_on_post_and_view_comments(db, post, persona):
 async def test_find_post_author_returns_persona(db, post, persona):
     result = await find_post_author(db, post["id"])
     assert "Author information successfully fetched" in result["status"]
-    assert result["author_info"][0]["persona_id"] == persona["persona_id"]
+    author = result["author_info"][0]
+    assert author["persona_id"] == persona["persona_id"]
+    assert author["username"] == persona["username"]
+    assert author["author_type"] == "persona"
+    assert author["user_id"] is None
+
+
+@pytest.mark.asyncio
+async def test_find_post_author_returns_user(db, fetch):
+    # Create a user
+    user_rows = await fetch(
+        """
+        INSERT INTO users (id, bio)
+        VALUES ($1, $2)
+        RETURNING id
+        """,
+        "clerk_test_user_123",
+        "test user bio",
+    )
+    user_id = user_rows[0]["id"]
+
+    # Create a post authored by the user
+    post_rows = await fetch(
+        """
+        INSERT INTO posts (title, body, user_author)
+        VALUES ($1, $2, $3)
+        RETURNING id
+        """,
+        "user post title",
+        "user post body",
+        user_id,
+    )
+    post_id = post_rows[0]["id"]
+
+    result = await find_post_author(db, post_id)
+    assert "Author information successfully fetched" in result["status"]
+    author = result["author_info"][0]
+    assert author["user_id"] == user_id
+    assert author["author_type"] == "user"
+    assert author["persona_id"] is None
+    assert author["username"] is None
+
+    # Cleanup
+    await fetch("DELETE FROM posts WHERE id = $1", post_id)
+    await fetch("DELETE FROM users WHERE id = $1", user_id)
+
+
+@pytest.mark.asyncio
+async def test_find_post_author_not_found_for_missing_post(db):
+    result = await find_post_author(db, 999999)
+    assert "No author was found" in result["status"]
 
 
 @pytest.mark.asyncio
@@ -533,6 +584,10 @@ async def test_view_most_popular_posts_returns_posts_ordered_by_likes(
     assert post3_result["like_count"] == 1
     assert post1_result["like_count"] == 0
 
+    # Verify both author columns are present; persona-authored posts have user_author as None
+    assert post1_result["author"] == persona["persona_id"]
+    assert post1_result["user_author"] is None
+
     # Cleanup
     await db.execute(
         "DELETE FROM likes WHERE post_id IN ($1, $2, $3)", post1_id, post2_id, post3_id
@@ -540,6 +595,59 @@ async def test_view_most_popular_posts_returns_posts_ordered_by_likes(
     await db.execute(
         "DELETE FROM posts WHERE id IN ($1, $2, $3)", post1_id, post2_id, post3_id
     )
+
+
+@pytest.mark.asyncio
+async def test_view_most_popular_posts_includes_user_authored_posts(db, persona, fetch):
+    # Create a user
+    user_rows = await fetch(
+        """
+        INSERT INTO users (id, bio)
+        VALUES ($1, $2)
+        RETURNING id
+        """,
+        "clerk_popular_user",
+        "popular user bio",
+    )
+    user_id = user_rows[0]["id"]
+
+    # Create a post by the user
+    user_post_rows = await fetch(
+        """
+        INSERT INTO posts (title, body, user_author)
+        VALUES ($1, $2, $3)
+        RETURNING id
+        """,
+        "user popular post",
+        "a post by a real user",
+        user_id,
+    )
+    user_post_id = user_post_rows[0]["id"]
+
+    # Like the user's post from a persona
+    await fetch(
+        """
+        INSERT INTO likes (post_id, persona_id)
+        VALUES ($1, $2)
+        """,
+        user_post_id,
+        persona["persona_id"],
+    )
+
+    result = await view_most_popular_posts(db)
+    assert "Most popular posts retrieved successfully" in result["status"]
+
+    posts = result.get("posts", [])
+    user_post_entries = [p for p in posts if p["id"] == user_post_id]
+    assert len(user_post_entries) == 1
+    assert user_post_entries[0]["user_author"] == user_id
+    assert user_post_entries[0]["author"] is None
+    assert user_post_entries[0]["like_count"] == 1
+
+    # Cleanup
+    await fetch("DELETE FROM likes WHERE post_id = $1", user_post_id)
+    await fetch("DELETE FROM posts WHERE id = $1", user_post_id)
+    await fetch("DELETE FROM users WHERE id = $1", user_id)
 
 
 @pytest.mark.asyncio
@@ -632,9 +740,69 @@ async def test_view_most_commented_posts_returns_posts_with_comments(
     # Verify comment count
     assert our_post_entries[0]["comment_count"] == 2
 
+    # Verify both author columns are present
+    assert our_post_entries[0]["author"] == persona["persona_id"]
+    assert our_post_entries[0]["user_author"] is None
+
     # Cleanup
     await db.execute("DELETE FROM comments WHERE post_id = $1", post_id)
     await db.execute("DELETE FROM posts WHERE id = $1", post_id)
+
+
+@pytest.mark.asyncio
+async def test_view_most_commented_posts_includes_user_authored_posts(
+    db, persona, fetch
+):
+    # Create a user
+    user_rows = await fetch(
+        """
+        INSERT INTO users (id, bio)
+        VALUES ($1, $2)
+        RETURNING id
+        """,
+        "clerk_commented_user",
+        "commented user bio",
+    )
+    user_id = user_rows[0]["id"]
+
+    # Create a post by the user
+    user_post_rows = await fetch(
+        """
+        INSERT INTO posts (title, body, user_author)
+        VALUES ($1, $2, $3)
+        RETURNING id
+        """,
+        "user commented post",
+        "a user post with comments",
+        user_id,
+    )
+    user_post_id = user_post_rows[0]["id"]
+
+    # Add a comment from a persona
+    await fetch(
+        """
+        INSERT INTO comments (post_id, author_id, body)
+        VALUES ($1, $2, $3)
+        """,
+        user_post_id,
+        persona["persona_id"],
+        "persona commenting on user post",
+    )
+
+    result = await view_most_commented_posts(db)
+    assert "Most commented posts retrieved successfully" in result["status"]
+
+    posts = result.get("posts", [])
+    user_post_entries = [p for p in posts if p["id"] == user_post_id]
+    assert len(user_post_entries) == 1
+    assert user_post_entries[0]["user_author"] == user_id
+    assert user_post_entries[0]["author"] is None
+    assert user_post_entries[0]["comment_count"] == 1
+
+    # Cleanup
+    await fetch("DELETE FROM comments WHERE post_id = $1", user_post_id)
+    await fetch("DELETE FROM posts WHERE id = $1", user_post_id)
+    await fetch("DELETE FROM users WHERE id = $1", user_id)
 
 
 @pytest.mark.asyncio

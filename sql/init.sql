@@ -6,33 +6,60 @@ CREATE TABLE IF NOT EXISTS personas (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS users (
+    id VARCHAR(255) PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    bio VARCHAR(250),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 CREATE TABLE IF NOT EXISTS posts (
     id BIGSERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     body TEXT NOT NULL,
-    author BIGINT NOT NULL,
+    author BIGINT,
+    user_author VARCHAR(255),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    FOREIGN KEY (author) REFERENCES personas(persona_id)
+    FOREIGN KEY (author) REFERENCES personas(persona_id),
+    FOREIGN KEY (user_author) REFERENCES users(id),
+    CHECK (
+        (author IS NOT NULL AND user_author IS NULL)
+        OR (author IS NULL AND user_author IS NOT NULL)
+    )
 );
 
 CREATE TABLE IF NOT EXISTS comments (
     id BIGSERIAL PRIMARY KEY,
     post_id BIGINT NOT NULL,
     body TEXT NOT NULL,
-    author_id BIGINT NOT NULL,
+    author_id BIGINT,
+    user_author_id VARCHAR(255),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     FOREIGN KEY (post_id) REFERENCES posts(id),
-    FOREIGN KEY (author_id) REFERENCES personas(persona_id)
+    FOREIGN KEY (author_id) REFERENCES personas(persona_id),
+    FOREIGN KEY (user_author_id) REFERENCES users(id),
+    CHECK (
+        (author_id IS NOT NULL AND user_author_id IS NULL)
+        OR (author_id IS NULL AND user_author_id IS NOT NULL)
+    )
 );
 
 CREATE TABLE IF NOT EXISTS likes (
     id BIGSERIAL PRIMARY KEY,
     post_id BIGINT NOT NULL,
-    persona_id BIGINT NOT NULL,
+    persona_id BIGINT,
+    user_id VARCHAR(255),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     FOREIGN KEY (post_id) REFERENCES posts(id),
     FOREIGN KEY (persona_id) REFERENCES personas(persona_id),
-    UNIQUE (post_id, persona_id)
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    UNIQUE (post_id, persona_id),
+    UNIQUE (post_id, user_id),
+    CHECK (
+        (persona_id IS NOT NULL AND user_id IS NULL)
+        OR (persona_id IS NULL AND user_id IS NOT NULL)
+    )
 );
 
 CREATE TABLE IF NOT EXISTS follows (
@@ -62,9 +89,13 @@ CREATE TABLE IF NOT EXISTS admin_invitations (
 );
 
 CREATE INDEX IF NOT EXISTS idx_posts_author ON posts(author);
+CREATE INDEX IF NOT EXISTS idx_posts_user_author ON posts(user_author);
 CREATE INDEX IF NOT EXISTS idx_comments_post_id ON comments(post_id);
 CREATE INDEX IF NOT EXISTS idx_comments_author_id ON comments(author_id);
+CREATE INDEX IF NOT EXISTS idx_comments_user_author_id ON comments(user_author_id);
 CREATE INDEX IF NOT EXISTS idx_likes_post_id ON likes(post_id);
 CREATE INDEX IF NOT EXISTS idx_likes_persona_id ON likes(persona_id);
+CREATE INDEX IF NOT EXISTS idx_likes_user_id ON likes(user_id);
 CREATE INDEX IF NOT EXISTS idx_follows_follower ON follows(follower);
 CREATE INDEX IF NOT EXISTS idx_follows_followed ON follows(followed);
+CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);

@@ -16,8 +16,11 @@ describe("getPost Handler", () => {
       rows: [
         {
           id: 1,
+          title: "Test Post 1",
           body: "Test Post 1",
           author: 1,
+          user_author: null,
+          author_type: "persona",
           author_username: "testuser",
           created_at: "2023-01-01T00:00:00Z",
           likes_count: "5",
@@ -26,6 +29,8 @@ describe("getPost Handler", () => {
               id: 1,
               body: "Test Comment 1",
               author_id: 2,
+              user_author_id: null,
+              author_type: "persona",
               author_username: "commenter1",
               created_at: "2023-01-01T01:00:00Z",
             },
@@ -33,6 +38,8 @@ describe("getPost Handler", () => {
               id: 2,
               body: "Test Comment 2",
               author_id: 3,
+              user_author_id: null,
+              author_type: "persona",
               author_username: "commenter2",
               created_at: "2023-01-01T02:00:00Z",
             },
@@ -75,7 +82,7 @@ describe("getPost Handler", () => {
   const context = {} as any;
   const callback = jest.fn();
 
-  it("should return a single post with comments", async () => {
+  it("should return a single persona-authored post with comments", async () => {
     const event = createEvent("1");
     const response = (await handler(
       event,
@@ -84,10 +91,14 @@ describe("getPost Handler", () => {
     )) as APIGatewayProxyStructuredResultV2;
 
     expect(response.statusCode).toBe(200);
-    expect(JSON.parse(response.body!)).toEqual({
+    const result = JSON.parse(response.body!);
+    expect(result).toEqual({
       id: 1,
+      title: "Test Post 1",
       body: "Test Post 1",
       author: 1,
+      user_author: null,
+      author_type: "persona",
       author_username: "testuser",
       created_at: "2023-01-01T00:00:00Z",
       likes_count: "5",
@@ -96,6 +107,8 @@ describe("getPost Handler", () => {
           id: 1,
           body: "Test Comment 1",
           author_id: 2,
+          user_author_id: null,
+          author_type: "persona",
           author_username: "commenter1",
           created_at: "2023-01-01T01:00:00Z",
         },
@@ -103,12 +116,120 @@ describe("getPost Handler", () => {
           id: 2,
           body: "Test Comment 2",
           author_id: 3,
+          user_author_id: null,
+          author_type: "persona",
           author_username: "commenter2",
           created_at: "2023-01-01T02:00:00Z",
         },
       ],
     });
+    expect(result.author_type).toBe("persona");
+    expect(result.user_author).toBeNull();
     expect(mockQuery).toHaveBeenCalledWith(expect.any(String), ["1"]);
+  });
+
+  it("should return a user-authored post with user-authored comments", async () => {
+    mockQuery.mockResolvedValue({
+      rows: [
+        {
+          id: 10,
+          title: "User Post",
+          body: "A post by a real user",
+          author: null,
+          user_author: "clerk_user_123",
+          author_type: "user",
+          author_username: "realuser",
+          created_at: "2023-02-01T00:00:00Z",
+          likes_count: "3",
+          comments: [
+            {
+              id: 5,
+              body: "User comment",
+              author_id: null,
+              user_author_id: "clerk_user_456",
+              author_type: "user",
+              author_username: "anotheruser",
+              created_at: "2023-02-01T01:00:00Z",
+            },
+          ],
+        },
+      ],
+    });
+
+    const event = createEvent("10");
+    const response = (await handler(
+      event,
+      context,
+      callback,
+    )) as APIGatewayProxyStructuredResultV2;
+
+    expect(response.statusCode).toBe(200);
+    const result = JSON.parse(response.body!);
+    expect(result.author).toBeNull();
+    expect(result.user_author).toBe("clerk_user_123");
+    expect(result.author_type).toBe("user");
+    expect(result.author_username).toBe("realuser");
+    expect(result.comments).toHaveLength(1);
+    expect(result.comments[0].author_id).toBeNull();
+    expect(result.comments[0].user_author_id).toBe("clerk_user_456");
+    expect(result.comments[0].author_type).toBe("user");
+    expect(result.comments[0].author_username).toBe("anotheruser");
+  });
+
+  it("should return a persona-authored post with mixed comments from personas and users", async () => {
+    mockQuery.mockResolvedValue({
+      rows: [
+        {
+          id: 20,
+          title: "Mixed Comments Post",
+          body: "A post with mixed comment authors",
+          author: 1,
+          user_author: null,
+          author_type: "persona",
+          author_username: "persona_author",
+          created_at: "2023-03-01T00:00:00Z",
+          likes_count: "7",
+          comments: [
+            {
+              id: 10,
+              body: "Persona comment",
+              author_id: 2,
+              user_author_id: null,
+              author_type: "persona",
+              author_username: "persona_commenter",
+              created_at: "2023-03-01T01:00:00Z",
+            },
+            {
+              id: 11,
+              body: "User comment",
+              author_id: null,
+              user_author_id: "clerk_user_789",
+              author_type: "user",
+              author_username: "user_commenter",
+              created_at: "2023-03-01T02:00:00Z",
+            },
+          ],
+        },
+      ],
+    });
+
+    const event = createEvent("20");
+    const response = (await handler(
+      event,
+      context,
+      callback,
+    )) as APIGatewayProxyStructuredResultV2;
+
+    expect(response.statusCode).toBe(200);
+    const result = JSON.parse(response.body!);
+    expect(result.author_type).toBe("persona");
+    expect(result.comments).toHaveLength(2);
+    expect(result.comments[0].author_type).toBe("persona");
+    expect(result.comments[0].author_id).toBe(2);
+    expect(result.comments[0].user_author_id).toBeNull();
+    expect(result.comments[1].author_type).toBe("user");
+    expect(result.comments[1].author_id).toBeNull();
+    expect(result.comments[1].user_author_id).toBe("clerk_user_789");
   });
 
   it("should return a post with empty comments array when post has no comments", async () => {
@@ -117,8 +238,11 @@ describe("getPost Handler", () => {
       rows: [
         {
           id: 2,
+          title: "Test Post Without Comments",
           body: "Test Post Without Comments",
           author: 5,
+          user_author: null,
+          author_type: "persona",
           author_username: "anotheruser",
           created_at: "2023-01-02T00:00:00Z",
           likes_count: "0",
@@ -137,8 +261,11 @@ describe("getPost Handler", () => {
     const result = JSON.parse(response.body!);
     expect(result).toEqual({
       id: 2,
+      title: "Test Post Without Comments",
       body: "Test Post Without Comments",
       author: 5,
+      user_author: null,
+      author_type: "persona",
       author_username: "anotheruser",
       created_at: "2023-01-02T00:00:00Z",
       likes_count: "0",
@@ -231,8 +358,11 @@ describe("getPost Handler", () => {
       rows: [
         {
           id: 999999,
+          title: "Test Post with Large ID",
           body: "Test Post with Large ID",
           author: 1,
+          user_author: null,
+          author_type: "persona",
           author_username: "testuser",
           created_at: "2023-01-01T00:00:00Z",
           likes_count: "10",
@@ -257,8 +387,11 @@ describe("getPost Handler", () => {
       rows: [
         {
           id: 1,
+          title: "Test Post",
           body: "Test Post",
           author: 1,
+          user_author: null,
+          author_type: "persona",
           author_username: "testuser",
           created_at: "2023-01-01T00:00:00Z",
           likes_count: "3",
@@ -267,13 +400,17 @@ describe("getPost Handler", () => {
               id: 1,
               body: "First Comment",
               author_id: 2,
+              user_author_id: null,
+              author_type: "persona",
               author_username: "user2",
               created_at: "2023-01-01T01:00:00Z",
             },
             {
               id: 2,
               body: "Second Comment",
-              author_id: 3,
+              author_id: null,
+              user_author_id: "clerk_user_abc",
+              author_type: "user",
               author_username: "user3",
               created_at: "2023-01-01T02:00:00Z",
             },
@@ -281,6 +418,8 @@ describe("getPost Handler", () => {
               id: 3,
               body: "Third Comment",
               author_id: 4,
+              user_author_id: null,
+              author_type: "persona",
               author_username: "user4",
               created_at: "2023-01-01T03:00:00Z",
             },
@@ -299,7 +438,43 @@ describe("getPost Handler", () => {
     const result = JSON.parse(response.body!);
     expect(result.comments).toHaveLength(3);
     expect(result.comments[0].body).toBe("First Comment");
+    expect(result.comments[0].author_type).toBe("persona");
     expect(result.comments[1].body).toBe("Second Comment");
+    expect(result.comments[1].author_type).toBe("user");
     expect(result.comments[2].body).toBe("Third Comment");
+    expect(result.comments[2].author_type).toBe("persona");
+  });
+
+  it("should return a user-authored post with no comments", async () => {
+    mockQuery.mockResolvedValue({
+      rows: [
+        {
+          id: 50,
+          title: "Lonely User Post",
+          body: "No one commented",
+          author: null,
+          user_author: "clerk_lonely",
+          author_type: "user",
+          author_username: "lonelyuser",
+          created_at: "2023-04-01T00:00:00Z",
+          likes_count: "0",
+          comments: [],
+        },
+      ],
+    });
+
+    const event = createEvent("50");
+    const response = (await handler(
+      event,
+      context,
+      callback,
+    )) as APIGatewayProxyStructuredResultV2;
+
+    expect(response.statusCode).toBe(200);
+    const result = JSON.parse(response.body!);
+    expect(result.author).toBeNull();
+    expect(result.user_author).toBe("clerk_lonely");
+    expect(result.author_type).toBe("user");
+    expect(result.comments).toEqual([]);
   });
 });
