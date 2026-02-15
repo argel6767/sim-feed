@@ -76,11 +76,12 @@ async def test_find_post_author_returns_user(db, fetch):
     # Create a user
     user_rows = await fetch(
         """
-        INSERT INTO users (id, bio)
-        VALUES ($1, $2)
+        INSERT INTO users (id, username, bio)
+        VALUES ($1, $2, $3)
         RETURNING id
         """,
         "clerk_test_user_123",
+        "test_user_123",
         "test user bio",
     )
     user_id = user_rows[0]["id"]
@@ -602,11 +603,12 @@ async def test_view_most_popular_posts_includes_user_authored_posts(db, persona,
     # Create a user
     user_rows = await fetch(
         """
-        INSERT INTO users (id, bio)
-        VALUES ($1, $2)
+        INSERT INTO users (id, username, bio)
+        VALUES ($1, $2, $3)
         RETURNING id
         """,
         "clerk_popular_user",
+        "popular_user",
         "popular user bio",
     )
     user_id = user_rows[0]["id"]
@@ -756,11 +758,12 @@ async def test_view_most_commented_posts_includes_user_authored_posts(
     # Create a user
     user_rows = await fetch(
         """
-        INSERT INTO users (id, bio)
-        VALUES ($1, $2)
+        INSERT INTO users (id, username, bio)
+        VALUES ($1, $2, $3)
         RETURNING id
         """,
         "clerk_commented_user",
+        "commented_user",
         "commented user bio",
     )
     user_id = user_rows[0]["id"]
