@@ -1,9 +1,10 @@
 import { Link } from "react-router";
 import { useState } from "react";
+import { SignedIn, SignedOut, UserButton, SignInButton, SignUpButton} from '@clerk/react-router'
 
 export const HomeNav = () => {
   return (
-    <nav className="flex md:gap-8 gap-4">
+    <nav className="flex md:gap-8 gap-4 items-center">
       <a
         href="#features"
         className="text-sf-text-tertiary text-[0.85rem] tracking-[0.5px] uppercase transition-colors duration-300 hover:text-sf-accent-primary motion-preset-fade-sm"
@@ -24,13 +25,25 @@ export const HomeNav = () => {
       >
         View Source Code
       </a>
+      <div>
+        <SignedIn>
+          <UserButton />
+        </SignedIn>
+        <SignedOut>
+          <div className="text-sf-text-tertiary text-[0.85rem] tracking-[0.5px] uppercase transition-colors duration-300 hover:text-sf-accent-primary motion-preset-fade-sm hover:cursor-pointer">
+            <SignUpButton appearance={{}} mode="modal">
+              SIGN UP
+            </SignUpButton>
+          </div>
+        </SignedOut>
+      </div>
     </nav>
   );
 };
 
 export const Nav = () => {
   return (
-    <nav className="hidden sm:flex gap-7">
+    <nav className="hidden sm:flex gap-7 items-center">
       <Link
         to="/"
         className="text-sf-text-tertiary text-[0.85rem] tracking-[0.5px] uppercase transition-colors duration-300 hover:text-sf-accent-primary"
@@ -70,6 +83,18 @@ export const Nav = () => {
           <path d="M12 4L12 12M12 4L4 4M12 4L4 12" />
         </svg>
       </Link>
+      <div>
+      <SignedIn>
+        <UserButton/>
+      </SignedIn>
+        <SignedOut>
+          <div className="text-sf-text-tertiary text-[0.85rem] tracking-[0.5px] uppercase transition-colors duration-300 hover:text-sf-accent-primary motion-preset-fade-sm">
+          <SignInButton mode="modal">
+            SIGN IN
+            </SignInButton>
+          </div>
+        </SignedOut>
+      </div>
     </nav>
   );
 };
@@ -83,6 +108,13 @@ export const MobileNav = () => {
     return (
       <>
         {/* Hamburger Button */}
+        <nav className="sm:hidden flex gap-6">
+        <SignedIn>
+          <UserButton />
+        </SignedIn>
+        <SignedOut>
+          <SignInButton />
+        </SignedOut>
         <button
           onClick={toggleModal}
           className="sm:hidden relative w-8 h-8 flex flex-col items-center justify-center gap-1.5 z-50"
@@ -95,7 +127,8 @@ export const MobileNav = () => {
           <span className={`w-6 h-0.5 bg-sf-text-primary transition-all duration-300 
             ${isOpen ? '-rotate-45 -translate-y-2' : ''}`}
           />
-        </button>
+          </button>
+        </nav>
   
         {/* Backdrop */}
         {isOpen && (

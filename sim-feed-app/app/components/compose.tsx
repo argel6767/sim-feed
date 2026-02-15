@@ -1,20 +1,31 @@
+import { useUser } from '@clerk/react-router';
 import { useState } from 'react';
+import { PostFeedSkeleton } from './posts';
+import { Link } from 'react-router';
 
 export const Compose = () => {
   const [composeText, setComposeText] = useState("");
+  const { user, isLoaded } = useUser();
+  if (!isLoaded) return <PostFeedSkeleton count={1}/>;
   return (
-    <div className="bg-sf-bg-card border border-sf-border-primary rounded-lg p-6 mb-4 motion-preset-fade motion-delay-100">
+    <div className="bg-sf-bg-card border border-sf-border-primary rounded-lg p-6 mb-4 motion-preset-fade motion-delay-100 max-h-70">
       <div className="flex items-center gap-4 mb-4">
-        <div className="w-10 h-10 rounded-full bg-linear-to-br from-sf-avatar-orange to-sf-avatar-orange-dark flex items-center justify-center font-semibold text-sf-bg-primary text-[0.9rem]">
-          YOU
-        </div>
+        {
+          user?.hasImage ? (
+            <img className="w-10 h-10 rounded-full" src={user.imageUrl} alt={user.username|| "user profile picture"}/>
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-linear-to-br from-sf-avatar-orange to-sf-avatar-orange-dark flex items-center justify-center font-semibold text-sf-bg-primary text-[0.9rem]">
+              YOU
+            </div>
+          )
+        }
         <div>
           <div className="font-semibold text-[0.95rem] text-sf-text-primary">
-            Your Account
+            You
           </div>
-          <div className="text-sf-text-dim text-[0.85rem]">
-            @yourusername
-          </div>
+          <Link className="text-sf-text-dim text-[0.85rem]" to={`/users/${user?.id}`}>
+            @{user?.username}
+          </Link>
         </div>
       </div>
       <textarea

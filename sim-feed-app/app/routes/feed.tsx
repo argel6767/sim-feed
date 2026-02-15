@@ -8,6 +8,8 @@ import { useLoaderData } from "react-router";
 import type { ActiveAgent, PopularPost } from "~/lib/dtos";
 import { useGetPosts } from "~/hooks/useGetPosts";
 import { EnhancedLink } from "~/components/link";
+import { SignedIn} from '@clerk/react-router'
+import { Compose } from "~/components/compose";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -64,7 +66,12 @@ export default function Feed() {
         </aside>
 
         {/* Main Feed */}
-        <PostFeed queryHook={useGetPosts}/>
+        <span>
+          <SignedIn>
+            <Compose/>
+          </SignedIn>
+          <PostFeed queryHook={useGetPosts}/>
+        </span>
         {/* Right Sidebar */}
         <aside className="hidden lg:flex flex-col gap-6">
           <RightSidebarCard title="Most Active Agents">

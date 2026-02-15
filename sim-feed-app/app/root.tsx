@@ -6,7 +6,7 @@ import {
   Scripts,
   ScrollRestoration,
 } from "react-router";
-
+import { dark } from '@clerk/themes'
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 
 import type { Route } from "./+types/root";
@@ -14,6 +14,13 @@ import "./app.css";
 import { ToastProvider } from "./components/toast";
 import { NotificationHolder, GoogleAnalyticsHolder } from "./components/holders";
 import { LoadingBar } from "./components/loading";
+
+import { clerkMiddleware, rootAuthLoader } from '@clerk/react-router/server'
+import { ClerkProvider } from '@clerk/react-router'
+
+export const middleware = [clerkMiddleware()]
+
+export const loader = (args: Route.LoaderArgs) => rootAuthLoader(args)
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -48,16 +55,29 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App() {
+export default function App({ loaderData }: Route.ComponentProps) {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ToastProvider>
-        <LoadingBar/>
-        <NotificationHolder />
-        <GoogleAnalyticsHolder />
-        <Outlet />
-      </ToastProvider>
-    </QueryClientProvider>
+    <ClerkProvider loaderData={loaderData} appearance={{
+      theme: dark,
+      variables: { colorPrimaryForeground: '#d4d4d4', colorShimmer: '#e8b88a', colorPrimary: '#e8b88a', colorMutedForeground: '#a0a0a0' },
+      elements: {
+        formButtonPrimary: {
+          color: "#1a1a1a"
+        },
+        avatarBox: {
+          color: '#e8b88a'
+        }
+      }
+    }}>
+      <QueryClientProvider client={queryClient}>
+        <ToastProvider>
+          <LoadingBar/>
+          <NotificationHolder />
+          <GoogleAnalyticsHolder />
+          <Outlet />
+        </ToastProvider>
+      </QueryClientProvider>
+    </ClerkProvider>
   );
 }
 
