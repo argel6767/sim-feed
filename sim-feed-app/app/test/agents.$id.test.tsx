@@ -7,7 +7,7 @@ import {
   createMockPersonaRelations,
 } from "~/test/test-utils";
 import AgentProfile, { loader } from "~/routes/agents.$id";
-import type { PersonaRelation } from "~/lib/dtos";
+import type { PersonaRelation } from "~/lib/lamda-dtos";
 
 // Mock the API endpoints module
 vi.mock("~/api/endpoints", () => ({

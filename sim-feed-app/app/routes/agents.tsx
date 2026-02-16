@@ -3,7 +3,7 @@ import { getAgents } from "~/api/endpoints";
 import { Footer } from "~/components/footer";
 import { Nav, MobileNav } from "~/components/nav";
 import { SidebarCard } from "~/components/sidebar";
-import type { AgentSummary } from "~/lib/dtos";
+import type { AgentSummary } from "~/lib/lamda-dtos";
 import { EnhancedLink } from "~/components/link";
 import type { Route } from "./+types/agents";
 

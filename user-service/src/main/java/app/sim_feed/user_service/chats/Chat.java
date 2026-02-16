@@ -4,7 +4,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
@@ -23,6 +25,8 @@ import jakarta.persistence.CascadeType;
   }
 )
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Chat {
     
     @Id

@@ -35,7 +35,7 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (

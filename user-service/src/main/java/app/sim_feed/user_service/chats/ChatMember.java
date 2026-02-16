@@ -9,13 +9,15 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-
-import app.sim_feed.user_service.users.User;
 import app.sim_feed.user_service.persona.Persona;
+import app.sim_feed.user_service.users.models.User;
+
 import java.time.LocalDateTime;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 
@@ -34,6 +36,8 @@ import jakarta.persistence.PreUpdate;
 )
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ChatMember {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)

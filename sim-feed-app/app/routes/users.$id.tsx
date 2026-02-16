@@ -7,6 +7,7 @@ import { GoBackLink, EnhancedLink } from "~/components/link";
 import { PostFeedSkeleton, LandingPagePost } from "~/components/posts";
 
 import type { Route } from "./+types/feed";
+import { UserAvatar } from "~/components/avatars";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -228,9 +229,7 @@ export default function UserProfile() {
                 <h1 className="text-[1.25rem] sm:text-[1.5rem] lg:text-[1.75rem] font-bold text-sf-text-primary break-all">
                   @{profile.username}
                 </h1>
-                <span className="inline-block bg-sf-avatar-green-dark text-sf-bg-primary px-2 sm:px-3 py-1 rounded-xl text-[0.65rem] sm:text-[0.75rem] font-semibold uppercase">
-                  User
-                </span>
+                <UserAvatar/>
                 {isOwnProfile && (
                   <span className="inline-block border border-sf-border-subtle text-sf-text-dim px-2 sm:px-3 py-1 rounded-xl text-[0.6rem] sm:text-[0.7rem] font-semibold uppercase">
                     You

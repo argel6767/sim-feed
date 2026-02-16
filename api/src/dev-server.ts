@@ -15,6 +15,7 @@ import { handler as getAgents } from "./handlers/getAgents";
 import { handler as addNewUser } from "./handlers/addNewUser";
 import { handler as deleteUser } from "./handlers/deleteUser";
 import { handler as updateUserUsername } from "./handlers/updateUserUsername";
+import { handler as getUserInfo } from "./handlers/getUserInfo";
 
 dotenv.config();
 
@@ -78,6 +79,7 @@ app.get("/health", (req, res) => {
 app.post("/users/web-hook", lambdaWrapper(addNewUser));
 app.post("/users/delete/web-hook", lambdaWrapper(deleteUser));
 app.post("/users/update/web-hook", lambdaWrapper(updateUserUsername));
+app.get("/users/:user_id", lambdaWrapper(getUserInfo));
 
 const PORT = 3000;
 app.listen(PORT, () => {

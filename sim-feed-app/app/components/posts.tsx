@@ -6,6 +6,7 @@ import type {
   InfiniteData,
 } from "@tanstack/react-query";
 import { EnhancedLink } from "./link";
+import { AgentAvatar, UserAvatar } from "./avatars";
 
 type PostFeedSkeletonProps = {
   count?: number;
@@ -62,8 +63,9 @@ type LandingPagePostProps = {
 };
 
 export const LandingPagePost = ({ post }: LandingPagePostProps) => {
-  const { body, author_username, comments_count, likes_count, author } = post;
+  const { body, author_username, comments_count, likes_count, author, user_author, author_type } = post;
   const shortenedBody = body.length > 300 ? `${body.slice(0, 300)}...` : body;
+  const destination = author_type === 'persona' ? `/agents/${author}` : `/users/${user_author}`;
   return (
     <>
       <div className="bg-sf-bg-primary border border-sf-border-primary rounded-md p-3 sm:p-6 motion-preset-slide-right-sm motion-delay-900">
@@ -72,13 +74,11 @@ export const LandingPagePost = ({ post }: LandingPagePostProps) => {
             {author_username.charAt(0).toUpperCase()}
           </div>
           <div className="flex-1">
-            <div className="flex gap-2">
-              <EnhancedLink destination={`/agents/${author}`}>
+            <div className="flex gap-3 items-center">
+              <EnhancedLink destination={destination}>
                 <p className="font-semibold text-[0.85rem] sm:text-[0.95rem] text-sf-text-primary">{author_username}</p>
               </EnhancedLink>
-              <span className="inline-block bg-sf-accent-primary text-sf-bg-primary px-2.5 py-1 rounded-xl text-[0.6rem] sm:text-[0.7rem] font-semibold uppercase ml-2">
-                Agent
-              </span>
+              {author_type === 'persona' ? <AgentAvatar/> : <UserAvatar/>}
             </div>
           </div>
         </div>
@@ -91,7 +91,7 @@ export const LandingPagePost = ({ post }: LandingPagePostProps) => {
             <span>❤️ {likes_count}</span>
           </div>
           <Link
-            to={`/feed/posts/${post.id}`}
+            to={`/feed/posts/${post.id}?author_type=${author_type}`}
             className="text-sf-text-primary font-semibold text-[0.75rem] sm:text-[0.85rem]"
             prefetch="intent"
           >
@@ -111,7 +111,7 @@ type PostFeedProps = {
 };
 
 export const PostFeed = ({ persona_id, queryHook }: PostFeedProps) => {
-  const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } =
+  const { data, isLoading, isRefetching, hasNextPage, fetchNextPage, isFetchingNextPage } =
     persona_id ? queryHook(persona_id!) : queryHook();
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -147,6 +147,7 @@ export const PostFeed = ({ persona_id, queryHook }: PostFeedProps) => {
   return (
     <main className="flex flex-col gap-4">
       <div className="flex flex-col gap-4">
+        {isRefetching && <PostFeedSkeleton count={1} />}
         {posts.length > 0 ? (
           <>
             {posts.map((post, index) => (
@@ -197,22 +198,24 @@ type PostProps = {
 };
 
 export const Post = ({ post }: PostProps) => {
-  const postDate = formatDistance(post.created_at, new Date(), {
+  const { body, author_username, author, user_author, author_type, created_at, title, likes_count, comments } = post;
+  const postDate = formatDistance(created_at, new Date(), {
     addSuffix: true,
   });
+  const destination = author_type === "persona" ? `/agents/${author}` : `/users/${user_author}`
   return (
     <article className="bg-sf-bg-primary border border-sf-border-primary rounded-lg p-3 sm:p-6 motion-preset-slide-up-sm">
       <div className="flex items-center gap-4 mb-4">
         <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-full bg-linear-to-br from-sf-avatar-orange to-sf-avatar-orange-dark flex items-center justify-center font-semibold text-sf-bg-primary text-[0.85rem] sm:text-[1rem]">
-          {post.author_username.charAt(0).toUpperCase()}
+          {author_username.charAt(0).toUpperCase()}
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-2 flex-wrap">
             <Link
               className="font-semibold text-sm sm:text-lg text-sf-text-primary px-1"
-              to={`/agents/${post.author}`}
+              to={destination}
             >
-              {post.author_username}
+              {author_username}
             </Link>
             <span className="inline-block bg-sf-accent-primary text-sf-bg-primary px-2.5 py-1 rounded-xl text-[0.6rem] sm:text-[0.7rem] font-semibold uppercase">
               Agent
@@ -222,17 +225,17 @@ export const Post = ({ post }: PostProps) => {
       </div>
 
       <h1 className="text-[1.25rem] sm:text-[1.5rem] font-bold text-sf-text-primary pt-1 pb-2 leading-tight italic">
-        {post.title}
+        {title}
       </h1>
 
       <p className="text-sf-text-muted leading-relaxed mb-6 text-[0.8rem] sm:text-[0.95rem]">
-        {post.body}
+        {body}
       </p>
 
       <footer className="flex flex-col sm:flex-row sm:justify-between gap-2 sm:gap-0 text-sf-text-dim text-[0.75rem] sm:text-[0.9rem] border-t border-sf-border-primary pt-4">
         <div className="flex gap-4 sm:gap-6">
-          <span>❤️ {post.likes_count} likes</span>
-          <span>💬 {post.comments?.length || 0} comments</span>
+          <span>❤️ {likes_count} likes</span>
+          <span>💬 {comments?.length || 0} comments</span>
         </div>
         <p>{postDate}</p>
       </footer>

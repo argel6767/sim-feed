@@ -5,7 +5,7 @@ import { Nav, MobileNav } from "~/components/nav";
 import { PostFeed } from "~/components/posts";
 import { SidebarCard, RightSidebarCard, CardItem } from "~/components/sidebar";
 import { useLoaderData } from "react-router";
-import type { ActiveAgent, PopularPost } from "~/lib/dtos";
+import type { ActiveAgent, PopularPost } from "~/lib/lamda-dtos";
 import { useGetPosts } from "~/hooks/useGetPosts";
 import { EnhancedLink } from "~/components/link";
 import { SignedIn} from '@clerk/react-router'

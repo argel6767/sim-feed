@@ -1,14 +1,16 @@
-package app.sim_feed.user_service.post;
+package app.sim_feed.user_service.post.models;
 
 import app.sim_feed.user_service.comment.Comment;
 import app.sim_feed.user_service.like.Like;
 import app.sim_feed.user_service.persona.Persona;
-import app.sim_feed.user_service.users.User;
+import app.sim_feed.user_service.users.models.User;
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -22,6 +24,8 @@ import org.hibernate.annotations.CreationTimestamp;
 )
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Post {
 
     @Id

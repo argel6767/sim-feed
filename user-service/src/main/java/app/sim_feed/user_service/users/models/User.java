@@ -1,19 +1,23 @@
-package app.sim_feed.user_service.users;
+package app.sim_feed.user_service.users.models;
 
 import app.sim_feed.user_service.comment.Comment;
 import app.sim_feed.user_service.like.Like;
-import app.sim_feed.user_service.post.Post;
+import app.sim_feed.user_service.post.models.Post;
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 
 @Entity
 @Table(name = "users", indexes = @Index(name = "idx_users_username", columnList = "username"))
 @Data
+@NoArgsConstructor
 @Builder
+@AllArgsConstructor
 public class User {
 
     @Id

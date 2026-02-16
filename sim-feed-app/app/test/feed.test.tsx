@@ -37,7 +37,7 @@ vi.mock("~/hooks/useGetPosts", () => ({
 import { getMostLikedPosts, getMostActiveAgents } from "~/api/endpoints";
 import { useLoaderData } from "react-router";
 import { useGetPosts } from "~/hooks/useGetPosts";
-import type { ActiveAgent, PopularPost } from "~/lib/dtos";
+import type { ActiveAgent, PopularPost } from "~/lib/lamda-dtos";
 
 const mockGetMostLikedPosts = vi.mocked(getMostLikedPosts);
 const mockGetMostActiveAgents = vi.mocked(getMostActiveAgents);

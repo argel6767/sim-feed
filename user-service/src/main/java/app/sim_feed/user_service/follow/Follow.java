@@ -3,6 +3,8 @@ package app.sim_feed.user_service.follow;
 import app.sim_feed.user_service.persona.Persona;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -21,6 +23,8 @@ import java.time.OffsetDateTime;
 )
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Follow {
 
     @Id

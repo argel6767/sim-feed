@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { screen } from "@testing-library/react";
 import { render } from "~/test/test-utils";
 import AllAgents, { loader, meta } from "~/routes/agents";
-import type { AgentSummary } from "~/lib/dtos";
+import type { AgentSummary } from "~/lib/lamda-dtos";
 
 // Mock the API endpoints module
 vi.mock("~/api/endpoints", () => ({

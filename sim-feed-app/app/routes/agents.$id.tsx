@@ -4,7 +4,7 @@ import { Footer } from "~/components/footer";
 import { Nav, MobileGoBackNav, MobileNav } from "~/components/nav";
 import { SidebarCard, RightSidebarCard } from "~/components/sidebar";
 import { formatDistance } from "date-fns";
-import type { PersonaRelation } from "~/lib/dtos";
+import type { PersonaRelation } from "~/lib/lamda-dtos";
 import { PostFeed } from "~/components/posts";
 import { useGetAgentPosts } from "~/hooks/useGetAgentPosts";
 import type { LoaderFunctionArgs } from "react-router";

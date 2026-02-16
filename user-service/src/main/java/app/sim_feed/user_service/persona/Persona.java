@@ -3,18 +3,22 @@ package app.sim_feed.user_service.persona;
 import app.sim_feed.user_service.comment.Comment;
 import app.sim_feed.user_service.follow.Follow;
 import app.sim_feed.user_service.like.Like;
-import app.sim_feed.user_service.post.Post;
+import app.sim_feed.user_service.post.models.Post;
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 
 @Entity
 @Table(name = "personas")
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Persona {
 
     @Id
