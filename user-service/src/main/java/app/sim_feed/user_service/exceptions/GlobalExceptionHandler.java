@@ -1,6 +1,7 @@
 package app.sim_feed.user_service.exceptions;
 
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.NoSuchElementException;
 import org.springframework.http.ResponseEntity;
@@ -27,5 +28,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<FailedRequestDto> handleException(Exception e, HttpServletRequest request) {
         String requestUri = request.getRequestURI();
         return ResponseEntity.status(500).body(new FailedRequestDto(e.getMessage(), 500, requestUri));
+    }
+    
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<FailedRequestDto> handleResponseStatusException(ResponseStatusException rse, HttpServletRequest request) {
+        String requestUri = request.getRequestURI();
+        return ResponseEntity.status(rse.getStatusCode()).body(new FailedRequestDto(rse.getReason(), rse.getStatusCode().value(), requestUri));
     }
 }

@@ -9,18 +9,18 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.OncePerRequestFilter;
 
+import app.sim_feed.user_service.security.filters.ClerkAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Configuration
-@RequiredArgsConstructor
 @Setter
 public class SecurityConfiguration {
     
@@ -28,6 +28,11 @@ public class SecurityConfiguration {
     private String simFeedDomain;
 
     private final ClerkAuthenticationFilter clerkAuthenticationFilter;
+
+    public SecurityConfiguration(
+            ClerkAuthenticationFilter clerkAuthenticationFilter) {
+        this.clerkAuthenticationFilter = clerkAuthenticationFilter;
+    }
     
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
