@@ -11,7 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import app.sim_feed.user_service.persona.Persona;
+import app.sim_feed.user_service.persona.models.Persona;
 import app.sim_feed.user_service.post.models.Post;
 import app.sim_feed.user_service.users.models.User;
 

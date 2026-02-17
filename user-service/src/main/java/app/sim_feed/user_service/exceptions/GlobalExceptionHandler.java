@@ -35,4 +35,11 @@ public class GlobalExceptionHandler {
         String requestUri = request.getRequestURI();
         return ResponseEntity.status(rse.getStatusCode()).body(new FailedRequestDto(rse.getReason(), rse.getStatusCode().value(), requestUri));
     }
+    
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<FailedRequestDto> handleIllegalStateException(IllegalStateException ise, HttpServletRequest request) {
+        String requestUri = request.getRequestURI();
+        return ResponseEntity.status(400).body(new FailedRequestDto(ise.getMessage(), 400, requestUri));
+    }
+    
 }

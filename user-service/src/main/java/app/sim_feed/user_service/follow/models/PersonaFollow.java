@@ -1,12 +1,13 @@
-package app.sim_feed.user_service.follow;
+package app.sim_feed.user_service.follow.models;
 
-import app.sim_feed.user_service.persona.Persona;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import org.hibernate.annotations.CreationTimestamp;
+
+import app.sim_feed.user_service.persona.models.Persona;
 
 import java.time.OffsetDateTime;
 
@@ -25,7 +26,7 @@ import java.time.OffsetDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Follow {
+public class PersonaFollow {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

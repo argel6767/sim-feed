@@ -9,7 +9,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import app.sim_feed.user_service.persona.Persona;
+import app.sim_feed.user_service.follow.models.PersonaFollow;
+import app.sim_feed.user_service.persona.models.Persona;
 
 class FollowTest {
 
@@ -41,7 +42,7 @@ class FollowTest {
         @DisplayName("should correctly set all fields via builder")
         void shouldCorrectlySetAllFields() {
             OffsetDateTime now = OffsetDateTime.now();
-            Follow follow = Follow.builder()
+            PersonaFollow follow = PersonaFollow.builder()
                     .id(1L)
                     .follower(followerPersona)
                     .followed(followedPersona)
@@ -57,7 +58,7 @@ class FollowTest {
         @Test
         @DisplayName("should allow null id for unsaved entity")
         void shouldAllowNullId() {
-            Follow follow = Follow.builder()
+            PersonaFollow follow = PersonaFollow.builder()
                     .follower(followerPersona)
                     .followed(followedPersona)
                     .build();
@@ -68,7 +69,7 @@ class FollowTest {
         @Test
         @DisplayName("should default createdAt to null when not set via builder")
         void shouldDefaultCreatedAtToNull() {
-            Follow follow = Follow.builder()
+            PersonaFollow follow = PersonaFollow.builder()
                     .follower(followerPersona)
                     .followed(followedPersona)
                     .build();
@@ -79,7 +80,7 @@ class FollowTest {
         @Test
         @DisplayName("should correctly reference follower persona")
         void shouldCorrectlyReferenceFollowerPersona() {
-            Follow follow = Follow.builder()
+            PersonaFollow follow = PersonaFollow.builder()
                     .follower(followerPersona)
                     .followed(followedPersona)
                     .build();
@@ -92,7 +93,7 @@ class FollowTest {
         @Test
         @DisplayName("should correctly reference followed persona")
         void shouldCorrectlyReferenceFollowedPersona() {
-            Follow follow = Follow.builder()
+            PersonaFollow follow = PersonaFollow.builder()
                     .follower(followerPersona)
                     .followed(followedPersona)
                     .build();
@@ -105,7 +106,7 @@ class FollowTest {
         @Test
         @DisplayName("should allow same persona as both follower and followed (self-follow)")
         void shouldAllowSelfFollow() {
-            Follow follow = Follow.builder()
+            PersonaFollow follow = PersonaFollow.builder()
                     .follower(followerPersona)
                     .followed(followerPersona)
                     .build();
@@ -121,7 +122,7 @@ class FollowTest {
         @Test
         @DisplayName("should create instance with all fields null")
         void shouldCreateInstanceWithAllFieldsNull() {
-            Follow follow = new Follow();
+            PersonaFollow follow = new PersonaFollow();
 
             assertThat(follow.getId()).isNull();
             assertThat(follow.getFollower()).isNull();
@@ -138,7 +139,7 @@ class FollowTest {
         @DisplayName("should create instance with all fields populated")
         void shouldCreateInstanceWithAllFields() {
             OffsetDateTime now = OffsetDateTime.now();
-            Follow follow = new Follow(10L, followerPersona, followedPersona, now);
+            PersonaFollow follow = new PersonaFollow(10L, followerPersona, followedPersona, now);
 
             assertThat(follow.getId()).isEqualTo(10L);
             assertThat(follow.getFollower()).isEqualTo(followerPersona);
@@ -149,7 +150,7 @@ class FollowTest {
         @Test
         @DisplayName("should allow null values in all-args constructor")
         void shouldAllowNullValuesInAllArgsConstructor() {
-            Follow follow = new Follow(null, null, null, null);
+            PersonaFollow follow = new PersonaFollow(null, null, null, null);
 
             assertThat(follow.getId()).isNull();
             assertThat(follow.getFollower()).isNull();
@@ -165,7 +166,7 @@ class FollowTest {
         @Test
         @DisplayName("should update id via setter")
         void shouldUpdateIdViaSetter() {
-            Follow follow = new Follow();
+            PersonaFollow follow = new PersonaFollow();
 
             follow.setId(5L);
 
@@ -175,7 +176,7 @@ class FollowTest {
         @Test
         @DisplayName("should update follower via setter")
         void shouldUpdateFollowerViaSetter() {
-            Follow follow = new Follow();
+            PersonaFollow follow = new PersonaFollow();
 
             follow.setFollower(followerPersona);
 
@@ -185,7 +186,7 @@ class FollowTest {
         @Test
         @DisplayName("should update followed via setter")
         void shouldUpdateFollowedViaSetter() {
-            Follow follow = new Follow();
+            PersonaFollow follow = new PersonaFollow();
 
             follow.setFollowed(followedPersona);
 
@@ -195,7 +196,7 @@ class FollowTest {
         @Test
         @DisplayName("should update createdAt via setter")
         void shouldUpdateCreatedAtViaSetter() {
-            Follow follow = new Follow();
+            PersonaFollow follow = new PersonaFollow();
             OffsetDateTime now = OffsetDateTime.now();
 
             follow.setCreatedAt(now);
@@ -206,7 +207,7 @@ class FollowTest {
         @Test
         @DisplayName("should allow replacing follower with different persona")
         void shouldAllowReplacingFollower() {
-            Follow follow = Follow.builder()
+            PersonaFollow follow = PersonaFollow.builder()
                     .follower(followerPersona)
                     .followed(followedPersona)
                     .build();
@@ -227,7 +228,7 @@ class FollowTest {
         @Test
         @DisplayName("should allow setting follower to null")
         void shouldAllowSettingFollowerToNull() {
-            Follow follow = Follow.builder()
+            PersonaFollow follow = PersonaFollow.builder()
                     .follower(followerPersona)
                     .followed(followedPersona)
                     .build();
@@ -240,7 +241,7 @@ class FollowTest {
         @Test
         @DisplayName("should allow setting followed to null")
         void shouldAllowSettingFollowedToNull() {
-            Follow follow = Follow.builder()
+            PersonaFollow follow = PersonaFollow.builder()
                     .follower(followerPersona)
                     .followed(followedPersona)
                     .build();
@@ -259,13 +260,13 @@ class FollowTest {
         @DisplayName("should be equal when all fields match")
         void shouldBeEqualWhenAllFieldsMatch() {
             OffsetDateTime now = OffsetDateTime.now();
-            Follow f1 = Follow.builder()
+            PersonaFollow f1 = PersonaFollow.builder()
                     .id(1L)
                     .follower(followerPersona)
                     .followed(followedPersona)
                     .createdAt(now)
                     .build();
-            Follow f2 = Follow.builder()
+            PersonaFollow f2 = PersonaFollow.builder()
                     .id(1L)
                     .follower(followerPersona)
                     .followed(followedPersona)
@@ -279,8 +280,8 @@ class FollowTest {
         @Test
         @DisplayName("should not be equal when id differs")
         void shouldNotBeEqualWhenIdDiffers() {
-            Follow f1 = Follow.builder().id(1L).follower(followerPersona).followed(followedPersona).build();
-            Follow f2 = Follow.builder().id(2L).follower(followerPersona).followed(followedPersona).build();
+            PersonaFollow f1 = PersonaFollow.builder().id(1L).follower(followerPersona).followed(followedPersona).build();
+            PersonaFollow f2 = PersonaFollow.builder().id(2L).follower(followerPersona).followed(followedPersona).build();
 
             assertThat(f1).isNotEqualTo(f2);
         }
@@ -295,8 +296,8 @@ class FollowTest {
                     .createdAt(OffsetDateTime.now())
                     .build();
 
-            Follow f1 = Follow.builder().id(1L).follower(followerPersona).followed(followedPersona).build();
-            Follow f2 = Follow.builder().id(1L).follower(anotherPersona).followed(followedPersona).build();
+            PersonaFollow f1 = PersonaFollow.builder().id(1L).follower(followerPersona).followed(followedPersona).build();
+            PersonaFollow f2 = PersonaFollow.builder().id(1L).follower(anotherPersona).followed(followedPersona).build();
 
             assertThat(f1).isNotEqualTo(f2);
         }
@@ -311,8 +312,8 @@ class FollowTest {
                     .createdAt(OffsetDateTime.now())
                     .build();
 
-            Follow f1 = Follow.builder().id(1L).follower(followerPersona).followed(followedPersona).build();
-            Follow f2 = Follow.builder().id(1L).follower(followerPersona).followed(anotherPersona).build();
+            PersonaFollow f1 = PersonaFollow.builder().id(1L).follower(followerPersona).followed(followedPersona).build();
+            PersonaFollow f2 = PersonaFollow.builder().id(1L).follower(followerPersona).followed(anotherPersona).build();
 
             assertThat(f1).isNotEqualTo(f2);
         }
@@ -320,7 +321,7 @@ class FollowTest {
         @Test
         @DisplayName("should not be equal to null")
         void shouldNotBeEqualToNull() {
-            Follow follow = Follow.builder().id(1L).follower(followerPersona).followed(followedPersona).build();
+            PersonaFollow follow = PersonaFollow.builder().id(1L).follower(followerPersona).followed(followedPersona).build();
 
             assertThat(follow).isNotEqualTo(null);
         }
@@ -328,7 +329,7 @@ class FollowTest {
         @Test
         @DisplayName("should be equal to itself")
         void shouldBeEqualToItself() {
-            Follow follow = Follow.builder().id(1L).follower(followerPersona).followed(followedPersona).build();
+            PersonaFollow follow = PersonaFollow.builder().id(1L).follower(followerPersona).followed(followedPersona).build();
 
             assertThat(follow).isEqualTo(follow);
         }
@@ -336,8 +337,8 @@ class FollowTest {
         @Test
         @DisplayName("two empty follows should be equal")
         void twoEmptyFollowsShouldBeEqual() {
-            Follow f1 = new Follow();
-            Follow f2 = new Follow();
+            PersonaFollow f1 = new PersonaFollow();
+            PersonaFollow f2 = new PersonaFollow();
 
             assertThat(f1).isEqualTo(f2);
             assertThat(f1.hashCode()).isEqualTo(f2.hashCode());
@@ -351,7 +352,7 @@ class FollowTest {
         @Test
         @DisplayName("should include id in toString")
         void shouldIncludeIdInToString() {
-            Follow follow = Follow.builder()
+            PersonaFollow follow = PersonaFollow.builder()
                     .id(42L)
                     .follower(followerPersona)
                     .followed(followedPersona)
@@ -363,7 +364,7 @@ class FollowTest {
         @Test
         @DisplayName("should not throw on toString with null fields")
         void shouldNotThrowOnToStringWithNullFields() {
-            Follow follow = new Follow();
+            PersonaFollow follow = new PersonaFollow();
 
             String result = follow.toString();
 

@@ -1,6 +1,6 @@
 package app.sim_feed.user_service.like;
 
-import app.sim_feed.user_service.persona.Persona;
+import app.sim_feed.user_service.persona.models.Persona;
 import app.sim_feed.user_service.post.models.Post;
 import app.sim_feed.user_service.users.models.User;
 import jakarta.persistence.*;

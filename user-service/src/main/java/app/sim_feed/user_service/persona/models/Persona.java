@@ -1,7 +1,7 @@
-package app.sim_feed.user_service.persona;
+package app.sim_feed.user_service.persona.models;
 
 import app.sim_feed.user_service.comment.Comment;
-import app.sim_feed.user_service.follow.Follow;
+import app.sim_feed.user_service.follow.models.PersonaFollow;
 import app.sim_feed.user_service.like.Like;
 import app.sim_feed.user_service.post.models.Post;
 import jakarta.persistence.*;
@@ -57,11 +57,11 @@ public class Persona {
 
     @OneToMany(mappedBy = "follower", fetch = FetchType.LAZY)
     @Builder.Default
-    private List<Follow> following = new ArrayList<>();
+    private List<PersonaFollow> following = new ArrayList<>();
 
     @OneToMany(mappedBy = "followed", fetch = FetchType.LAZY)
     @Builder.Default
-    private List<Follow> followers = new ArrayList<>();
+    private List<PersonaFollow> followers = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {

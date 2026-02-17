@@ -1,6 +1,7 @@
 package app.sim_feed.user_service.users.models;
 
 import app.sim_feed.user_service.comment.Comment;
+import app.sim_feed.user_service.follow.models.UserFollow;
 import app.sim_feed.user_service.like.Like;
 import app.sim_feed.user_service.post.models.Post;
 import jakarta.persistence.*;
@@ -47,6 +48,14 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @Builder.Default
     private List<Like> likes = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "follower", fetch = FetchType.LAZY)
+    @Builder.Default
+    private final List<UserFollow> following = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "userFollowed", fetch = FetchType.LAZY)
+    @Builder.Default
+    private final List<UserFollow> followers = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {
