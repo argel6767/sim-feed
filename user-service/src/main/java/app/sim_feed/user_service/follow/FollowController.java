@@ -28,10 +28,11 @@ public class FollowController {
     @PostMapping()
     public ResponseEntity<FollowDto> createFollow(@RequestBody NewFollowDto newFollowDto, @AuthenticationPrincipal String userId) throws URISyntaxException {
         FollowDto followDto = followService.follow(newFollowDto, userId);
-        return ResponseEntity.created(new URI("/api/v1/locations/"+followDto.id())).body(followDto);
+        URI uri = new URI("/api/v1/locations/"+ String.valueOf(followDto.id()));
+        return ResponseEntity.created(uri).body(followDto);
     }
     
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{userFollowId}")
     public ResponseEntity<Void> deleteFollow(@PathVariable Long userFollowId, @AuthenticationPrincipal String userId) {
         followService.deleteFollow(userFollowId, userId);
         return ResponseEntity.noContent().build();

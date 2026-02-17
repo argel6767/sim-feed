@@ -2,8 +2,7 @@ package app.sim_feed.user_service.follow.models;
 
 import java.time.OffsetDateTime;
 
-import org.springframework.data.annotation.Id;
-
+import jakarta.persistence.Id;
 import app.sim_feed.user_service.persona.models.Persona;
 import app.sim_feed.user_service.users.models.User;
 import jakarta.persistence.Column;

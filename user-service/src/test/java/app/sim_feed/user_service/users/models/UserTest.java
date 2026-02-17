@@ -137,7 +137,7 @@ class UserTest {
         @DisplayName("should create instance with all fields populated")
         void shouldCreateInstanceWithAllFields() {
             OffsetDateTime now = OffsetDateTime.now();
-            User user = new User("clerk_abc", "myuser", "my bio", now, now, null, null, null);
+            User user = new User("clerk_abc", "myuser", "my bio", now, now, null, null, null, null, null);
 
             assertThat(user.getClerkId()).isEqualTo("clerk_abc");
             assertThat(user.getUsername()).isEqualTo("myuser");
