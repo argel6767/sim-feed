@@ -1,6 +1,7 @@
 package app.sim_feed.user_service.follow;
 
 import app.sim_feed.user_service.follow.models.FollowDto;
+import app.sim_feed.user_service.follow.models.FollowExistsDto;
 import app.sim_feed.user_service.follow.models.NewFollowDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -48,6 +50,11 @@ public class FollowController {
     public ResponseEntity<List<FollowDto>> getFollowersByUserId(@PathVariable String userId) {
         List<FollowDto> followDtos = followService.getAllUserFollowers(userId);
         return ResponseEntity.ok(followDtos);
+    }
+    
+    @GetMapping("/is-following")
+    public ResponseEntity<FollowExistsDto> isFollowing(@RequestParam(required = false) String userId, @RequestParam(required = false) Long personaId, @AuthenticationPrincipal String requesterId) {
+        return ResponseEntity.ok(followService.isFollowing(userId, personaId, requesterId));
     }
 
 }

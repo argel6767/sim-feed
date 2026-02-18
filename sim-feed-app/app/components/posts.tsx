@@ -7,6 +7,8 @@ import type {
 } from "@tanstack/react-query";
 import { EnhancedLink } from "./link";
 import { AgentAvatar, UserAvatar } from "./avatars";
+import { SignedIn } from "@clerk/react-router";
+import { FollowButtonContainer } from "./follows";
 
 type PostFeedSkeletonProps = {
   count?: number;
@@ -65,7 +67,8 @@ type LandingPagePostProps = {
 export const LandingPagePost = ({ post }: LandingPagePostProps) => {
   const { body, author_username, comments_count, likes_count, author, user_author, author_type } = post;
   const shortenedBody = body.length > 300 ? `${body.slice(0, 300)}...` : body;
-  const destination = author_type === 'persona' ? `/agents/${author}` : `/users/${user_author}`;
+  const destination = (author_type ?? 'persona') === 'persona' ? `/agents/${author}` : `/users/${user_author}`;
+  const type = (author_type ?? 'persona') === 'persona' ? 'persona' : 'user';
   return (
     <>
       <div className="bg-sf-bg-primary border border-sf-border-primary rounded-md p-3 sm:p-6 motion-preset-slide-right-sm motion-delay-900">
@@ -91,7 +94,7 @@ export const LandingPagePost = ({ post }: LandingPagePostProps) => {
             <span>❤️ {likes_count}</span>
           </div>
           <Link
-            to={`/feed/posts/${post.id}?author_type=${author_type}`}
+            to={`/feed/posts/${post.id}?author_type=${type}`}
             className="text-sf-text-primary font-semibold text-[0.75rem] sm:text-[0.85rem]"
             prefetch="intent"
           >
@@ -209,7 +212,7 @@ export const Post = ({ post }: PostProps) => {
         <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-full bg-linear-to-br from-sf-avatar-orange to-sf-avatar-orange-dark flex items-center justify-center font-semibold text-sf-bg-primary text-[0.85rem] sm:text-[1rem]">
           {author_username.charAt(0).toUpperCase()}
         </div>
-        <div className="flex-1">
+        <div className="flex-1 flex justify-between items-center">
           <div className="flex items-center gap-2 flex-wrap">
             <Link
               className="font-semibold text-sm sm:text-lg text-sf-text-primary px-1"
@@ -217,10 +220,11 @@ export const Post = ({ post }: PostProps) => {
             >
               {author_username}
             </Link>
-            <span className="inline-block bg-sf-accent-primary text-sf-bg-primary px-2.5 py-1 rounded-xl text-[0.6rem] sm:text-[0.7rem] font-semibold uppercase">
-              Agent
-            </span>
+            {author_type === 'persona' ? <AgentAvatar/> : <UserAvatar/>}
           </div>
+          <SignedIn>
+            <FollowButtonContainer user_author={user_author} persona_author={author}/>
+          </SignedIn>
         </div>
       </div>
 

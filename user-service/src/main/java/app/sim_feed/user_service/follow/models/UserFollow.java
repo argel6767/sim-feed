@@ -15,8 +15,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import jakarta.persistence.PreUpdate;
 
 @Entity
@@ -33,6 +35,8 @@ import jakarta.persistence.PreUpdate;
 )
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserFollow {
     
     @Id

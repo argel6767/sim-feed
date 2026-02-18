@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import app.sim_feed.user_service.follow.models.FollowDto;
+import app.sim_feed.user_service.follow.models.FollowExistsDto;
 import app.sim_feed.user_service.follow.models.NewFollowDto;
 import app.sim_feed.user_service.follow.models.UserFollow;
 import app.sim_feed.user_service.persona.PersonaService;
@@ -74,5 +75,18 @@ public class FollowService {
                 .stream()
                 .map(FollowDto::of)
                 .toList();
+    }
+    
+    public FollowExistsDto isFollowing(String userId, Long personaId, String requesterId) {
+        if (userId == null && personaId == null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User or persona ID is required");
+        if (userId != null && personaId != null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only one of user or persona ID can be provided");
+        if (userId != null) {
+            UserFollow follow = followRepository.findByFollower_ClerkIdAndUserFollowed_ClerkId(requesterId, userId).orElse(null);
+            return new FollowExistsDto(follow != null, follow != null ? follow.getId() : null);
+        }
+        UserFollow follow = followRepository.findByFollower_ClerkIdAndPersonaFollowed_PersonaId(requesterId, personaId).orElse(null);
+        return new FollowExistsDto(follow != null, follow != null ? follow.getId() : null);
     }
 }

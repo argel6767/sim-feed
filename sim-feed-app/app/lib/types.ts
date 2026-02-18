@@ -57,3 +57,4 @@ type PostWithItsComments = {
 }
 
 
+export type Optional<T> = T | null | undefined;
