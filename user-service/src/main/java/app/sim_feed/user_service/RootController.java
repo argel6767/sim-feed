@@ -7,7 +7,6 @@ import java.util.Map;
 @RestController
 @RequestMapping()
 public class RootController {
-
     @RequestMapping("/")
     public Map<String, String> index() {
         return Map.of("message", "Welcome to the Sim-Feed's User Service!", "status", "OK");
