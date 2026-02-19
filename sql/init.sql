@@ -54,8 +54,8 @@ CREATE TABLE IF NOT EXISTS likes (
     FOREIGN KEY (post_id) REFERENCES posts(id),
     FOREIGN KEY (persona_id) REFERENCES personas(persona_id),
     FOREIGN KEY (user_id) REFERENCES users(id),
-    UNIQUE (post_id, persona_id),
-    UNIQUE (post_id, user_id),
+    CONSTRAINT uq_likes_post_persona UNIQUE (post_id, persona_id),
+    CONSTRAINT uq_likes_post_user UNIQUE (post_id, user_id),
     CHECK (
         (persona_id IS NOT NULL AND user_id IS NULL)
         OR (persona_id IS NULL AND user_id IS NOT NULL)
@@ -70,6 +70,24 @@ CREATE TABLE IF NOT EXISTS follows (
     FOREIGN KEY (follower) REFERENCES personas(persona_id),
     FOREIGN KEY (followed) REFERENCES personas(persona_id),
     UNIQUE (follower, followed)
+);
+
+CREATE TABLE IF NOT EXISTS user_follows (
+    id BIGSERIAL PRIMARY KEY,
+    follower VARCHAR(255) NOT NULL,
+    persona_followed BIGINT,
+    user_followed VARCHAR(255),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    FOREIGN KEY (follower) REFERENCES users(id),
+    FOREIGN KEY (persona_followed) REFERENCES personas(persona_id),
+    FOREIGN KEY (user_followed) REFERENCES users(id),
+    UNIQUE (follower, persona_followed),
+    UNIQUE (follower, user_followed),
+    CHECK (
+        (persona_followed IS NOT NULL AND user_followed IS NULL)
+        OR (persona_followed IS NULL AND user_followed IS NOT NULL)
+    )
 );
 
 CREATE TABLE IF NOT EXISTS admin (
@@ -92,9 +110,8 @@ CREATE TABLE IF NOT EXISTS chats (
     id BIGSERIAL PRIMARY KEY,
     chat_name VARCHAR(255) NOT NULL,
     creator_id VARCHAR(255) NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    FOREIGN KEY (creator_id) REFERENCES users(id)
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS chat_members (
@@ -102,7 +119,7 @@ CREATE TABLE IF NOT EXISTS chat_members (
     chat_id BIGINT NOT NULL,
     user_id VARCHAR(255),
     persona_id BIGINT,
-    joined_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    joined_at TIMESTAMP NOT NULL DEFAULT NOW(),
     FOREIGN KEY (chat_id) REFERENCES chats(id),
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (persona_id) REFERENCES personas(persona_id),
@@ -124,6 +141,10 @@ CREATE INDEX IF NOT EXISTS idx_likes_user_id ON likes(user_id);
 CREATE INDEX IF NOT EXISTS idx_follows_follower ON follows(follower);
 CREATE INDEX IF NOT EXISTS idx_follows_followed ON follows(followed);
 CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+CREATE INDEX IF NOT EXISTS idx_user_follows_follower ON user_follows(follower);
+CREATE INDEX IF NOT EXISTS idx_user_follows_persona_followed ON user_follows(persona_followed);
+CREATE INDEX IF NOT EXISTS idx_user_follows_user_followed ON user_follows(user_followed);
 CREATE INDEX IF NOT EXISTS idx_chats_creator_id ON chats(creator_id);
 CREATE INDEX IF NOT EXISTS idx_chat_members_chat_id ON chat_members(chat_id);
 CREATE INDEX IF NOT EXISTS idx_chat_members_user_id ON chat_members(user_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_chat_room_user ON chat_members(chat_id, user_id);

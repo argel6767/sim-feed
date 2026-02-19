@@ -52,10 +52,10 @@ public class ChatMember {
     private User user;
     
     @ManyToOne
-    @JoinColumn(name = "persona_id", nullable = false)
+    @JoinColumn(name = "persona_id", nullable = true)
     private Persona persona;
     
-    @Column(name = "joined_at", nullable = false)
+    @Column(name = "joined_at", nullable = true)
     private LocalDateTime joinedAt;
     
     @PrePersist
