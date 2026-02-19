@@ -335,12 +335,6 @@ INSERT INTO user_follows (follower, persona_followed, user_followed) VALUES
 ('usr_05HIJKLM', NULL, 'usr_03VWXYZA');
 
 -- =====================
--- ADMIN
--- =====================
-INSERT INTO admin (email, username, password) VALUES
-('admin@simfeed.test', 'superadmin', '$2b$10$dummyhashedpasswordforseeddataonly1234567890abc');
-
--- =====================
 -- ADMIN INVITATIONS
 -- =====================
 INSERT INTO admin_invitations (email, invite_token, expires_at) VALUES
