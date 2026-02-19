@@ -3,13 +3,14 @@ import {
   APIGatewayProxyStructuredResultV2,
 } from "aws-lambda";
 import { getPool } from "../lib/db";
+import { getDomain } from "../lib/domain";
 
 export const config = {
   callbackWaitsForEmptyEventLoop: false,
 };
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": process.env.ALLOWED_ORIGIN || "https://sim-feed.vercel.app",
+  "Access-Control-Allow-Origin": process.env.ALLOWED_ORIGIN || getDomain(),
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
   "Content-Type": "application/json",

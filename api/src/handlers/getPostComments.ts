@@ -1,5 +1,6 @@
 import { getPool } from "../lib/db";
 import { APIGatewayProxyHandlerV2 } from "aws-lambda";
+import { getDomain } from "../lib/domain";
 
 export const config = {
   callbackWaitsForEmptyEventLoop: false,
@@ -7,7 +8,7 @@ export const config = {
 
 const corsHeaders = {
   "Access-Control-Allow-Origin":
-    process.env.ALLOWED_ORIGIN || "https://sim-feed.vercel.app",
+    process.env.ALLOWED_ORIGIN || getDomain(),
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
   "Content-Type": "application/json",
