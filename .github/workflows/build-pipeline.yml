@@ -132,7 +132,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-sim-feed-app
     env:
-      VITE_USER_API_URL=http://fake-url.com
+      VITE_USER_API_URL: http://fake-url.com
     if: needs.build-sim-feed-app.result == 'success'
     steps:
       - uses: actions/checkout@v4

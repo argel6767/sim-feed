@@ -6,6 +6,4 @@ import org.springframework.stereotype.Repository;
 import app.sim_feed.user_service.persona.models.Persona;
 
 @Repository
-public interface PersonaRepository extends JpaRepository<Persona, Long> {
-
-}
+public interface PersonaRepository extends JpaRepository<Persona, Long> {}
