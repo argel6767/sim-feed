@@ -48,6 +48,28 @@ jobs:
         with:
           python-version: "3.10"
       - run: python bin/deploy_scheduler_engine.py
+  
+  deploy-user-service:
+    name: Deploy User Service
+    runs-on: ubuntu-latest
+    needs: [build, integration]
+    if: needs.build.outputs.user-service-changed == 'true'
+    permissions:
+      id-token: write
+      contents: read
+    env:
+       AWS_REGION: us-east-2
+       ROLE_ARN: ${{ secrets.ROLE_ARN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - run: python bin/deploy_user_service.py
 
   deploy-api:
     name: Deploy API Handlers
