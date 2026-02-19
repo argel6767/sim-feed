@@ -18,7 +18,8 @@ def build_user_service_image():
 
 def tag_user_service_image():
     print("Tagging user service image\n")
-    repo = os.environ.get("AWS_REPO" + repo_name)
+    aws_repo_root = os.environ["AWS_REPO"]
+    repo = aws_repo_root + repo_name
     commands = ["docker", "tag", "user-service:latest", repo]
     process = subprocess.run(commands, cwd=user_service_directory, shell=is_os_windows)
     print(process)
@@ -27,7 +28,8 @@ def tag_user_service_image():
 
 def push_user_service_image():
     print("Pushing user service image\n")
-    repo = os.environ.get("AWS_REPO" + repo_name)
+    aws_repo_root = os.environ["AWS_REPO"]
+    repo = aws_repo_root + repo_name
     commands = ["docker", "push", repo]
     process = subprocess.run(commands, cwd=user_service_directory, shell=is_os_windows)
     print(process)
