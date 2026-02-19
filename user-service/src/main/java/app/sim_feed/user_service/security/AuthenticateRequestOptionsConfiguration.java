@@ -20,7 +20,7 @@ public class AuthenticateRequestOptionsConfiguration {
     @Value("${sim.feed.domain}")
     private String simFeedDomain;
 
-    @Profile("dev")
+    @Profile("!prod")
     @Bean
     public AuthenticateRequestOptions devAuthenticateRequestOptions() {
         return AuthenticateRequestOptions.secretKey(clerkSecretKey).authorizedParty(simFeedDomain).build();
