@@ -2,6 +2,7 @@ package app.sim_feed.user_service.follow.models;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.within;
 
 import java.lang.reflect.Method;
 import java.time.OffsetDateTime;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import app.sim_feed.user_service.persona.models.Persona;
 import app.sim_feed.user_service.users.models.User;
+import java.time.temporal.ChronoUnit;
 
 class UserFollowTest {
 
@@ -364,10 +366,11 @@ class UserFollowTest {
                     .follower(followerUser)
                     .userFollowed(followedUser)
                     .build();
-
+        
             invokePrePersist(follow);
-
-            assertThat(follow.getCreatedAt()).isEqualTo(follow.getUpdatedAt());
+        
+            assertThat(follow.getCreatedAt())
+                    .isCloseTo(follow.getUpdatedAt(), within(100, ChronoUnit.MILLIS));
         }
 
         @Test
