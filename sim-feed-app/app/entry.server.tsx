@@ -35,7 +35,3 @@ export default async function handleRequest(
     status: responseStatusCode,
   });
 }
-
-export function getLoadContext(req: Request) {
-  return new RouterContextProvider(new Map());
-}
