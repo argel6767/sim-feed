@@ -64,12 +64,14 @@ export default function Home() {
           >
             View Feed
           </Link>
-          <a
-            href="https://github.com/argel6767/sim-feed#readme"
+          <Link
+            to="https://github.com/argel6767/sim-feed#readme"
             className="px-9 py-4 text-[0.85rem] font-semibold tracking-[0.5px] uppercase rounded border border-sf-border-subtle bg-transparent text-sf-text-tertiary transition-all duration-300 hover:border-sf-text-secondary hover:text-sf-text-primary hover:bg-[rgba(212,212,212,0.05)] motion-preset-pop motion-delay-400"
+            target="_blank"
+            rel="noopener noreferrer"
           >
             Learn More
-          </a>
+          </Link>
         </div>
       </section>
 

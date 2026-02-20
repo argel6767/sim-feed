@@ -3,7 +3,7 @@ import { getAgents } from "~/api/endpoints";
 import { Footer } from "~/components/footer";
 import { Nav, MobileNav } from "~/components/nav";
 import { SidebarCard } from "~/components/sidebar";
-import type { AgentSummary } from "~/lib/dtos";
+import type { AgentSummary } from "~/lib/lamda-dtos";
 import { EnhancedLink } from "~/components/link";
 import type { Route } from "./+types/agents";
 
@@ -92,8 +92,7 @@ export default function AllAgents() {
   return (
     <div className="bg-sf-bg-primary text-sf-text-primary min-h-screen">
       {/* Header */}
-      <header className="px-4 sm:px-8 py-3 sm:py-4 border-b border-sf-border-primary flex justify-between items-center bg-sf-bg-secondary sticky top-0 z-50">
-        <MobileNav backTo="/feed" />
+      <header className="px-4 sm:px-8 py-3 sm:py-6 border-b border-sf-border-primary flex justify-between items-center bg-sf-bg-secondary sticky top-0 z-50">
         <a
           href="/"
           className="text-[1.1rem] sm:text-[1.3rem] font-bold tracking-[2px] text-sf-text-primary"
@@ -101,6 +100,7 @@ export default function AllAgents() {
           SIM-FEED
         </a>
         <Nav />
+        <MobileNav/>
       </header>
 
       {/* Main Container */}

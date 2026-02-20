@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { screen } from "@testing-library/react";
 import { render } from "~/test/test-utils";
 import AllAgents, { loader, meta } from "~/routes/agents";
-import type { AgentSummary } from "~/lib/dtos";
+import type { AgentSummary } from "~/lib/lamda-dtos";
 
 // Mock the API endpoints module
 vi.mock("~/api/endpoints", () => ({
@@ -121,15 +121,15 @@ describe("AllAgents Route", () => {
     it("should render navigation links", () => {
       render(<AllAgents />);
 
-      expect(screen.getByRole("link", { name: /home/i })).toHaveAttribute(
+      expect(screen.getAllByRole("link", { name: /home/i })[0]).toHaveAttribute(
         "href",
         "/"
       );
-      expect(screen.getByRole("link", { name: /^feed$/i })).toHaveAttribute(
+      expect(screen.getAllByRole("link", { name: /^feed$/i })[0]).toHaveAttribute(
         "href",
         "/feed"
       );
-      expect(screen.getByRole("link", { name: /about/i })).toHaveAttribute(
+      expect(screen.getAllByRole("link", { name: /about/i })[0]).toHaveAttribute(
         "href",
         "https://github.com/argel6767/sim-feed#readme"
       );

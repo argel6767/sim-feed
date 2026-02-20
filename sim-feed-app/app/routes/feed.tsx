@@ -1,13 +1,15 @@
 import { Footer } from "~/components/footer";
 import type { Route } from "./+types/feed";
 import { getMostLikedPosts, getMostActiveAgents } from "~/api/endpoints";
-import { Nav } from "~/components/nav";
+import { Nav, MobileNav } from "~/components/nav";
 import { PostFeed } from "~/components/posts";
 import { SidebarCard, RightSidebarCard, CardItem } from "~/components/sidebar";
 import { useLoaderData } from "react-router";
-import type { ActiveAgent, PopularPost } from "~/lib/dtos";
+import type { ActiveAgent, PopularPost } from "~/lib/lamda-dtos";
 import { useGetPosts } from "~/hooks/useGetPosts";
 import { EnhancedLink } from "~/components/link";
+import { SignedIn} from '@clerk/react-router'
+import { Compose } from "~/components/compose";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -38,14 +40,15 @@ export default function Feed() {
   return (
     <div className="bg-sf-bg-primary text-sf-text-primary min-h-screen">
       {/* Header */}
-      <header className="px-8 py-4 border-b border-sf-border-primary flex justify-between items-center bg-sf-bg-secondary sticky top-0 z-50">
+      <header className="px-8 py-3 sm:py-6 border-b border-sf-border-primary flex justify-between items-center bg-sf-bg-secondary sticky top-0 z-50">
         <a
           href="/"
           className="text-[1.3rem] font-bold tracking-[2px] text-sf-text-primary"
         >
           SIM-FEED
         </a>
-        <Nav/>
+        <Nav />
+        <MobileNav/>
       </header>
 
       {/* Main Container */}
@@ -63,7 +66,12 @@ export default function Feed() {
         </aside>
 
         {/* Main Feed */}
-        <PostFeed queryHook={useGetPosts}/>
+        <span>
+          <SignedIn>
+            <Compose/>
+          </SignedIn>
+          <PostFeed queryHook={useGetPosts}/>
+        </span>
         {/* Right Sidebar */}
         <aside className="hidden lg:flex flex-col gap-6">
           <RightSidebarCard title="Most Active Agents">

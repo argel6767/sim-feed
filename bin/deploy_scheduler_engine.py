@@ -5,6 +5,7 @@ import platform
 
 scheduler_engine_directory = Path.cwd() / "scheduler-engine"
 is_os_windows = platform.system() == "Windows"
+repo_name = "/scheduler-engine-repo"
 
 def check_if_docker_is_running():
     try:
@@ -46,7 +47,8 @@ def build_scheduler_engine_image():
 
 def tag_scheduler_engine_image():
     print("Tagging scheduler engine image\n")
-    repo = os.environ.get("AWS_REPO")
+    aws_repo_root = os.environ["AWS_REPO"]
+    repo = aws_repo_root + repo_name
     commands = ["docker", "tag", "scheduler-engine:latest", repo]
     process = subprocess.run(commands, cwd=scheduler_engine_directory, shell=is_os_windows)
     print(process)
@@ -55,7 +57,8 @@ def tag_scheduler_engine_image():
 
 def push_scheduler_engine_image():
     print("Pushing scheduler engine image\n")
-    repo = os.environ.get("AWS_REPO")
+    aws_repo_root = os.environ["AWS_REPO"]
+    repo = aws_repo_root + repo_name
     commands = ["docker", "push", repo]
     process = subprocess.run(commands, cwd=scheduler_engine_directory, shell=is_os_windows)
     print(process)
@@ -69,7 +72,7 @@ def restart_scheduler_engine():
         "aws", "ssm", "send-command",
         "--document-name", "AWS-RunShellScript",
         "--parameters", "commands=['sudo systemctl restart scheduler-engine']",
-        "--instance-ids", os.environ.get("EC2_INSTANCE_ID"),
+        "--instance-ids", os.environ.get("SCHEDULER_ENGINE_EC2_INSTANCE_ID"),
         "--region", os.environ.get("AWS_REGION"),
         "--output", "json"
     ]

@@ -3,6 +3,7 @@ import inspect
 
 from configs.db import Database
 
+
 async def view_most_recent_posts(db: Database):
     """
     Retrieves the most recent posts created within the past hour.
@@ -172,11 +173,12 @@ async def view_most_popular_posts(db: Database):
       p.title,
       p.body,
       p.author,
+      p.user_author,
       p.created_at,
       COUNT(l.id) AS like_count
     FROM posts p
     LEFT JOIN likes l ON p.id = l.post_id
-    GROUP BY p.id, p.title, p.body, p.author, p.created_at
+    GROUP BY p.id, p.title, p.body, p.author, p.user_author, p.created_at
     ORDER BY like_count DESC
     LIMIT 10
     """
@@ -217,11 +219,12 @@ async def view_most_commented_posts(db: Database):
       p.title,
       p.body,
       p.author,
+      p.user_author,
       p.created_at,
       COUNT(c.id) AS comment_count
     FROM posts p
     LEFT JOIN comments c ON p.id = c.post_id
-    GROUP BY p.id, p.title, p.body, p.author, p.created_at
+    GROUP BY p.id, p.title, p.body, p.author, p.user_author, p.created_at
     ORDER BY comment_count DESC
     LIMIT 10;
     """
@@ -332,17 +335,31 @@ async def find_post_author(db: Database, post_id: int):
     Retrieves author information for a given post.
 
     Looks up the post by post_id, identifies its author, and returns the author's
-    persona details (persona_id, username). Returns author
-    information or an error message if the post or author cannot be found.
+    details. The author may be either a persona (with persona_id and username) or
+    a real user (with user_id). An author_type field indicates which type of author
+    authored the post.
 
     Args:
         post_id: The ID of the post whose author is being looked up (int)
 
     Returns:
         Dictionary with status message and author_info containing the author's
-        persona_id and username or error message
+        identifying information and author_type ('persona' or 'user'), or an
+        error message if the post cannot be found
     """
-    query = "SELECT persona_id, username FROM personas WHERE persona_id = (SELECT author FROM posts WHERE id = $1)"
+    query = """
+    SELECT
+      p.author AS persona_id,
+      per.username AS username,
+      p.user_author AS user_id,
+      CASE
+        WHEN p.author IS NOT NULL THEN 'persona'
+        ELSE 'user'
+      END AS author_type
+    FROM posts p
+    LEFT JOIN personas per ON p.author = per.persona_id
+    WHERE p.id = $1
+    """
     try:
         rows = await db.execute_query(query, post_id)
         if len(rows) == 0:

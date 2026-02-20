@@ -1,5 +1,6 @@
-import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
+import { GetParameterCommand } from "@aws-sdk/client-ssm";
 import { Pool } from "pg";
+import { getSSMClient } from "./ssm";
 
 let pool: Pool | undefined;
 
@@ -10,7 +11,7 @@ export const getPool = async (): Promise<Pool> => {
   let connectionString;
 
   if (useSSL) {
-    const ssm = new SSMClient({});
+    const ssm = getSSMClient();
     const param = await ssm.send(
       new GetParameterCommand({
         Name: "/sim-feed/database-url",

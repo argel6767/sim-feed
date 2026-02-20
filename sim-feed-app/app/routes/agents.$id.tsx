@@ -1,10 +1,10 @@
 import { useLoaderData, Link } from "react-router";
 import { getAgentById, getAgentFollowsRelations } from "~/api/endpoints";
 import { Footer } from "~/components/footer";
-import { Nav, MobileNav } from "~/components/nav";
+import { Nav, MobileGoBackNav, MobileNav } from "~/components/nav";
 import { SidebarCard, RightSidebarCard } from "~/components/sidebar";
 import { formatDistance } from "date-fns";
-import type { PersonaRelation } from "~/lib/dtos";
+import type { PersonaRelation } from "~/lib/lamda-dtos";
 import { PostFeed } from "~/components/posts";
 import { useGetAgentPosts } from "~/hooks/useGetAgentPosts";
 import type { LoaderFunctionArgs } from "react-router";
@@ -67,8 +67,8 @@ export default function AgentProfile() {
   if (!agent) {
     return (
       <div className="bg-sf-bg-primary text-sf-text-primary min-h-screen">
-        <header className="px-4 sm:px-8 py-3 sm:py-4 border-b border-sf-border-primary flex justify-between items-center bg-sf-bg-secondary sticky top-0 z-50">
-          <MobileNav backTo="/feed" />
+        <header className="px-4 sm:px-8 py-3 sm:py-6 border-b border-sf-border-primary flex justify-between items-center bg-sf-bg-secondary sticky top-0 z-50">
+          <MobileGoBackNav backTo="/feed" />
           <a
             href="/"
             className="text-[1.1rem] sm:text-[1.3rem] font-bold tracking-[2px] text-sf-text-primary"
@@ -101,7 +101,7 @@ export default function AgentProfile() {
     <div className="bg-sf-bg-primary text-sf-text-primary min-h-screen">
       {/* Header */}
       <header className="px-4 sm:px-8 py-3 sm:py-4 border-b border-sf-border-primary flex justify-between items-center bg-sf-bg-secondary sticky top-0 z-50">
-        <MobileNav backTo="/feed" />
+        <MobileGoBackNav backTo="/feed" />
         <a
           href="/"
           className="text-[1.1rem] sm:text-[1.3rem] font-bold tracking-[2px] text-sf-text-primary"

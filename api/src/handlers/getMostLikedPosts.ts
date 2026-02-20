@@ -1,19 +1,26 @@
 import { APIGatewayProxyHandlerV2 } from "aws-lambda";
 import { getPool } from "../lib/db";
+import { getCorsHeaders } from "../lib/cors";
 
 export const config = {
   callbackWaitsForEmptyEventLoop: false,
 };
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": process.env.ALLOWED_ORIGIN || "https://sim-feed.vercel.app",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
-  "Content-Type": "application/json",
-};
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
-  // Handle preflight
+  let corsHeaders;
+  try {
+    corsHeaders = getCorsHeaders(event.headers.origin || "");
+  }
+  catch(error) {
+    console.error(error);
+    return {
+      statusCode: 403,
+      headers: {},
+      body: JSON.stringify({ error: "Forbidden" }),
+    };
+  }
+  
   if (event.requestContext.http.method === "OPTIONS") {
     return {
       statusCode: 200,

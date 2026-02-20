@@ -33,7 +33,7 @@ export const EnhancedLink = ({ destination, message, children }: LinkProps) => {
   const location = useLocation();
 
   const updatePreviousLocation = () => {
-    setPreviousLocation(location.pathname);
+    setPreviousLocation(location.pathname + location.search);
   };
 
   return (

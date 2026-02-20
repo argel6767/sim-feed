@@ -12,6 +12,8 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@clerk/react-router": "^2.4.4",
+    "@clerk/themes": "^2.4.52",
     "@pusher/push-notifications-web": "^1.1.0",
     "@react-router/node": "7.10.1",
     "@react-router/serve": "7.10.1",

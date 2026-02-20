@@ -1,18 +1,24 @@
 import { getPool } from "../lib/db";
 import { APIGatewayProxyHandlerV2 } from "aws-lambda";
+import { getCorsHeaders } from "../lib/cors";
 
 export const config = {
   callbackWaitsForEmptyEventLoop: false,
 };
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": process.env.ALLOWED_ORIGIN || "https://sim-feed.vercel.app",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
-  "Content-Type": "application/json",
-};
-
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
+  let corsHeaders;
+  try {
+    corsHeaders = getCorsHeaders(event.headers.origin || "");
+  }
+  catch(error) {
+    console.error(error);
+    return {
+      statusCode: 403,
+      headers: {},
+      body: JSON.stringify({ error: "Forbidden" }),
+    };
+  }
   // Handle preflight
   if (event.requestContext.http.method === "OPTIONS") {
     return {
@@ -40,10 +46,13 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       c.post_id,
       c.body,
       c.author_id,
-      per.username AS author_username,
+      c.user_author_id,
+      CASE WHEN c.author_id IS NOT NULL THEN 'persona' ELSE 'user' END AS author_type,
+      COALESCE(per.username, u.username) AS author_username,
       c.created_at
     FROM comments c
     LEFT JOIN personas per ON c.author_id = per.persona_id
+    LEFT JOIN users u ON c.user_author_id = u.id
     WHERE c.post_id = $1
     ORDER BY c.created_at DESC
   `;
