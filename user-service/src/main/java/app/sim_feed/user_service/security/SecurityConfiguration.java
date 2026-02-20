@@ -24,7 +24,7 @@ import lombok.Setter;
 public class SecurityConfiguration {
     
     @Value("${sim.feed.domain}")
-    private String simFeedDomain;
+    private List<String> simFeedDomain;
 
     private final ClerkAuthenticationFilter clerkAuthenticationFilter;
 
@@ -63,7 +63,7 @@ public class SecurityConfiguration {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cors = new CorsConfiguration();
-        cors.setAllowedOrigins(List.of(simFeedDomain));
+        cors.setAllowedOrigins(simFeedDomain);
         cors.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         cors.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         cors.setAllowCredentials(true);

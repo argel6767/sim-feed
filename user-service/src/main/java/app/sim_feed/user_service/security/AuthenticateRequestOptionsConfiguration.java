@@ -9,26 +9,24 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.beans.factory.annotation.Value;
+import java.util.List;
 
 @Configuration
 @Setter
 public class AuthenticateRequestOptionsConfiguration {
     
-    @Value("${clerk.secret.key}")
-    private String clerkSecretKey;
-    
     @Value("${sim.feed.domain}")
-    private String simFeedDomain;
+    private List<String> simFeedDomain;
 
     @Profile("!prod")
     @Bean
-    public AuthenticateRequestOptions devAuthenticateRequestOptions() {
-        return AuthenticateRequestOptions.secretKey(clerkSecretKey).authorizedParty(simFeedDomain).build();
+    public AuthenticateRequestOptions devAuthenticateRequestOptions(@Value("${clerk.secret.key}") String clerkSecretKey) {
+        return AuthenticateRequestOptions.secretKey(clerkSecretKey).authorizedParties(simFeedDomain).build();
     }
     
     @Profile("prod")
     @Bean
     public AuthenticateRequestOptions prodAuthenticateRequestOptions(ClerkProperties clerkProperties) {
-        return AuthenticateRequestOptions.secretKey(clerkProperties.clerkSecretKey()).authorizedParty(simFeedDomain).build();
+        return AuthenticateRequestOptions.secretKey(clerkProperties.clerkSecretKey()).authorizedParties(simFeedDomain).build();
     }
 }
