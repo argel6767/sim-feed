@@ -17,8 +17,12 @@ import { LoadingBar } from "./components/loading";
 
 import { clerkMiddleware, rootAuthLoader } from '@clerk/react-router/server'
 import { ClerkProvider } from '@clerk/react-router'
+import { RouterContextProvider } from "react-router";
 
 export const middleware = [clerkMiddleware()]
+export function getLoadContext(args: any) {
+  return new RouterContextProvider(args.context || {});
+}
 
 export const loader = (args: Route.LoaderArgs) => rootAuthLoader(args)
 
