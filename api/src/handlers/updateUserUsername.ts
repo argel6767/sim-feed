@@ -8,19 +8,10 @@ export const config = {
   callbackWaitsForEmptyEventLoop: false,
 };
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin":
-    process.env.ALLOWED_ORIGIN || "https://sim-feed.vercel.app",
-  "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
-  "Content-Type": "application/json",
-};
-
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   if (event.requestContext.http.method === "OPTIONS") {
     return {
       statusCode: 200,
-      headers: corsHeaders,
       body: "",
     };
   }
@@ -28,7 +19,6 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   if (!event.body) {
     return {
       statusCode: 400,
-      headers: corsHeaders,
       body: JSON.stringify({ error: "Missing request body" }),
     };
   }
@@ -77,7 +67,6 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     if (!id || !username || !type) {
       return {
         statusCode: 400,
-        headers: corsHeaders,
         body: JSON.stringify({ error: "Invalid request body" }),
       };
     }
@@ -85,7 +74,6 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     if (type !== "user.updated") {
       return {
         statusCode: 200,
-        headers: corsHeaders,
         body: JSON.stringify({ message: "Event ignored" }),
       };
     }
@@ -104,7 +92,6 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
       return {
         statusCode: 201,
-        headers: corsHeaders,
         body: JSON.stringify({
           message: "User created",
           user: insertResult.rows[0],
@@ -114,7 +101,6 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
     return {
       statusCode: 200,
-      headers: corsHeaders,
       body: JSON.stringify({
         message: "Username updated",
         user: result.rows[0],
@@ -124,7 +110,6 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     console.error(error);
     return {
       statusCode: 500,
-      headers: corsHeaders,
       body: JSON.stringify({ error: "Internal Server Error" }),
     };
   }

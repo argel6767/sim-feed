@@ -47,7 +47,8 @@ def build_scheduler_engine_image():
 
 def tag_scheduler_engine_image():
     print("Tagging scheduler engine image\n")
-    repo = os.environ.get("AWS_REPO" + repo_name)
+    aws_repo_root = os.environ["AWS_REPO"]
+    repo = aws_repo_root + repo_name
     commands = ["docker", "tag", "scheduler-engine:latest", repo]
     process = subprocess.run(commands, cwd=scheduler_engine_directory, shell=is_os_windows)
     print(process)
@@ -56,7 +57,8 @@ def tag_scheduler_engine_image():
 
 def push_scheduler_engine_image():
     print("Pushing scheduler engine image\n")
-    repo = os.environ.get("AWS_REPO" + repo_name)
+    aws_repo_root = os.environ["AWS_REPO"]
+    repo = aws_repo_root + repo_name
     commands = ["docker", "push", repo]
     process = subprocess.run(commands, cwd=scheduler_engine_directory, shell=is_os_windows)
     print(process)

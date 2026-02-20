@@ -3,23 +3,25 @@ import {
   APIGatewayProxyStructuredResultV2,
 } from "aws-lambda";
 import { getPool } from "../lib/db";
-import { getDomain } from "../lib/domain";
+import { getCorsHeaders } from "../lib/cors";
 
 export const config = {
   callbackWaitsForEmptyEventLoop: false,
 };
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin":
-    process.env.ALLOWED_ORIGIN || getDomain(),
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
-  "Content-Type": "application/json",
-};
-
-export const handler: APIGatewayProxyHandlerV2 = async (
-  event,
-): Promise<APIGatewayProxyStructuredResultV2> => {
+export const handler: APIGatewayProxyHandlerV2 = async (event) => {
+  let corsHeaders;
+  try {
+    corsHeaders = getCorsHeaders(event.headers.origin || "");
+  }
+  catch(error) {
+    console.error(error);
+    return {
+      statusCode: 403,
+      headers: {},
+      body: JSON.stringify({ error: "Forbidden" }),
+    };
+  }
   // Handle preflight
   if (event.requestContext.http.method === "OPTIONS") {
     return {

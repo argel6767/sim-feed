@@ -3,24 +3,15 @@ import { APIGatewayProxyHandlerV2 } from "aws-lambda";
 import { getSSMClient } from "../lib/ssm";
 import { GetParameterCommand } from "@aws-sdk/client-ssm";
 import { Webhook } from "svix";
-import { getDomain } from "../lib/domain";
 
 export const config = {
   callbackWaitsForEmptyEventLoop: false,
-};
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": process.env.ALLOWED_ORIGIN || getDomain(),
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
-  "Content-Type": "application/json",
 };
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   if (event.requestContext.http.method === "OPTIONS") {
     return {
       statusCode: 200,
-      headers: corsHeaders,
       body: "",
     };
   }
@@ -28,7 +19,6 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   if (!event.body) {
     return {
       statusCode: 400,
-      headers: corsHeaders,
       body: JSON.stringify({ error: "Missing request body" }),
     };
   }
@@ -77,7 +67,6 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     if (!id || !username || !type) {
       return {
         statusCode: 400,
-        headers: corsHeaders,
         body: JSON.stringify({ error: "Invalid request body" }),
       };
     }
@@ -85,7 +74,6 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     if (type !== "user.created") {
           return {
             statusCode: 200,
-            headers: corsHeaders,
             body: JSON.stringify({ message: "Event ignored" }),
           };
         }
@@ -93,14 +81,12 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     const result = await pool.query(query, [id, username, ""]);
     return {
       statusCode: 201,
-      headers: corsHeaders,
       body: JSON.stringify(result.rows[0]),
     };
   } catch (error) {
     console.error(error);
     return {
       statusCode: 500,
-      headers: corsHeaders,
       body: JSON.stringify({ error: "Internal Server Error" }),
     };
   }
