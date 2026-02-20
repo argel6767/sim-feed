@@ -2,6 +2,9 @@ package app.sim_feed.user_service.exceptions;
 
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
+
+import io.github.resilience4j.ratelimiter.RequestNotPermitted;
+
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.NoSuchElementException;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +41,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<FailedRequestDto> handleIllegalStateException(IllegalStateException ise, HttpServletRequest request) {
         String requestUri = request.getRequestURI();
         return ResponseEntity.status(400).body(new FailedRequestDto(ise.getMessage(), 400, requestUri));
+    }
+    
+    @ExceptionHandler(RequestNotPermitted.class)
+    public ResponseEntity<FailedRequestDto> handleRequestNotPermitted(RequestNotPermitted rnp, HttpServletRequest request) {
+        String requestUri = request.getRequestURI();
+        return ResponseEntity.status(429).body(new FailedRequestDto("Rate limit exceeded. Please try again later.", 429, requestUri));
     }
     
 }
