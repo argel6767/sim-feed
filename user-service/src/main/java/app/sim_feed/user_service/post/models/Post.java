@@ -39,11 +39,11 @@ public class Post {
     private String body;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author")
+    @JoinColumn(name = "author", nullable = true)
     private Persona personaAuthor;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_author")
+    @JoinColumn(name = "user_author", nullable = true)
     private User userAuthor;
 
     @CreationTimestamp

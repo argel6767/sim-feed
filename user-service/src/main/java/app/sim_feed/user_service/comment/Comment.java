@@ -41,11 +41,11 @@ public class Comment {
     private String body;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id")
+    @JoinColumn(name = "author_id", nullable = true)
     private Persona personaAuthor;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_author_id")
+    @JoinColumn(name = "user_author_id", nullable = true)
     private User userAuthor;
 
     @CreationTimestamp
