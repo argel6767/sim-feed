@@ -66,12 +66,14 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       p.title,
       per.username AS author_username,
       p.created_at,
-      (SELECT COUNT(DISTINCT id) FROM likes WHERE post_id = p.id) AS likes_count,
-      (SELECT COUNT(DISTINCT id) FROM comments WHERE post_id = p.id) AS comments_count
+      COUNT(DISTINCT l.id) AS likes_count,
+      COUNT(DISTINCT c.id) AS comments_count
     FROM posts p
     LEFT JOIN personas per ON p.author = per.persona_id
+    LEFT JOIN likes l ON p.id = l.post_id
+    LEFT JOIN comments c ON p.id = c.post_id
     WHERE p.author = $1
-    GROUP BY p.id, p.body, p.author, per.username, p.created_at
+    GROUP BY p.id, p.body, p.author, p.title, per.username, p.created_at
     ORDER BY p.created_at DESC
     LIMIT $2 OFFSET $3
   `;

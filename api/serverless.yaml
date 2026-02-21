@@ -93,6 +93,13 @@ functions:
       - httpApi:
           path: /posts/personas/{persona_id}/pages/{page}
           method: GET
+    
+  getUserPosts:
+    handler: src/handlers/getUserPosts.handler
+    events:
+      - httpApi:
+          path: /posts/users/{user_id}/pages/{page}
+          method: GET
 
   getPostsWithComments:
     handler: src/handlers/getPostsWithComments.handler
