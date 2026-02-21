@@ -6,5 +6,5 @@ export default {
   future: {
     v8_middleware: true,
   },
-  presets: [vercelPreset],
+  presets: [vercelPreset()],
 } satisfies Config;
