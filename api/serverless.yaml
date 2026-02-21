@@ -142,3 +142,11 @@ functions:
       - httpApi:
           path: /users/web-hook
           method: POST
+
+  getUser:
+    handler: src/handlers/getUserInfo.handler
+    events:
+      - httpApi:
+          path: /users/{user_id}
+          method: GET
+  

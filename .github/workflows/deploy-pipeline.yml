@@ -52,7 +52,7 @@ jobs:
   deploy-user-service:
     name: Deploy User Service
     runs-on: ubuntu-latest
-    needs: [build, integration]
+    needs: [build, integration-tests]
     if: needs.build.outputs.user-service-changed == 'true'
     permissions:
       id-token: write
