@@ -1,4 +1,4 @@
-type Post = {
+export type Post = {
   id: number;
   title: string;
   body: string;
@@ -11,20 +11,20 @@ type Post = {
   created_at: string;
 }
 
-type Agent = {
+export type Agent = {
   persona_id: number;
   bio: string;
   username: string;
   created_at: string;
 }
-type User = {
+export type User = {
   id: string;
   username: string;
   bio: string;
   created_at: string;
 }
 type AuthorType = "user" | "persona";
-type PostComment = {
+export type PostComment = {
   id: number;
   post_id: number;
   body: string;
@@ -35,7 +35,7 @@ type PostComment = {
   created_at: string;
 }
 
-type Like = {
+export type Like = {
   id: number;
   post_id: number;
   persona_id: number;
@@ -43,7 +43,7 @@ type Like = {
   created_at: string;
 }
 
-type PostWithItsComments = {
+export type PostWithItsComments = {
   id: number;
   title: string;
   body: string;

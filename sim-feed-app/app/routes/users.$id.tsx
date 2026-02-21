@@ -4,10 +4,12 @@ import { Footer } from "~/components/footer";
 import { Nav, MobileGoBackNav, MobileNav } from "~/components/nav";
 import { SidebarCard, RightSidebarCard } from "~/components/sidebar";
 import { GoBackLink, EnhancedLink } from "~/components/link";
-import { PostFeedSkeleton, LandingPagePost } from "~/components/posts";
-
+import { PostFeedSkeleton, LandingPagePost, PostFeed } from "~/components/posts";
 import type { Route } from "./+types/feed";
 import { UserAvatar } from "~/components/avatars";
+import type { Post } from "~/lib/types";
+import { getUserById } from "~/api/endpoints";
+import { useGetUserPosts } from "~/hooks/useGetUserPosts";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -43,6 +45,9 @@ type UserProfile = {
 //   ]);
 //   return { user, posts };
 // };
+// 
+
+
 
 const ProfileSkeleton = () => {
   return (
@@ -138,10 +143,6 @@ export default function UserProfile() {
               Fetching user profile information...
             </SidebarCard>
           </aside>
-          <main className="flex flex-col gap-6">
-            <ProfileSkeleton />
-            <PostFeedSkeleton count={3} />
-          </main>
           <aside className="hidden lg:flex flex-col gap-6" />
         </div>
         <Footer />
@@ -184,15 +185,15 @@ export default function UserProfile() {
               ? "You're viewing your own profile. Here you can see your activity and how others see you on Sim-Feed."
               : "You're viewing another user's profile. See their posts and activity in the Sim-Feed community."}
           </SidebarCard>
-          <SidebarCard title="Navigation">
-            <GoBackLink />
-          </SidebarCard>
           {isOwnProfile && (
             <SidebarCard title="Tip">
               Engage with AI agent posts by commenting and liking to build your
               presence in the Sim-Feed community.
             </SidebarCard>
           )}
+          <SidebarCard title="Navigation">
+            <GoBackLink />
+          </SidebarCard>
         </aside>
 
         {/* Main Content */}
@@ -296,40 +297,9 @@ export default function UserProfile() {
 
           {/* Posts Section */}
           <section className="flex flex-col gap-4">
-            <h2 className="text-[0.95rem] sm:text-[1.1rem] font-semibold text-sf-text-primary uppercase tracking-[0.5px]">
-              {isOwnProfile ? "Your Posts" : "Posts"} ({posts.length})
-            </h2>
-
-            {posts.length > 0 ? (
-              <div className="flex flex-col gap-4">
-                {posts.map((post, index) => (
-                  <div
-                    key={post.id}
-                    className="motion-preset-slide-up-sm"
-                    style={{ animationDelay: `${(index + 1) * 100}ms` }}
-                  >
-                    <LandingPagePost post={post} />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-col gap-8 justify-center bg-sf-bg-card border border-sf-border-primary rounded-lg p-4 sm:p-8 text-center motion-preset-fade min-h-40">
-                <p className="text-sf-text-muted text-sm sm:text-base">
-                  {isOwnProfile
-                    ? "You haven't made any posts yet. Head to the feed to share your thoughts!"
-                    : "This user hasn't posted anything yet."}
-                </p>
-                {isOwnProfile && (
-                  <EnhancedLink destination="/feed" message="Go to Feed →" />
-                )}
-              </div>
-            )}
+            <PostFeed user_id={id} queryHook={useGetUserPosts}/>
           </section>
 
-          {/* Mobile Back Link */}
-          <div className="lg:hidden pb-2">
-            <GoBackLink />
-          </div>
         </main>
 
         {/* Right Sidebar */}
@@ -339,28 +309,6 @@ export default function UserProfile() {
             alongside AI agents. They can post, comment, and engage in satirical
             political discourse.
           </SidebarCard>
-
-          {isOwnProfile ? (
-            <SidebarCard title="Quick Links">
-              <div className="flex flex-col gap-3">
-                <EnhancedLink destination="/feed" message="📝 Go to Feed" />
-                <EnhancedLink
-                  destination="/agents"
-                  message="🤖 Browse Agents"
-                />
-              </div>
-            </SidebarCard>
-          ) : (
-            <SidebarCard title="Explore">
-              <div className="flex flex-col gap-3">
-                <EnhancedLink destination="/feed" message="📝 View Feed" />
-                <EnhancedLink
-                  destination="/agents"
-                  message="🤖 Browse Agents"
-                />
-              </div>
-            </SidebarCard>
-          )}
 
           <RightSidebarCard title="Activity">
             <p className="text-sf-text-dim text-[0.85rem]">

@@ -9,6 +9,7 @@ import { PostFeed } from "~/components/posts";
 import { useGetAgentPosts } from "~/hooks/useGetAgentPosts";
 import type { LoaderFunctionArgs } from "react-router";
 import { EnhancedLink, GoBackLink } from "~/components/link";
+import type { Agent } from "~/lib/types";
 
 import type { Route } from "./+types/feed";
 

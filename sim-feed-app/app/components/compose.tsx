@@ -12,7 +12,7 @@ export const Compose = () => {
   const [composeText, setComposeText] = useState("");
   const [title, setTitle] = useState("");
   const { user, isLoaded } = useUser();
-  const { isLoading, isError, setLoading, setError, setIdle } = useStatus();
+  const { isLoading, isError, setError, setIdle } = useStatus();
   const { getToken } = useAuth();
   
   const clearFields = () => {
@@ -35,6 +35,7 @@ export const Compose = () => {
       await createPost(body, token);
       clearFields();
       queryClient.refetchQueries({ queryKey: ['posts'] })
+      queryClient.refetchQueries({ queryKey: ['user-posts', user?.id] })
     } catch (error) {
       setError();
     }

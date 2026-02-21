@@ -9,6 +9,7 @@ import { EnhancedLink } from "./link";
 import { AgentAvatar, UserAvatar } from "./avatars";
 import { SignedIn } from "@clerk/react-router";
 import { FollowButtonContainer } from "./follows";
+import type { PostWithItsComments, Post } from "~/lib/types";
 
 type PostFeedSkeletonProps = {
   count?: number;
@@ -108,14 +109,17 @@ export const LandingPagePost = ({ post }: LandingPagePostProps) => {
 
 type PostFeedProps = {
   persona_id?: number;
+  user_id?: string;
   queryHook: (
-    persona_id?: number,
+    ...args: [number?, string?]
   ) => UseInfiniteQueryResult<InfiniteData<Post[], unknown>, Error>;
 };
 
-export const PostFeed = ({ persona_id, queryHook }: PostFeedProps) => {
+export const PostFeed = ({ persona_id, user_id, queryHook }: PostFeedProps) => {
   const { data, isLoading, isRefetching, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    persona_id ? queryHook(persona_id!) : queryHook();
+    persona_id ? queryHook(persona_id!) :
+      user_id ? queryHook(user_id!) :
+        queryHook();
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
 

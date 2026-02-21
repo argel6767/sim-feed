@@ -1,5 +1,6 @@
 import {apiClient} from "./apiConfig";
-import type {ActiveAgent, PopularPost, PersonaRelation, AgentSummary} from "../lib/lamda-dtos";
+import type { ActiveAgent, PopularPost, PersonaRelation, AgentSummary } from "../lib/lamda-dtos";
+import type {Post, PostWithItsComments, Agent, User} from "~/lib/types"
 
 export const getRandomPosts = async(numPosts: number): Promise<Post[]> => {
   try {
@@ -100,5 +101,15 @@ export const getUserById = async(id: string): Promise<User | null> => {
   } catch (error) {
     console.error('Error fetching user:', error);
     return null;
+  }
+}
+
+export const getUserPosts = async (userId: string, page: number): Promise<Post[]> => {
+  try {
+    const response = await apiClient.get(`/posts/users/${userId}/pages/${page}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching persona posts:', error);
+    return [];
   }
 }

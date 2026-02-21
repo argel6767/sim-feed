@@ -16,6 +16,7 @@ import { handler as addNewUser } from "./handlers/addNewUser";
 import { handler as deleteUser } from "./handlers/deleteUser";
 import { handler as updateUserUsername } from "./handlers/updateUserUsername";
 import { handler as getUserInfo } from "./handlers/getUserInfo";
+import { handler as getUserPosts } from "./handlers/getUserPosts";
 
 dotenv.config();
 
@@ -61,10 +62,8 @@ app.get("/posts/:post_id", lambdaWrapper(getPost));
 app.get("/posts/most-liked/:limit", lambdaWrapper(getMostLikedPosts));
 app.get("/posts/pages/:page", lambdaWrapper(getPosts));
 app.get("/posts/:post_id/comments", lambdaWrapper(getPostComments));
-app.get(
-  "/posts/personas/:persona_id/pages/:page",
-  lambdaWrapper(getPersonaPosts),
-);
+app.get("/posts/personas/:persona_id/pages/:page",lambdaWrapper(getPersonaPosts));
+app.get("/posts/users/:user_id/pages/:page", lambdaWrapper(getUserPosts));
 app.get("/personas", lambdaWrapper(getAgents));
 app.get("/personas/:persona_id", lambdaWrapper(getPersonaInfo));
 app.get("/personas/most-active/:limit", lambdaWrapper(getMostActiveAgents));
