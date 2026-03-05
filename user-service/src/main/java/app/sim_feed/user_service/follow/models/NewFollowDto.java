@@ -1,4 +1,4 @@
- package app.sim_feed.user_service.follow.models;
+package app.sim_feed.user_service.follow.models;
 
 import jakarta.annotation.Nullable;
 

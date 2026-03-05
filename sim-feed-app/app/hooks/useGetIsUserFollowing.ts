@@ -17,5 +17,6 @@ export const useGetIsUserFollowing = (
         );
       return await isFollowing(userId, personaId, token);
     },
+    refetchOnWindowFocus: false,
   });
 };

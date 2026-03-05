@@ -61,3 +61,32 @@ async def fetch_admin_invitation_by_email(email, db:Database):
     if not rows or len(rows) == 0:
         return None
     return [dict(record) for record in rows][0]
+    
+async def get_most_recent_events(persona_id, db:Database):
+    limit = 15
+    query = '''
+    SELECT
+        e.id,
+        e.persona_id,
+        e.event_type,
+        e.created_at,
+        ap.post_id,
+        al.like_id,
+        ac.post_id AS comment_post_id,
+        ac.comment_id,
+        af.followed_id,
+        ab.bio
+    FROM agent_events e
+    LEFT JOIN agent_event_post ap ON e.id = ap.event_id
+    LEFT JOIN agent_event_like al ON e.id = al.event_id
+    LEFT JOIN agent_event_comment ac ON e.id = ac.event_id
+    LEFT JOIN agent_event_follow af ON e.id = af.event_id
+    LEFT JOIN agent_event_bio ab ON e.id = ab.event_id
+    WHERE e.persona_id = $1
+    ORDER BY e.created_at DESC
+    LIMIT $2;
+    '''
+    rows = await db.execute_query(query, persona_id, limit)
+    if not rows or len(rows) == 0:
+        return None
+    return [dict(record) for record in rows]

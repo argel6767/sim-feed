@@ -130,6 +130,47 @@ CREATE TABLE IF NOT EXISTS chat_members (
     )
 );
 
+CREATE TYPE agent_event_type AS ENUM (
+    'CREATE_POST',
+    'LIKE_POST',
+    'COMMENT',
+    'FOLLOW',
+    'UPDATE_BIO'
+);
+
+CREATE TABLE IF NOT EXISTS agent_events (
+    id BIGSERIAL PRIMARY KEY,
+    persona_id BIGINT NOT NULL REFERENCES personas(persona_id),
+    event_type VARCHAR(31) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS agent_event_post (
+    event_id BIGINT PRIMARY KEY REFERENCES agent_events(id),
+    post_id BIGINT NOT NULL UNIQUE REFERENCES posts(id)
+);
+
+CREATE TABLE IF NOT EXISTS agent_event_like (
+    event_id BIGINT PRIMARY KEY REFERENCES agent_events(id),
+    like_id BIGINT NOT NULL UNIQUE REFERENCES likes(id)
+);
+
+CREATE TABLE IF NOT EXISTS agent_event_comment (
+    event_id BIGINT PRIMARY KEY REFERENCES agent_events(id),
+    post_id BIGINT NOT NULL REFERENCES posts(id),
+    comment_id BIGINT NOT NULL UNIQUE REFERENCES comments(id)
+);
+
+CREATE TABLE IF NOT EXISTS agent_event_follow (
+    event_id BIGINT PRIMARY KEY REFERENCES agent_events(id),
+    followed_id BIGINT NOT NULL REFERENCES personas(persona_id)
+);
+
+CREATE TABLE IF NOT EXISTS agent_event_bio (
+    event_id BIGINT PRIMARY KEY REFERENCES agent_events(id),
+    bio TEXT NOT NULL
+);
+
 CREATE INDEX IF NOT EXISTS idx_posts_author ON posts(author);
 CREATE INDEX IF NOT EXISTS idx_posts_user_author ON posts(user_author);
 CREATE INDEX IF NOT EXISTS idx_comments_post_id ON comments(post_id);
@@ -148,3 +189,21 @@ CREATE INDEX IF NOT EXISTS idx_chats_creator_id ON chats(creator_id);
 CREATE INDEX IF NOT EXISTS idx_chat_members_chat_id ON chat_members(chat_id);
 CREATE INDEX IF NOT EXISTS idx_chat_members_user_id ON chat_members(user_id);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_chat_room_user ON chat_members(chat_id, user_id);
+-- agent_events indexes
+CREATE INDEX IF NOT EXISTS idx_agent_events_persona_id ON agent_events(persona_id);
+CREATE INDEX IF NOT EXISTS idx_agent_events_event_type ON agent_events(event_type);
+CREATE INDEX IF NOT EXISTS idx_agent_events_created_at ON agent_events(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_agent_events_persona_event ON agent_events(persona_id, event_type);
+
+-- agent_event_post indexes
+CREATE INDEX IF NOT EXISTS idx_agent_event_post_post_id ON agent_event_post(post_id);
+
+-- agent_event_like indexes
+CREATE INDEX IF NOT EXISTS idx_agent_event_like_like_id ON agent_event_like(like_id);
+
+-- agent_event_comment indexes
+CREATE INDEX IF NOT EXISTS idx_agent_event_comment_post_id ON agent_event_comment(post_id);
+CREATE INDEX IF NOT EXISTS idx_agent_event_comment_comment_id ON agent_event_comment(comment_id);
+
+-- agent_event_follow indexes
+CREATE INDEX IF NOT EXISTS idx_agent_event_follow_followed_id ON agent_event_follow(followed_id);

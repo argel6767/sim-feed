@@ -13,6 +13,10 @@ import app.sim_feed.user_service.users.UserService;
 import lombok.RequiredArgsConstructor;
 import java.util.List;
 
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+
 @Service
 @RequiredArgsConstructor
 public class FollowService {
@@ -20,7 +24,9 @@ public class FollowService {
     private final FollowRepository followRepository;
     private final UserService userService;
     private final PersonaService personaService;
+    private final CacheManager cacheManager;
 
+    @CacheEvict(cacheNames = "follows", key = "#requesterId")
     public FollowDto follow(NewFollowDto newFollowDto, String requesterId) {
         if (newFollowDto.userId() != null && newFollowDto.userId().equals(requesterId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Requester cannot follow themselves.");
@@ -42,7 +48,15 @@ public class FollowService {
                 .follower(requester)
                 .userFollowed(user)
                 .build();
-        return FollowDto.of(followRepository.save(follow));
+
+        FollowDto dto = FollowDto.of(followRepository.save(follow));
+        
+        var cache = cacheManager.getCache("followers");
+        if (cache != null) {
+            cache.evict(userId);
+        }
+        
+        return dto;
     }
 
     private FollowDto followPersona(Long personaId, String requesterId) {
@@ -60,9 +74,26 @@ public class FollowService {
         if (!follow.getFollower().getClerkId().equals(requesterId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Requester is not the follower");
         }
+        
+        String cacheKey = follow.getUserFollowed() != null
+              ? "user:" + requesterId + ":" + follow.getUserFollowed().getClerkId()
+              : "persona:" + requesterId + ":" + follow.getPersonaFollowed().getPersonaId();
+        
         followRepository.delete(follow);
+        
+        var cache = cacheManager.getCache("followExists");
+        if (cache != null) {
+            cache.evict(cacheKey);
+        }
+        
+        cache = cacheManager.getCache("follows");
+        
+        if (cache != null) {
+            cache.evict(requesterId);
+        }
     }
     
+    @Cacheable(cacheNames = "follows", key = "#userId")
     public List<FollowDto> getAllUserFollows(String userId) {
         return followRepository.findAllByFollower_ClerkId(userId)
                 .stream()
@@ -70,6 +101,7 @@ public class FollowService {
                 .toList();
     }
     
+    @Cacheable(cacheNames = "followers", key = "#userId")
     public List<FollowDto> getAllUserFollowers(String userId) {
         return followRepository.findAllByUserFollowed_ClerkId(userId)
                 .stream()
@@ -77,6 +109,10 @@ public class FollowService {
                 .toList();
     }
     
+    @Cacheable(
+      cacheNames = "followExists",
+      key = "#userId != null ? 'user:' + #requesterId + ':' + #userId : 'persona:' + #requesterId + ':' + #personaId"
+    )
     public FollowExistsDto isFollowing(String userId, Long personaId, String requesterId) {
         if (userId == null && personaId == null)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User or persona ID is required");

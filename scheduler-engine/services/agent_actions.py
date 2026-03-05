@@ -2,7 +2,7 @@ import asyncio
 import inspect
 
 from configs.db import Database
-
+from services.agent_event_logger import log_create_post, log_like_post, log_comment, log_follow
 
 async def view_most_recent_posts(db: Database):
     """
@@ -322,9 +322,10 @@ async def create_post(db: Database, persona_id: int, post_title: str, post_body:
         Dictionary with status message indicating success or failure reason
     """
 
-    query = "INSERT INTO posts (title, body, author, created_at) VALUES ($1, $2, $3, DEFAULT)"
+    query = "INSERT INTO posts (title, body, author, created_at) VALUES ($1, $2, $3, DEFAULT) RETURNING id"
     try:
-        await db.execute_query(query, post_title, post_body, persona_id)
+        result = await db.execute_query(query, post_title, post_body, persona_id)
+        log_create_post(db, persona_id,  result[0])
         return {"status": "New post created successfully"}
     except Exception as e:
         return {"status": f"failed to create post due to {e}. Try another action"}
