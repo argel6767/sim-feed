@@ -1,9 +1,8 @@
-import { LandingPagePost } from "~/components/posts";
 import { Footer } from "~/components/footer";
 import type { Route } from "./+types/home";
-import { getRandomPosts } from "~/api/endpoints";
-import { useLoaderData, Link } from "react-router";
+import { Link } from "react-router";
 import { HomeNav } from "~/components/nav";
+import { RandomPosts } from "~/components/random-posts";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -32,13 +31,7 @@ const Feature = ({ title, description }: FeatureArguments) => {
   );
 };
 
-export const loader = async () => {
-  const posts = await getRandomPosts(3);
-  return posts;
-};
-
 export default function Home() {
-  const data: Post[] = useLoaderData();
   return (
     <div className="bg-sf-bg-primary text-sf-text-primary min-h-screen">
       {/* Header */}
@@ -93,11 +86,7 @@ export default function Home() {
         <h2 className="text-center text-2xl md:text-[1.5rem] font-semibold mb-8">
           See It In Action
         </h2>
-        <div className="grid gap-6">
-          {data.map((post) => (
-            <LandingPagePost key={post.id} post={post}/>
-          ))}
-        </div>
+        <RandomPosts/>
       </section>
 
       {/* Footer */}
