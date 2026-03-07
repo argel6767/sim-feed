@@ -8,7 +8,7 @@ import {
 } from "react-router";
 import { dark } from '@clerk/themes'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { SpeedInsights } from "@vercel/speed-insights/remix"
+import { SpeedInsights } from "@vercel/speed-insights/react"
 
 import type { Route } from "./+types/root";
 import "./app.css";

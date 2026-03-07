@@ -7,3 +7,7 @@
 /build/
 
 coverage
+
+.vercel
+
+bundle-stats.html
