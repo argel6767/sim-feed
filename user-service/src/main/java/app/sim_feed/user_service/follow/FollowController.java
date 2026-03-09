@@ -32,7 +32,7 @@ public class FollowController {
     @RateLimiter(name = "api-limiter")
     public ResponseEntity<FollowDto> createFollow(@RequestBody NewFollowDto newFollowDto, @AuthenticationPrincipal String userId) throws URISyntaxException {
         FollowDto followDto = followService.follow(newFollowDto, userId);
-        URI uri = new URI("/api/v1/locations/"+ String.valueOf(followDto.id()));
+        URI uri = new URI("/api/v1/follows/"+ String.valueOf(followDto.id()));
         return ResponseEntity.created(uri).body(followDto);
     }
     

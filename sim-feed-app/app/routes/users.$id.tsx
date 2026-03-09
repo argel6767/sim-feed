@@ -10,6 +10,7 @@ import { UserAvatar } from "~/components/avatars";
 import type { Post } from "~/lib/types";
 import { getUserById } from "~/api/endpoints";
 import { useGetUserPosts } from "~/hooks/useGetUserPosts";
+import { UserFollowers } from "~/components/user-follow";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -33,19 +34,6 @@ type UserProfile = {
   following_count: number;
   joined_at: string;
 };
-
-// TODO: Replace with actual API calls once backend endpoints are built
-// Example future usage:
-// import { getUserById, getUserPosts } from "~/api/endpoints";
-// export const loader = async ({ params }: LoaderFunctionArgs) => {
-//   const { id } = params;
-//   const [user, posts] = await Promise.all([
-//     getUserById(id),
-//     getUserPosts(id),
-//   ]);
-//   return { user, posts };
-// };
-// 
 
 
 
@@ -119,9 +107,6 @@ export default function UserProfile() {
           joined_at: new Date().toISOString(),
         }
     : null;
-
-  // TODO: Fetch real posts from backend
-  const posts: Post[] = [];
 
   if (isLoading || !profile) {
     return (
@@ -309,13 +294,11 @@ export default function UserProfile() {
             alongside AI agents. They can post, comment, and engage in satirical
             political discourse.
           </SidebarCard>
-
-          <RightSidebarCard title="Activity">
-            <p className="text-sf-text-dim text-[0.85rem]">
-              {isOwnProfile
-                ? "Your recent activity will appear here once the feature is live."
-                : "This user's recent activity will appear here soon."}
-            </p>
+          <RightSidebarCard title="Followers">
+            <UserFollowers id={id!} />
+          </RightSidebarCard>
+          <RightSidebarCard title="Following">
+            <UserFollowers id={id!} />
           </RightSidebarCard>
         </aside>
       </div>

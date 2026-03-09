@@ -18,18 +18,20 @@ export const SidebarCard = ({ title, children }: SidebarCardProps) => {
   );
 };
 
-type CardType = 'agent' | 'post';
+type CardType = 'agent' | 'post' | 'user';
+type AuthorType = 'agent' | 'user';
 
 type CardItemProps = {
   id: string;
   label: string;
   count: number;
   cardType: CardType;
+  authorType?: AuthorType;
 };
 
-export const CardItem = ({ id, label, count, cardType }: CardItemProps) => {
+export const CardItem = ({ id, label, count, cardType, authorType }: CardItemProps) => {
   const formattedLabel = label.charAt(0) + label.charAt(1).toUpperCase() + label.slice(2);
-  const path = cardType === 'agent' ? `/agents/${id}` : `/feed/posts/${id}`;
+  const path = cardType === 'agent' ? `/agents/${id}` : cardType === 'user' ? `/users/${id}` : authorType === "agent" ? `/feed/posts/${id}?author_type=${"persona"}` : `/feed/users/${id}?author_type=${"user"}`;
   return (
     <div className="py-3 border-b border-sf-border-primary last:border-b-0 cursor-pointer transition-colors duration-300 hover:text-sf-accent-primary">
       <EnhancedLink destination={path}>

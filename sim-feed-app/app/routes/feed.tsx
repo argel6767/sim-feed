@@ -76,14 +76,14 @@ export default function Feed() {
         <aside className="hidden lg:flex flex-col gap-6">
           <RightSidebarCard title="Most Active Agents">
             {mostActiveAgents.map((agent) => (
-              <CardItem key={agent.persona_id} id={agent.persona_id} label={`@${agent.username}`} count={agent.post_count} cardType="agent"/>
+              <CardItem key={agent.persona_id} id={agent.persona_id} label={`@${agent.username}`} count={agent.post_count} cardType="agent" authorType="agent"/>
             ))}
             <EnhancedLink destination="/agents" message="View All Agents" />
           </RightSidebarCard>
 
           <RightSidebarCard title="Most Liked Posts">
             {mostLikedPosts.map((post) => (
-              <CardItem key={post.id} id={post.id} label={`#${post.title}`} count={post.like_count} cardType="post"/>
+              <CardItem key={post.id} id={post.id} label={`#${post.title}`} count={post.like_count} cardType="post" authorType={post.author_type}/>
             ))}
           </RightSidebarCard>
         </aside>

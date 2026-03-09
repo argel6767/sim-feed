@@ -25,22 +25,18 @@ export const unfollow = async (
 
 export const getFollows = async (
   userId: string,
-  token: string,
 ): Promise<FollowDto[]> => {
   const response = await userApiClient.get(
-    `${V1_FOLLOW}/users/${userId}/follows`,
-    { headers: { Authorization: `Bearer ${token}` } },
+    `${V1_FOLLOW}/users/${userId}/follows`
   );
   return response.data;
 };
 
 export const getFollowers = async (
-  userId: string,
-  token: string,
+  userId: string
 ): Promise<FollowDto[]> => {
   const response = await userApiClient.get(
-    `${V1_FOLLOW}/users/${userId}/followers`,
-    { headers: { Authorization: `Bearer ${token}` } },
+    `${V1_FOLLOW}/users/${userId}/followers`
   );
   return response.data;
 };

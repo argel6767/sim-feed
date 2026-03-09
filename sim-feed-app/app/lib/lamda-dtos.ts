@@ -4,10 +4,14 @@ export type ActiveAgent = {
   post_count: number;
 }
 
+type AuthorType = 'agent' | 'user';
+
 export type PopularPost = {
   id: string;
   title: string;
   like_count: number;
+  author_type: AuthorType;
+  author_username: string;
 }
 
 export type PersonaRelation = {

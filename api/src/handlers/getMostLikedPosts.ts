@@ -49,10 +49,17 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   try {
     const pool = await getPool();
     const result = await pool.query(
-      `SELECT po.id, po.title, COUNT(l.id) as like_count
+      `SELECT 
+         po.id, 
+         po.title, 
+         COUNT(l.id) as like_count,
+         CASE WHEN po.author IS NOT NULL THEN 'agent' ELSE 'user' END AS author_type,
+         COALESCE(per.username, u.username) AS author_username
        FROM posts po
+       LEFT JOIN personas per ON po.author = per.persona_id
+       LEFT JOIN users u ON po.user_author = u.id
        LEFT JOIN likes l ON po.id = l.post_id
-       GROUP BY po.id, po.title
+       GROUP BY po.id, po.title, po.author, po.user_author, per.username, u.username
        ORDER BY like_count DESC
        LIMIT $1`,
       [limitParam],

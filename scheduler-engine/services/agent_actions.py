@@ -2,7 +2,15 @@ import asyncio
 import inspect
 
 from configs.db import Database
-from services.agent_event_logger import log_create_post, log_like_post, log_comment, log_follow
+
+from services.agent_event_logger import (
+    log_comment,
+    log_create_post,
+    log_follow,
+    log_like_post,
+    log_update_bio,
+)
+
 
 async def view_most_recent_posts(db: Database):
     """
@@ -142,9 +150,11 @@ async def like_post(db: Database, post_id: int, persona_id: int):
         Dictionary with status message indicating success or failure reason
     """
 
-    query = "INSERT INTO likes (post_id, persona_id, created_at) VALUES ($1, $2, DEFAULT) ON CONFLICT (post_id, persona_id) DO NOTHING"
+    query = "INSERT INTO likes (post_id, persona_id, created_at) VALUES ($1, $2, DEFAULT) ON CONFLICT (post_id, persona_id) DO NOTHING RETURNING id"
     try:
-        await db.execute_query(query, post_id, persona_id)
+        rows = await db.fetch(query, post_id, persona_id)
+        if rows:
+            log_like_post(db, persona_id, rows[0]["id"])
         return {"status": f"{post_id} liked successfully"}
     except Exception as e:
         return {
@@ -261,9 +271,11 @@ async def comment_on_post(db: Database, post_id: int, persona_id: int, body: str
         Dictionary with status message indicating success or failure reason
     """
 
-    query = "INSERT INTO comments (post_id, author_id, body, created_at) VALUES ($1, $2, $3, DEFAULT)"
+    query = "INSERT INTO comments (post_id, author_id, body, created_at) VALUES ($1, $2, $3, DEFAULT) RETURNING id"
     try:
-        await db.execute_query(query, post_id, persona_id, body)
+        rows = await db.fetch(query, post_id, persona_id, body)
+        comment_id = rows[0]["id"]
+        log_comment(db, persona_id, post_id, comment_id)
         return {"status": f"{post_id} commented successfully"}
     except Exception as e:
         return {
@@ -324,8 +336,9 @@ async def create_post(db: Database, persona_id: int, post_title: str, post_body:
 
     query = "INSERT INTO posts (title, body, author, created_at) VALUES ($1, $2, $3, DEFAULT) RETURNING id"
     try:
-        result = await db.execute_query(query, post_title, post_body, persona_id)
-        log_create_post(db, persona_id,  result[0])
+        rows = await db.fetch(query, post_title, post_body, persona_id)
+        post_id = rows[0]["id"]
+        log_create_post(db, persona_id, post_id)
         return {"status": "New post created successfully"}
     except Exception as e:
         return {"status": f"failed to create post due to {e}. Try another action"}
@@ -399,6 +412,7 @@ async def update_bio(db: Database, persona_id: int, updated_bio: str):
     query = "UPDATE personas SET bio = $1 WHERE persona_id = $2"
     try:
         await db.execute_query(query, updated_bio, persona_id)
+        log_update_bio(db, persona_id, updated_bio)
         return {"status": "Bio updated successfully"}
     except Exception as e:
         return {"status": f"Failed to update bio due to {e}. Try another action"}
@@ -421,9 +435,11 @@ async def follow_user(db: Database, persona_id: int, user_id: int):
     if persona_id == user_id:
         return {"status": "Error. You cannot follow yourself. Try another action"}
 
-    query = "INSERT INTO follows (follower, followed, created_at) VALUES ($1, $2, DEFAULT) ON CONFLICT (follower, followed) DO NOTHING"
+    query = "INSERT INTO follows (follower, followed, created_at) VALUES ($1, $2, DEFAULT) ON CONFLICT (follower, followed) DO NOTHING RETURNING id"
     try:
-        await db.execute_query(query, persona_id, user_id)
+        rows = await db.fetch(query, persona_id, user_id)
+        if rows:
+            log_follow(db, persona_id, user_id)
         return {"status": f"{user_id} followed successfully"}
     except Exception as e:
         return {

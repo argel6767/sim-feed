@@ -41,6 +41,10 @@ public class SecurityConfiguration {
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/", "/actuator/**").permitAll()
+            .requestMatchers(
+                "/api/v1/follows/users/*/follows",
+                "/api/v1/follows/users/*/followers"
+            ).permitAll()
             .anyRequest().authenticated()
         )
         .exceptionHandling(exception -> exception
