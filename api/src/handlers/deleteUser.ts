@@ -87,6 +87,9 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         body: JSON.stringify({ error: "User not found" }),
       };
     }
+    
+    const idCast = id as string;
+    console.log(`User ${idCast.substring(0, 10)}**** successfully deleted`)
 
     return {
       statusCode: 200,

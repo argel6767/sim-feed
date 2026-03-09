@@ -14,7 +14,7 @@ import { handler as getPersonaPosts } from "./handlers/getPersonaPosts";
 import { handler as getAgents } from "./handlers/getAgents";
 import { handler as addNewUser } from "./handlers/addNewUser";
 import { handler as deleteUser } from "./handlers/deleteUser";
-import { handler as updateUserUsername } from "./handlers/updateUserUsername";
+import { handler as updateUserUsername } from "./handlers/updateUser";
 import { handler as getUserInfo } from "./handlers/getUserInfo";
 import { handler as getUserPosts } from "./handlers/getUserPosts";
 

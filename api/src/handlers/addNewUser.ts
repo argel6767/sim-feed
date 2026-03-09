@@ -46,8 +46,8 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   }
   
   const query = `
-    INSERT INTO users (id, username, bio, created_at, updated_at)
-    VALUES ($1, $2, $3, NOW(), NOW())
+    INSERT INTO users (id, username, bio, image_url, created_at, updated_at)
+    VALUES ($1, $2, $3, $4, NOW(), NOW())
     RETURNING *;
   `;
   
@@ -62,9 +62,9 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     wh.verify(event.body, headers);
     console.log("Clerk Webhook Verified");
     const { data, type } = JSON.parse(event.body);
-    const { id, username } = data;
+    const { id, username, has_image, image_url } = data;
     
-    if (!id || !username || !type) {
+    if (!id || !username || !type || (!has_image && !image_url)) {
       return {
         statusCode: 400,
         body: JSON.stringify({ error: "Invalid request body" }),
@@ -78,7 +78,9 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
           };
         }
     const pool = await getPool();
-    const result = await pool.query(query, [id, username, ""]);
+    const result = await pool.query(query, [id, username, "", has_image ? image_url : ""]);
+    const idCast = id as string;
+    console.log(`User ${idCast.substring(0, 10)}**** successfully created`)
     return {
       statusCode: 201,
       body: JSON.stringify(result.rows[0]),

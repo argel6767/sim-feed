@@ -21,6 +21,7 @@ export type User = {
   id: string;
   username: string;
   bio: string;
+  image_url: string | null;
   created_at: string;
 }
 type AuthorType = "user" | "persona";

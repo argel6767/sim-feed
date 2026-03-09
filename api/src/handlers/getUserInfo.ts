@@ -44,7 +44,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   try {
     const pool = await getPool();
     const result = await pool.query(
-      "SELECT id, bio, username, created_at FROM users WHERE id = $1",
+      "SELECT id, bio, username, image_url, created_at FROM users WHERE id = $1",
       [userId],
     );
     if (!result.rows.length || result.rows.length === 0) {

@@ -30,6 +30,9 @@ public class User {
 
     @Column(name = "bio", length = 250)
     private String bio;
+    
+    @Column(name = "image_url", nullable = true)
+    private String imageUrl;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;

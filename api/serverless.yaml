@@ -136,8 +136,8 @@ functions:
           path: /users/delete/web-hook
           method: POST
           
-  updateUserUsername:
-    handler: src/handlers/updateUserUsername.handler
+  updateUser:
+    handler: src/handlers/updateUser.handler
     events:
       - httpApi:
           path: /users/update/web-hook

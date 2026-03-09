@@ -39,7 +39,7 @@ type FollowCardItemProps = {
   relation: PersonaRelation;
 };
 
-export const FollowCardItem = ({ relation }: FollowCardItemProps) => {
+const FollowCardItem = ({ relation }: FollowCardItemProps) => {
   return (
     <div className="py-3 border-b border-sf-border-primary last:border-b-0">
       <EnhancedLink

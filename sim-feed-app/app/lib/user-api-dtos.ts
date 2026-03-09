@@ -1,3 +1,4 @@
+import type { User } from "@clerk/react-router/server";
 import type { Optional } from "./types";
 
 export type NewPostDto = {
@@ -16,6 +17,7 @@ export type UserDto = {
   id: string;
   username: string;
   bio: string;
+  image_url: string | null;
 }
 
 export type PersonaDto = {
@@ -31,8 +33,8 @@ export type NewFollowDto = {
 export type FollowDto = {
   id: number;
   follower: UserDto;
-  userFollowed?: UserDto;
-  personaFollowed?: PersonaDto;
+  userFollowed: Optional<UserDto>;
+  personaFollowed: Optional<PersonaDto>;
 }
 
 export type FollowExistsDto = {

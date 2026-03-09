@@ -11,6 +11,7 @@ export const useGetUserFollows = (id: string) => {
 export const useGetUserFollowers = (id: string) => {
   return useQuery({
     queryKey: ["followers", id],
-    queryFn: () => getFollowers(id)
+    queryFn: () => getFollowers(id),
+    staleTime: 1000 * 60 * 10,
   })
 }

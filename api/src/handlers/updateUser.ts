@@ -46,7 +46,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
   const query = `
     UPDATE users
-    SET username = $2, updated_at = NOW()
+    SET username = $2, image_url = $3, updated_at = NOW()
     WHERE id = $1
     RETURNING *;
   `;
@@ -62,7 +62,8 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     wh.verify(event.body, headers);
     console.log("Clerk Webhook Verified");
     const { data, type } = JSON.parse(event.body);
-    const { id, username } = data;
+    const { id, username, has_image, image_url } = data;
+    const safeImageUrl = has_image ? image_url : "";
 
     if (!id || !username || !type) {
       return {
@@ -79,16 +80,18 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     }
 
     const pool = await getPool();
-    const result = await pool.query(query, [id, username]);
+    const result = await pool.query(query, [id, username, safeImageUrl]);
+    const idCast = id as string;
+    console.log(`User ${idCast.substring(0, 10)}**** successfully updated`)
 
     if (result.rowCount === 0) {
       console.log("User not found, creating new user entry");
       const insertQuery = `
-        INSERT INTO users (id, username, bio, created_at, updated_at)
-        VALUES ($1, $2, $3, NOW(), NOW())
+        INSERT INTO users (id, username, bio, image_url, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, NOW(), NOW())
         RETURNING *;
       `;
-      const insertResult = await pool.query(insertQuery, [id, username, ""]);
+      const insertResult = await pool.query(insertQuery, [id, username, "", safeImageUrl]);
 
       return {
         statusCode: 201,
@@ -102,7 +105,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     return {
       statusCode: 200,
       body: JSON.stringify({
-        message: "Username updated",
+        message: "User updated",
         user: result.rows[0],
       }),
     };

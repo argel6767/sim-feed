@@ -4,13 +4,14 @@ import { Footer } from "~/components/footer";
 import { Nav, MobileGoBackNav, MobileNav } from "~/components/nav";
 import { SidebarCard, RightSidebarCard } from "~/components/sidebar";
 import { GoBackLink, EnhancedLink } from "~/components/link";
-import { PostFeedSkeleton, LandingPagePost, PostFeed } from "~/components/posts";
+import {PostFeed } from "~/components/posts";
 import type { Route } from "./+types/feed";
 import { UserAvatar } from "~/components/avatars";
-import type { Post } from "~/lib/types";
-import { getUserById } from "~/api/endpoints";
 import { useGetUserPosts } from "~/hooks/useGetUserPosts";
-import { UserFollowers } from "~/components/user-follow";
+import { UserFollowers, UserFollows } from "~/components/user-follow";
+import { useGetUserInfo } from "~/hooks/useGetUserInfo";
+import type { User } from "~/lib/types";
+import { UserStats } from "~/components/user-stats";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -36,79 +37,16 @@ type UserProfile = {
 };
 
 
-
-const ProfileSkeleton = () => {
-  return (
-    <article className="bg-sf-bg-primary border border-sf-border-primary rounded-lg p-4 sm:p-6 lg:p-8 animate-pulse">
-      <div className="flex flex-col items-center text-center mb-6">
-        <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-full bg-sf-border-primary mb-4" />
-        <div className="h-6 w-40 bg-sf-border-primary rounded mb-2" />
-        <div className="h-5 w-16 bg-sf-border-primary rounded-xl" />
-      </div>
-      <div className="mb-6">
-        <div className="h-4 w-12 bg-sf-border-primary rounded mb-3" />
-        <div className="h-4 bg-sf-border-primary rounded w-full mb-2" />
-        <div className="h-4 bg-sf-border-primary rounded w-3/4" />
-      </div>
-      <div className="border-t border-sf-border-primary pt-6">
-        <div className="flex justify-center gap-12">
-          <div className="text-center">
-            <div className="h-7 w-8 bg-sf-border-primary rounded mx-auto mb-1" />
-            <div className="h-3 w-16 bg-sf-border-primary rounded" />
-          </div>
-          <div className="text-center">
-            <div className="h-7 w-8 bg-sf-border-primary rounded mx-auto mb-1" />
-            <div className="h-3 w-16 bg-sf-border-primary rounded" />
-          </div>
-          <div className="text-center">
-            <div className="h-7 w-8 bg-sf-border-primary rounded mx-auto mb-1" />
-            <div className="h-3 w-16 bg-sf-border-primary rounded" />
-          </div>
-        </div>
-      </div>
-    </article>
-  );
-};
-
 export default function UserProfile() {
   const { id } = useParams();
+  if (!id) {throw new Error("No user id provided");}
   const { user: currentUser, isLoaded: isClerkLoaded } = useUser();
+  const { data: userData, isLoading, isError } = useGetUserInfo(id);
 
   const isOwnProfile = isClerkLoaded && currentUser?.id === id;
+  
 
-  // TODO: Replace these placeholders with real data from loader once backend endpoints exist
-  // For now, if viewing own profile, pull what we can from Clerk
-  const isLoading = !isClerkLoaded;
-
-  // Build a profile object from Clerk data if it's the current user,
-  // otherwise show placeholder state until backend is ready
-  const profile: UserProfile | null = isClerkLoaded
-    ? isOwnProfile && currentUser
-      ? {
-          id: currentUser.id,
-          username: currentUser.username || currentUser.firstName || "user",
-          bio: null, // TODO: Fetch from backend
-          avatar_url: currentUser.imageUrl || null,
-          post_count: 0, // TODO: Fetch from backend
-          followers_count: 0, // TODO: Fetch from backend
-          following_count: 0, // TODO: Fetch from backend
-          joined_at:
-            currentUser.createdAt?.toISOString() || new Date().toISOString(),
-        }
-      : {
-          // Viewing another user's profile - placeholder until backend is built
-          id: id || "",
-          username: "unknown",
-          bio: null,
-          avatar_url: null,
-          post_count: 0,
-          followers_count: 0,
-          following_count: 0,
-          joined_at: new Date().toISOString(),
-        }
-    : null;
-
-  if (isLoading || !profile) {
+  if (isLoading) {
     return (
       <div className="bg-sf-bg-primary text-sf-text-primary min-h-screen">
         <header className="px-4 sm:px-8 py-3 sm:py-4 border-b border-sf-border-primary flex justify-between items-center bg-sf-bg-secondary sticky top-0 z-50">
@@ -134,17 +72,44 @@ export default function UserProfile() {
       </div>
     );
   }
+  
+  if (isError) {
+    return <div>Error fetching user profile</div>;
+  }
+  
+  if (isError || !userData) {
+    return (
+      <div className="bg-sf-bg-primary text-sf-text-primary min-h-screen">
+        <header className="px-4 sm:px-8 py-3 sm:py-6 border-b border-sf-border-primary flex justify-between items-center bg-sf-bg-secondary sticky top-0 z-50">
+          <MobileGoBackNav backTo="/feed" />
+          <a
+            href="/"
+            className="text-[1.1rem] sm:text-[1.3rem] font-bold tracking-[2px] text-sf-text-primary"
+          >
+            SIM-FEED
+          </a>
+          <Nav />
+        </header>
+        <div className="max-w-300 mx-auto p-4 sm:p-8">
+          <div className="bg-sf-bg-card border border-sf-border-primary rounded-lg p-4 sm:p-8 text-center">
+            <p className="text-sf-text-muted text-sm sm:text-base">
+              Failed to fetch information on queried user. Try again later.
+            </p>
+            <GoBackLink/>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
-  // Determine if this is a placeholder profile for another user (backend not yet built)
-  const isPlaceholderOtherUser =
-    !isOwnProfile && profile.username === "unknown";
 
-  const joinedDate = new Date(profile.joined_at).toLocaleDateString("en-US", {
+  const joinedDate = new Date(userData.created_at).toLocaleDateString("en-US", {
     month: "long",
     year: "numeric",
   });
 
-  const avatarInitial = profile.username.charAt(0).toUpperCase();
+  const avatarInitial = userData.username.charAt(0).toUpperCase();
 
   return (
     <div className="bg-sf-bg-primary text-sf-text-primary min-h-screen">
@@ -183,27 +148,15 @@ export default function UserProfile() {
 
         {/* Main Content */}
         <main className="flex flex-col gap-6">
-          {/* Placeholder notice for other users until backend is ready */}
-          {isPlaceholderOtherUser && (
-            <div className="bg-sf-bg-card border border-sf-border-primary rounded-lg p-4 sm:p-6 text-center motion-preset-fade">
-              <p className="text-sf-text-muted text-[0.85rem] sm:text-[0.9rem]">
-                👤 User profiles are coming soon. Backend endpoints are still
-                being built.
-              </p>
-              <div className="mt-3">
-                <GoBackLink />
-              </div>
-            </div>
-          )}
 
           {/* Profile Card */}
           <article className="bg-sf-bg-primary border border-sf-border-primary rounded-lg p-4 sm:p-6 lg:p-8 motion-preset-slide-up-sm">
             {/* Avatar and Username */}
             <div className="flex flex-col items-center text-center mb-4 sm:mb-6">
-              {profile.avatar_url ? (
+              {userData.image_url ? (
                 <img
-                  src={profile.avatar_url}
-                  alt={`${profile.username}'s avatar`}
+                  src={userData.image_url}
+                  alt={`${userData.username}'s avatar`}
                   className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-full mb-3 sm:mb-4 object-cover border-2 border-sf-border-secondary"
                 />
               ) : (
@@ -213,7 +166,7 @@ export default function UserProfile() {
               )}
               <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
                 <h1 className="text-[1.25rem] sm:text-[1.5rem] lg:text-[1.75rem] font-bold text-sf-text-primary break-all">
-                  @{profile.username}
+                  @{userData.username}
                 </h1>
                 <UserAvatar/>
                 {isOwnProfile && (
@@ -229,9 +182,9 @@ export default function UserProfile() {
               <h2 className="text-[0.8rem] sm:text-[0.9rem] uppercase tracking-[0.5px] text-sf-text-dim mb-2 sm:mb-3 font-semibold">
                 Bio
               </h2>
-              {profile.bio ? (
+              {userData.bio ? (
                 <p className="text-sf-text-muted leading-relaxed text-[0.85rem] sm:text-[0.95rem]">
-                  {profile.bio}
+                  {userData.bio}
                 </p>
               ) : (
                 <div className="bg-sf-bg-card border border-sf-border-primary rounded-lg p-3 sm:p-4 text-center">
@@ -245,34 +198,7 @@ export default function UserProfile() {
             </section>
 
             {/* Stats */}
-            <section className="border-t border-sf-border-primary pt-4 sm:pt-6">
-              <div className="flex justify-center gap-8 sm:gap-12">
-                <div className="text-center">
-                  <p className="text-[1.25rem] sm:text-[1.5rem] font-bold text-sf-text-primary">
-                    {profile.post_count}
-                  </p>
-                  <p className="text-[0.7rem] sm:text-[0.8rem] uppercase tracking-[0.5px] text-sf-text-dim">
-                    Posts
-                  </p>
-                </div>
-                <div className="text-center">
-                  <p className="text-[1.25rem] sm:text-[1.5rem] font-bold text-sf-text-primary">
-                    {profile.followers_count}
-                  </p>
-                  <p className="text-[0.7rem] sm:text-[0.8rem] uppercase tracking-[0.5px] text-sf-text-dim">
-                    Followers
-                  </p>
-                </div>
-                <div className="text-center">
-                  <p className="text-[1.25rem] sm:text-[1.5rem] font-bold text-sf-text-primary">
-                    {profile.following_count}
-                  </p>
-                  <p className="text-[0.7rem] sm:text-[0.8rem] uppercase tracking-[0.5px] text-sf-text-dim">
-                    Following
-                  </p>
-                </div>
-              </div>
-            </section>
+            <UserStats/>
 
             {/* Joined Date */}
             <footer className="flex justify-center text-sf-text-dim text-[0.75rem] sm:text-[0.85rem] border-t border-sf-border-primary pt-3 sm:pt-4 mt-4 sm:mt-6">
@@ -298,7 +224,7 @@ export default function UserProfile() {
             <UserFollowers id={id!} />
           </RightSidebarCard>
           <RightSidebarCard title="Following">
-            <UserFollowers id={id!} />
+            <UserFollows id={id!} />
           </RightSidebarCard>
         </aside>
       </div>
