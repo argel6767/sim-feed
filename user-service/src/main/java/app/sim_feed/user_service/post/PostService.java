@@ -52,4 +52,8 @@ public class PostService {
         
         postRepository.delete(post);
     }
+    
+    public int countPostsByUserId(String userId) {
+        return postRepository.countByUserAuthor_ClerkId(userId);
+    }
 }

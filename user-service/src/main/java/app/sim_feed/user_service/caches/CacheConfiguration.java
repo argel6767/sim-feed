@@ -20,7 +20,8 @@ public class CacheConfiguration {
         manager.setCaches(List.of(
             buildCache("followExists", 500, 5),
             buildCache("follows", 1000, 10),
-            buildCache("followers", 1000, 10)
+            buildCache("followers", 1000, 10),
+            buildCache("user-stats", 1000, 10)
         ));
         return manager;
     }

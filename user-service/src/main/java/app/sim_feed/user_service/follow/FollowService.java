@@ -26,7 +26,7 @@ public class FollowService {
     private final PersonaService personaService;
     private final CacheManager cacheManager;
 
-    @CacheEvict(cacheNames = "follows", key = "#requesterId")
+    @CacheEvict(cacheNames = {"follows", "user-stats"}, key = "#requesterId")
     public FollowDto follow(NewFollowDto newFollowDto, String requesterId) {
         if (newFollowDto.userId() != null && newFollowDto.userId().equals(requesterId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Requester cannot follow themselves.");
@@ -124,5 +124,13 @@ public class FollowService {
         }
         UserFollow follow = followRepository.findByFollower_ClerkIdAndPersonaFollowed_PersonaId(requesterId, personaId).orElse(null);
         return new FollowExistsDto(follow != null, follow != null ? follow.getId() : null);
+    }
+    
+    public int countFollowersByUserId(String userId) {
+        return followRepository.countFollowersByUserId(userId);
+    }
+    
+    public int countFollowingByUserId(String userId) {
+        return followRepository.countFollowingByUserId(userId);
     }
 }

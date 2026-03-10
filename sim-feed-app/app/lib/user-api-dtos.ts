@@ -1,4 +1,3 @@
-import type { User } from "@clerk/react-router/server";
 import type { Optional } from "./types";
 
 export type NewPostDto = {
@@ -40,4 +39,10 @@ export type FollowDto = {
 export type FollowExistsDto = {
   isFollowing: boolean;
   followId: number;
+}
+
+export type UserStatsDto = {
+  followersCount: number;
+  followingCount: number;
+  postsCount: number;
 }

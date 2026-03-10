@@ -42,8 +42,8 @@ public class SecurityConfiguration {
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/", "/actuator/**").permitAll()
             .requestMatchers(
-                "/api/v1/follows/users/*/follows",
-                "/api/v1/follows/users/*/followers"
+                "/api/v1/follows/users/**",
+                "/api/v1/users/*/stats"
             ).permitAll()
             .anyRequest().authenticated()
         )

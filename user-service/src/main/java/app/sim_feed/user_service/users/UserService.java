@@ -1,18 +1,26 @@
 package app.sim_feed.user_service.users;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import app.sim_feed.user_service.follow.FollowRepository;
+import app.sim_feed.user_service.follow.FollowService;
+import app.sim_feed.user_service.post.PostRepository;
+import app.sim_feed.user_service.post.PostService;
 import app.sim_feed.user_service.users.models.User;
 import app.sim_feed.user_service.users.models.UserDto;
 import lombok.RequiredArgsConstructor;
+import app.sim_feed.user_service.users.models.UserStatsDto;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
+    private final FollowRepository followRepository;
+    private final PostRepository postRepository;
 
     public User getUserById(String id) {
         return userRepository.findById(id).orElseThrow();
@@ -35,5 +43,13 @@ public class UserService {
         user.setUsername(userDto.username());
         user.setBio(userDto.bio());
         return UserDto.of(userRepository.save(user));
+    }
+    
+    @Cacheable(cacheNames = "user-stats", key = "#userId")
+    public UserStatsDto getUserStatsByUserId(String userId) {
+        int followersCount = followRepository.countFollowersByUserId(userId);
+        int followingCount = followRepository.countFollowingByUserId(userId);
+        int postsCount = postRepository.countByUserAuthor_ClerkId(userId);
+        return new UserStatsDto(followersCount, followingCount, postsCount);
     }
 }

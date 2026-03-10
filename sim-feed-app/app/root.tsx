@@ -12,8 +12,7 @@ import { SpeedInsights } from "@vercel/speed-insights/react"
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import { ToastProvider } from "./components/toast";
-import { NotificationHolder, GoogleAnalyticsHolder } from "./components/holders";
+import { GoogleAnalyticsHolder } from "./components/holders";
 import { LoadingBar } from "./components/loading";
 
 import { clerkMiddleware, rootAuthLoader } from '@clerk/react-router/server'
@@ -72,12 +71,9 @@ export default function App({ loaderData }: Route.ComponentProps) {
       }
     }}>
       <QueryClientProvider client={queryClient}>
-        <ToastProvider>
           <LoadingBar/>
-          <NotificationHolder />
           <GoogleAnalyticsHolder />
           <Outlet />
-        </ToastProvider>
       </QueryClientProvider>
     </ClerkProvider>
   );

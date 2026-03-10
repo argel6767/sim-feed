@@ -1,17 +1,18 @@
-import { useParams } from "react-router";
+import { useLoaderData, useParams, type LoaderFunctionArgs } from "react-router";
 import { useUser } from "@clerk/react-router";
 import { Footer } from "~/components/footer";
 import { Nav, MobileGoBackNav, MobileNav } from "~/components/nav";
 import { SidebarCard, RightSidebarCard } from "~/components/sidebar";
-import { GoBackLink, EnhancedLink } from "~/components/link";
+import { GoBackLink } from "~/components/link";
 import {PostFeed } from "~/components/posts";
 import type { Route } from "./+types/feed";
 import { UserAvatar } from "~/components/avatars";
 import { useGetUserPosts } from "~/hooks/useGetUserPosts";
 import { UserFollowers, UserFollows } from "~/components/user-follow";
 import { useGetUserInfo } from "~/hooks/useGetUserInfo";
-import type { User } from "~/lib/types";
 import { UserStats } from "~/components/user-stats";
+import { getUserStats } from "~/api/user-api/users";
+import type { UserStatsDto } from "~/lib/user-api-dtos";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -24,21 +25,16 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-// TODO: Replace with real types once backend endpoints are created
-type UserProfile = {
-  id: string;
-  username: string;
-  bio: string | null;
-  avatar_url: string | null;
-  post_count: number;
-  followers_count: number;
-  following_count: number;
-  joined_at: string;
-};
+export const loader = async ({ params }: LoaderFunctionArgs) => {
+  const { id } = params;
+  const stats = await getUserStats(id as string);
+  return {stats} ;
+}
 
 
 export default function UserProfile() {
   const { id } = useParams();
+  const {stats} = useLoaderData<{ stats: UserStatsDto }>()
   if (!id) {throw new Error("No user id provided");}
   const { user: currentUser, isLoaded: isClerkLoaded } = useUser();
   const { data: userData, isLoading, isError } = useGetUserInfo(id);
@@ -60,13 +56,10 @@ export default function UserProfile() {
           <Nav />
           <MobileNav />
         </header>
-        <div className="max-w-350 lg:min-w-250 mx-auto grid grid-cols-1 lg:grid-cols-[1fr_2fr_1fr] gap-4 sm:gap-6 lg:gap-8 p-3 sm:p-6 lg:p-8">
-          <aside className="hidden lg:flex flex-col gap-6">
-            <SidebarCard title="Loading...">
-              Fetching user profile information...
-            </SidebarCard>
-          </aside>
-          <aside className="hidden lg:flex flex-col gap-6" />
+        <div className="flex justify-center py-4">
+          <SidebarCard title="Loading...">
+            Fetching user profile information...
+          </SidebarCard>
         </div>
         <Footer />
       </div>
@@ -74,10 +67,6 @@ export default function UserProfile() {
   }
   
   if (isError) {
-    return <div>Error fetching user profile</div>;
-  }
-  
-  if (isError || !userData) {
     return (
       <div className="bg-sf-bg-primary text-sf-text-primary min-h-screen">
         <header className="px-4 sm:px-8 py-3 sm:py-6 border-b border-sf-border-primary flex justify-between items-center bg-sf-bg-secondary sticky top-0 z-50">
@@ -198,7 +187,7 @@ export default function UserProfile() {
             </section>
 
             {/* Stats */}
-            <UserStats/>
+            <UserStats userStats={stats}/>
 
             {/* Joined Date */}
             <footer className="flex justify-center text-sf-text-dim text-[0.75rem] sm:text-[0.85rem] border-t border-sf-border-primary pt-3 sm:pt-4 mt-4 sm:mt-6">

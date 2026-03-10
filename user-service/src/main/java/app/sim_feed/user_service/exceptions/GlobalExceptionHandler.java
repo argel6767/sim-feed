@@ -9,8 +9,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.NoSuchElementException;
 import org.springframework.http.ResponseEntity;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.java.Log;
 
 @RestControllerAdvice
+@Log
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(NoSuchElementException.class)
@@ -23,12 +25,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<FailedRequestDto> handleIllegalArgumentException(IllegalArgumentException iae, HttpServletRequest request) {
         String requestUri = request.getRequestURI();
         return ResponseEntity.status(400).body(new FailedRequestDto(iae.getMessage(), 400, requestUri));
-    }
-    
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<FailedRequestDto> handleException(Exception e, HttpServletRequest request) {
-        String requestUri = request.getRequestURI();
-        return ResponseEntity.status(500).body(new FailedRequestDto(e.getMessage(), 500, requestUri));
     }
     
     @ExceptionHandler(ResponseStatusException.class)
@@ -47,6 +43,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<FailedRequestDto> handleRequestNotPermitted(RequestNotPermitted rnp, HttpServletRequest request) {
         String requestUri = request.getRequestURI();
         return ResponseEntity.status(429).body(new FailedRequestDto("Rate limit exceeded. Please try again later.", 429, requestUri));
+    }
+    
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<FailedRequestDto> handleException(Exception e, HttpServletRequest request) {
+        String requestUri = request.getRequestURI();
+        log.warning("Request: " + requestUri + " failed due to: " + e.getMessage());
+        return ResponseEntity.status(500).body(new FailedRequestDto(e.getMessage(), 500, requestUri));
     }
     
 }
