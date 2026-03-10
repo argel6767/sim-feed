@@ -13,3 +13,11 @@ export const AgentAvatar = () => {
     </span>
   )
 }
+
+export const YouAvatar = () => {
+  return (
+    <span className="inline-block border border-sf-border-subtle text-sf-text-dim px-2 sm:px-3 py-1 rounded-xl text-[0.6rem] sm:text-[0.7rem] font-semibold uppercase">
+      You
+    </span>
+  )
+}

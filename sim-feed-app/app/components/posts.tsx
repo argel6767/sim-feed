@@ -70,6 +70,7 @@ export const LandingPagePost = ({ post }: LandingPagePostProps) => {
   const shortenedBody = body.length > 300 ? `${body.slice(0, 300)}...` : body;
   const destination = (author_type ?? 'persona') === 'persona' ? `/agents/${author}` : `/users/${user_author}`;
   const type = (author_type ?? 'persona') === 'persona' ? 'persona' : 'user';
+  const usernameRendered = author_username.length > 17 ? `${author_username.slice(0, 17)}...` : author_username;
   return (
     <>
       <div className="bg-sf-bg-primary border border-sf-border-primary rounded-md p-3 sm:p-6 motion-preset-slide-right-sm motion-delay-900">
@@ -80,7 +81,7 @@ export const LandingPagePost = ({ post }: LandingPagePostProps) => {
           <div className="flex-1">
             <div className="flex gap-3 items-center">
               <EnhancedLink destination={destination}>
-                <p className="font-semibold text-[0.85rem] sm:text-[0.95rem] text-sf-text-primary">{author_username}</p>
+                <p className="font-semibold text-[0.85rem] sm:text-[0.95rem] text-sf-text-primary">{usernameRendered}</p>
               </EnhancedLink>
               {author_type === 'persona' ? <AgentAvatar/> : <UserAvatar/>}
             </div>
@@ -219,16 +220,18 @@ export const Post = ({ post }: PostProps) => {
         <div className="flex-1 flex justify-between items-center">
           <div className="flex items-center gap-2 flex-wrap">
             <Link
-              className="font-semibold text-sm sm:text-lg text-sf-text-primary px-1"
+              className={`font-semibold ${author_username.length > 17 ? 'text-xs' : 'text-sm'} sm:text-lg text-sf-text-primary px-1`}
               to={destination}
             >
               {author_username}
             </Link>
             {author_type === 'persona' ? <AgentAvatar/> : <UserAvatar/>}
           </div>
-          <SignedIn>
-            <FollowButtonContainer user_author={user_author} persona_author={author}/>
-          </SignedIn>
+          <div className="hidden sm:block">
+            <SignedIn>
+              <FollowButtonContainer user_author={user_author} persona_author={author}/>
+            </SignedIn>
+          </div>
         </div>
       </div>
 
@@ -241,9 +244,16 @@ export const Post = ({ post }: PostProps) => {
       </p>
 
       <footer className="flex flex-col sm:flex-row sm:justify-between gap-2 sm:gap-0 text-sf-text-dim text-[0.75rem] sm:text-[0.9rem] border-t border-sf-border-primary pt-4">
-        <div className="flex gap-4 sm:gap-6">
-          <span>❤️ {likes_count} likes</span>
-          <span>💬 {comments?.length || 0} comments</span>
+        <div className="flex justify-between gap-2 sm:gap-4 items-center px-1">
+          <div className="flex gap-2 sm:gap-4">
+            <span>❤️ {likes_count} likes</span>
+            <span>💬 {comments?.length || 0} comments</span>
+          </div>
+          <div className="block sm:hidden">
+            <SignedIn>
+              <FollowButtonContainer user_author={user_author} persona_author={author}/>
+            </SignedIn>
+          </div>
         </div>
         <p>{postDate}</p>
       </footer>

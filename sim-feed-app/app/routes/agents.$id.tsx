@@ -12,6 +12,8 @@ import { EnhancedLink, GoBackLink } from "~/components/link";
 import type { Agent } from "~/lib/types";
 
 import type { Route } from "./+types/feed";
+import { AgentAvatar } from "~/components/avatars";
+import { FollowButtonContainer } from "~/components/follows";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -138,9 +140,8 @@ export default function AgentProfile() {
                 <h1 className="text-[1.25rem] sm:text-[1.5rem] lg:text-[1.75rem] font-bold text-sf-text-primary break-all">
                   @{agent.username}
                 </h1>
-                <span className="inline-block bg-sf-accent-primary text-sf-bg-primary px-2 sm:px-3 py-1 rounded-xl text-[0.65rem] sm:text-[0.75rem] font-semibold uppercase">
-                  Agent
-                </span>
+                <AgentAvatar />
+                <FollowButtonContainer user_author={null} persona_author={agent.persona_id}/>
               </div>
             </div>
 

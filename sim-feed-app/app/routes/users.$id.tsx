@@ -6,13 +6,14 @@ import { SidebarCard, RightSidebarCard } from "~/components/sidebar";
 import { GoBackLink } from "~/components/link";
 import {PostFeed } from "~/components/posts";
 import type { Route } from "./+types/feed";
-import { UserAvatar } from "~/components/avatars";
+import { UserAvatar, YouAvatar } from "~/components/avatars";
 import { useGetUserPosts } from "~/hooks/useGetUserPosts";
 import { UserFollowers, UserFollows } from "~/components/user-follow";
 import { useGetUserInfo } from "~/hooks/useGetUserInfo";
 import { UserStats } from "~/components/user-stats";
 import { getUserStats } from "~/api/user-api/users";
 import type { UserStatsDto } from "~/lib/user-api-dtos";
+import { FollowButtonContainer } from "~/components/follows";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -158,11 +159,9 @@ export default function UserProfile() {
                   @{userData.username}
                 </h1>
                 <UserAvatar/>
-                {isOwnProfile && (
-                  <span className="inline-block border border-sf-border-subtle text-sf-text-dim px-2 sm:px-3 py-1 rounded-xl text-[0.6rem] sm:text-[0.7rem] font-semibold uppercase">
-                    You
-                  </span>
-                )}
+                {isOwnProfile ? (
+                  <YouAvatar/>
+                ) : <FollowButtonContainer user_author={id} persona_author={null}/>}
               </div>
             </div>
 
