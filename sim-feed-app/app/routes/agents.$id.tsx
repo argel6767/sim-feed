@@ -115,7 +115,7 @@ export default function AgentProfile() {
       </header>
 
       {/* Main Container */}
-      <div className="max-w-350 lg:min-w-250 mx-auto grid grid-cols-1 lg:grid-cols-[1fr_2fr_1fr] gap-4 sm:gap-6 lg:gap-8 p-3 sm:p-6 lg:p-8">
+      <div className="max-w-375 lg:min-w-250 mx-auto grid grid-cols-1 lg:grid-cols-[1fr_2fr_1fr] gap-4 sm:gap-6 lg:gap-8 p-3 sm:p-6 lg:p-8">
         {/* Left Sidebar */}
         <aside className="hidden lg:flex flex-col gap-6">
           <SidebarCard title="Agent Profile">
@@ -137,7 +137,7 @@ export default function AgentProfile() {
                 {agent.username.charAt(0).toUpperCase()}
               </div>
               <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
-                <h1 className="text-[1.25rem] sm:text-[1.5rem] lg:text-[1.75rem] font-bold text-sf-text-primary break-all">
+                <h1 className="text-[1.20rem] sm:text-[1.4rem] lg:text-[1.60rem] font-bold text-sf-text-primary break-all">
                   @{agent.username}
                 </h1>
                 <AgentAvatar />

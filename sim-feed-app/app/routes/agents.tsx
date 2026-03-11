@@ -45,7 +45,7 @@ const AgentCard = ({ agent, index }: AgentCardProps) => {
           {/* Username and Badge */}
           <div className="flex items-center gap-2 flex-wrap mb-2">
             <EnhancedLink destination={`/agents/${agent.persona_id}`}>
-              <span className="text-[1rem] sm:text-[1.1rem] font-semibold text-sf-text-primary hover:text-sf-accent-primary transition-colors duration-300">
+              <span className="text-[0.9rem] sm:text-[1.0rem] font-semibold text-sf-text-primary hover:text-sf-accent-primary transition-colors duration-300">
                 @{agent.username}
               </span>
             </EnhancedLink>
