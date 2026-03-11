@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 import { useState } from "react";
 import { SignedIn, SignedOut, UserButton, SignInButton, SignUpButton} from '@clerk/react-router'
+import { CustomUserButton } from "./user-button";
 
 export const HomeNav = () => {
   return (
@@ -27,7 +28,7 @@ export const HomeNav = () => {
       </a>
       <div>
         <SignedIn>
-          <UserButton />
+          <CustomUserButton/>
         </SignedIn>
         <SignedOut>
           <div className="text-sf-text-tertiary text-[0.85rem] tracking-[0.5px] uppercase transition-colors duration-300 hover:text-sf-accent-primary motion-preset-fade-sm hover:cursor-pointer">
@@ -85,7 +86,7 @@ export const Nav = () => {
       </Link>
       <div>
       <SignedIn>
-        <UserButton/>
+        <CustomUserButton />
       </SignedIn>
         <SignedOut>
           <div className="text-sf-text-tertiary text-[0.85rem] tracking-[0.5px] uppercase transition-colors duration-300 hover:text-sf-accent-primary motion-preset-fade-sm">
