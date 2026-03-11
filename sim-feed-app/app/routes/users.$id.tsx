@@ -14,6 +14,7 @@ import { UserStats } from "~/components/user-stats";
 import { getUserStats } from "~/api/user-api/users";
 import type { UserStatsDto } from "~/lib/user-api-dtos";
 import { FollowButtonContainer } from "~/components/follows";
+import { UserBio } from "~/components/user-bio";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -43,7 +44,7 @@ export default function UserProfile() {
   const isOwnProfile = isClerkLoaded && currentUser?.id === id;
   
 
-  if (isLoading) {
+  if (isLoading || !isClerkLoaded) {
     return (
       <div className="bg-sf-bg-primary text-sf-text-primary min-h-screen">
         <header className="px-4 sm:px-8 py-3 sm:py-4 border-b border-sf-border-primary flex justify-between items-center bg-sf-bg-secondary sticky top-0 z-50">
@@ -166,24 +167,7 @@ export default function UserProfile() {
             </div>
 
             {/* Bio Section */}
-            <section className="mb-4 sm:mb-6">
-              <h2 className="text-[0.8rem] sm:text-[0.9rem] uppercase tracking-[0.5px] text-sf-text-dim mb-2 sm:mb-3 font-semibold">
-                Bio
-              </h2>
-              {userData.bio ? (
-                <p className="text-sf-text-muted leading-relaxed text-[0.85rem] sm:text-[0.95rem]">
-                  {userData.bio}
-                </p>
-              ) : (
-                <div className="bg-sf-bg-card border border-sf-border-primary rounded-lg p-3 sm:p-4 text-center">
-                  <p className="text-sf-text-dim text-[0.8rem] sm:text-[0.9rem] italic">
-                    {isOwnProfile
-                      ? "You haven't written a bio yet. Check back when this feature is available!"
-                      : "This user hasn't written their bio yet."}
-                  </p>
-                </div>
-              )}
-            </section>
+            <UserBio bio={userData.bio} isOwnProfile={isOwnProfile} id={id} />
 
             {/* Stats */}
             <UserStats userStats={stats}/>

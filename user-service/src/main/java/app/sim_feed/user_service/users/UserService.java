@@ -6,16 +6,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import app.sim_feed.user_service.follow.FollowRepository;
-import app.sim_feed.user_service.follow.FollowService;
 import app.sim_feed.user_service.post.PostRepository;
-import app.sim_feed.user_service.post.PostService;
 import app.sim_feed.user_service.users.models.User;
 import app.sim_feed.user_service.users.models.UserDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import app.sim_feed.user_service.users.models.UserStatsDto;
+import app.sim_feed.user_service.users.models.UpdateBioDto;
+
 
 @Service
 @RequiredArgsConstructor
+@Log
 public class UserService {
 
     private final UserRepository userRepository;
@@ -52,4 +54,21 @@ public class UserService {
         int postsCount = postRepository.countByUserAuthor_ClerkId(userId);
         return new UserStatsDto(followersCount, followingCount, postsCount);
     }
+    
+    public UserDto updateUserBio(String userId, String requesterId, UpdateBioDto updateBioDto) {
+        log.info("Updating bio for user " + userId);
+        if (!userId.equals(requesterId)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Cannot update a user's information that is not owned by the requester");
+        }
+        if (updateBioDto.newBio() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bio cannot be null");
+        }
+        if (updateBioDto.newBio().length() > 200) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bio length exceeds maximum allowed length");
+        }
+        User user = userRepository.findById(userId).orElseThrow();
+        user.setBio(updateBioDto.newBio());
+        return UserDto.of(userRepository.save(user));
+    }
+    
 }

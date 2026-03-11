@@ -46,3 +46,7 @@ export type UserStatsDto = {
   followingCount: number;
   postsCount: number;
 }
+
+export type UpdateUserBioDto = {
+  newBio: string;
+}
