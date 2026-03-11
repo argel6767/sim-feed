@@ -1,20 +1,28 @@
-import { useLoaderData, useParams, type LoaderFunctionArgs } from "react-router";
+import {
+  useLoaderData,
+  useParams,
+  type LoaderFunctionArgs,
+} from "react-router";
 import { useUser } from "@clerk/react-router";
 import { Footer } from "~/components/footer";
 import { Nav, MobileGoBackNav, MobileNav } from "~/components/nav";
 import { SidebarCard, RightSidebarCard } from "~/components/sidebar";
 import { GoBackLink } from "~/components/link";
-import {PostFeed } from "~/components/posts";
+import { PostFeed } from "~/components/posts";
 import type { Route } from "./+types/feed";
 import { UserAvatar, YouAvatar } from "~/components/avatars";
 import { useGetUserPosts } from "~/hooks/useGetUserPosts";
-import { UserFollowers, UserFollows } from "~/components/user-follow";
+import {
+  UserFollowers,
+  UserFollows,
+} from "~/components/user-follow";
 import { useGetUserInfo } from "~/hooks/useGetUserInfo";
 import { UserStats } from "~/components/user-stats";
 import { getUserStats } from "~/api/user-api/users";
 import type { UserStatsDto } from "~/lib/user-api-dtos";
 import { FollowButtonContainer } from "~/components/follows";
 import { UserBio } from "~/components/user-bio";
+import { UserProfileSkeleton } from "~/components/skeleton";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -30,44 +38,25 @@ export function meta({}: Route.MetaArgs) {
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   const { id } = params;
   const stats = await getUserStats(id as string);
-  return {stats} ;
-}
+  return { stats };
+};
 
 
 export default function UserProfile() {
   const { id } = useParams();
-  const {stats} = useLoaderData<{ stats: UserStatsDto }>()
-  if (!id) {throw new Error("No user id provided");}
+  const { stats } = useLoaderData<{ stats: UserStatsDto }>();
+  if (!id) {
+    throw new Error("No user id provided");
+  }
   const { user: currentUser, isLoaded: isClerkLoaded } = useUser();
   const { data: userData, isLoading, isError } = useGetUserInfo(id);
 
   const isOwnProfile = isClerkLoaded && currentUser?.id === id;
-  
 
   if (isLoading || !isClerkLoaded) {
-    return (
-      <div className="bg-sf-bg-primary text-sf-text-primary min-h-screen">
-        <header className="px-4 sm:px-8 py-3 sm:py-4 border-b border-sf-border-primary flex justify-between items-center bg-sf-bg-secondary sticky top-0 z-50">
-          <MobileGoBackNav backTo="/feed" />
-          <a
-            href="/"
-            className="text-[1.1rem] sm:text-[1.3rem] font-bold tracking-[2px] text-sf-text-primary"
-          >
-            SIM-FEED
-          </a>
-          <Nav />
-          <MobileNav />
-        </header>
-        <div className="flex justify-center py-4">
-          <SidebarCard title="Loading...">
-            Fetching user profile information...
-          </SidebarCard>
-        </div>
-        <Footer />
-      </div>
-    );
+    return <UserProfileSkeleton />;
   }
-  
+
   if (isError) {
     return (
       <div className="bg-sf-bg-primary text-sf-text-primary min-h-screen">
@@ -86,14 +75,13 @@ export default function UserProfile() {
             <p className="text-sf-text-muted text-sm sm:text-base">
               Failed to fetch information on queried user. Try again later.
             </p>
-            <GoBackLink/>
+            <GoBackLink />
           </div>
         </div>
         <Footer />
       </div>
     );
   }
-
 
   const joinedDate = new Date(userData.created_at).toLocaleDateString("en-US", {
     month: "long",
@@ -139,7 +127,6 @@ export default function UserProfile() {
 
         {/* Main Content */}
         <main className="flex flex-col gap-6">
-
           {/* Profile Card */}
           <article className="bg-sf-bg-primary border border-sf-border-primary rounded-lg p-4 sm:p-6 lg:p-8 motion-preset-slide-up-sm">
             {/* Avatar and Username */}
@@ -159,10 +146,15 @@ export default function UserProfile() {
                 <h1 className="text-[1.25rem] sm:text-[1.5rem] lg:text-[1.75rem] font-bold text-sf-text-primary break-all">
                   @{userData.username}
                 </h1>
-                <UserAvatar/>
+                <UserAvatar />
                 {isOwnProfile ? (
-                  <YouAvatar/>
-                ) : <FollowButtonContainer user_author={id} persona_author={null}/>}
+                  <YouAvatar />
+                ) : (
+                  <FollowButtonContainer
+                    user_author={id}
+                    persona_author={null}
+                  />
+                )}
               </div>
             </div>
 
@@ -170,7 +162,7 @@ export default function UserProfile() {
             <UserBio bio={userData.bio} isOwnProfile={isOwnProfile} id={id} />
 
             {/* Stats */}
-            <UserStats userStats={stats}/>
+            <UserStats userStats={stats} />
 
             {/* Joined Date */}
             <footer className="flex justify-center text-sf-text-dim text-[0.75rem] sm:text-[0.85rem] border-t border-sf-border-primary pt-3 sm:pt-4 mt-4 sm:mt-6">
@@ -180,9 +172,8 @@ export default function UserProfile() {
 
           {/* Posts Section */}
           <section className="flex flex-col gap-4">
-            <PostFeed user_id={id} queryHook={useGetUserPosts}/>
+            <PostFeed user_id={id} queryHook={useGetUserPosts} />
           </section>
-
         </main>
 
         {/* Right Sidebar */}
