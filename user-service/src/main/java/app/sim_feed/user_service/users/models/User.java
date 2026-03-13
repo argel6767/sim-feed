@@ -1,8 +1,9 @@
 package app.sim_feed.user_service.users.models;
 
-import app.sim_feed.user_service.comment.Comment;
+import app.sim_feed.user_service.comment.models.Comment;
 import app.sim_feed.user_service.follow.models.UserFollow;
-import app.sim_feed.user_service.like.Like;
+import app.sim_feed.user_service.like.models.Like;
+import app.sim_feed.user_service.post.models.Author;
 import app.sim_feed.user_service.post.models.Post;
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
@@ -19,7 +20,7 @@ import lombok.Builder;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
-public class User {
+public class User implements Author{
 
     @Id
     @Column(name = "id", nullable = false, unique = true)

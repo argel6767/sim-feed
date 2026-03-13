@@ -1,4 +1,4 @@
-package app.sim_feed.user_service.like;
+package app.sim_feed.user_service.like.models;
 
 import app.sim_feed.user_service.persona.models.Persona;
 import app.sim_feed.user_service.post.models.Post;
@@ -40,7 +40,7 @@ public class Like {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
@@ -48,7 +48,7 @@ public class Like {
     @JoinColumn(name = "persona_id", nullable = true)
     private Persona persona;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = true)
     private User user;
 

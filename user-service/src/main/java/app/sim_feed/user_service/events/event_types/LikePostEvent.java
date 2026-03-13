@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import app.sim_feed.user_service.events.Event;
-import app.sim_feed.user_service.like.Like;
+import app.sim_feed.user_service.like.models.Like;
 
 @Entity
 @Table(

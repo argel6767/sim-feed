@@ -21,7 +21,8 @@ public class CacheConfiguration {
             buildCache("followExists", 500, 5),
             buildCache("follows", 1000, 10),
             buildCache("followers", 1000, 10),
-            buildCache("user-stats", 1000, 10)
+            buildCache("user-stats", 1000, 10),
+            buildCache("likes", 1000, 5)
         ));
         return manager;
     }

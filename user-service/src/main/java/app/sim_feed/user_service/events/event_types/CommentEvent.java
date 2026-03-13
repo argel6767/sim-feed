@@ -5,9 +5,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
+import app.sim_feed.user_service.comment.models.Comment;
 import app.sim_feed.user_service.events.Event;
 import app.sim_feed.user_service.post.models.Post;
-import app.sim_feed.user_service.comment.Comment;
 
 @Entity
 @Table(

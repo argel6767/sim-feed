@@ -1,4 +1,4 @@
-package app.sim_feed.user_service.comment;
+package app.sim_feed.user_service.comment.models;
 
 import app.sim_feed.user_service.persona.models.Persona;
 import app.sim_feed.user_service.post.models.Post;
@@ -33,7 +33,7 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
@@ -44,16 +44,18 @@ public class Comment {
     @JoinColumn(name = "author_id", nullable = true)
     private Persona personaAuthor;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_author_id", nullable = true)
     private User userAuthor;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
+    
+    @Column(name = "updated_at", nullable = true)
+    private OffsetDateTime updatedAt;
 
     @PrePersist
-    @PreUpdate
     private void validateAuthor() {
         boolean hasPersona = personaAuthor != null;
         boolean hasUser = userAuthor != null;
@@ -62,5 +64,11 @@ public class Comment {
                 "Comment must have exactly one author: either a Persona or a User, not both or neither."
             );
         }
+    }
+    
+    @PreUpdate
+    private void onUpdate() {
+        validateAuthor();
+        updatedAt = OffsetDateTime.now();
     }
 }

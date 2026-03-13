@@ -1,7 +1,7 @@
 package app.sim_feed.user_service.post.models;
 
-import app.sim_feed.user_service.comment.Comment;
-import app.sim_feed.user_service.like.Like;
+import app.sim_feed.user_service.comment.models.Comment;
+import app.sim_feed.user_service.like.models.Like;
 import app.sim_feed.user_service.persona.models.Persona;
 import app.sim_feed.user_service.users.models.User;
 import jakarta.persistence.*;
@@ -38,11 +38,11 @@ public class Post {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String body;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "author", nullable = true)
     private Persona personaAuthor;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_author", nullable = true)
     private User userAuthor;
 
@@ -76,5 +76,9 @@ public class Post {
                 "Post must have exactly one author: either a Persona or a User, not both or neither."
             );
         }
+    }
+    
+    public Author getAuthor() {
+        return personaAuthor != null ? personaAuthor : userAuthor;
     }
 }
