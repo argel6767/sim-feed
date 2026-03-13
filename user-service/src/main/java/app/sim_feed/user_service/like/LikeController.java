@@ -17,7 +17,7 @@ import org.springframework.data.domain.Page;
 
 
 @RestController
-@RequestMapping("api/v1/likes")
+@RequestMapping("/api/v1/likes")
 @RequiredArgsConstructor
 public class LikeController {
     
