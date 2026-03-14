@@ -10,9 +10,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-import org.springframework.boot.jackson.autoconfigure.JacksonAutoConfiguration;
 import org.springframework.context.annotation.Import;
+
+import app.sim_feed.user_service.caches.CacheConfiguration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,12 +31,13 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest(UserController.class)
+@Import(CacheConfiguration.class)
 class UserControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    
+
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @MockitoBean
@@ -54,8 +55,8 @@ class UserControllerTest {
     @Test
     @DisplayName("PUT /api/v1/users/{id} - should return 200 with updated user")
     void shouldReturnUpdatedUser() throws Exception {
-        UserDto requestDto = new UserDto(USER_ID, "newusername", "new bio");
-        UserDto responseDto = new UserDto(USER_ID, "newusername", "new bio");
+        UserDto requestDto = new UserDto(USER_ID, "newusername", "new bio", "image.com");
+        UserDto responseDto = new UserDto(USER_ID, "newusername", "new bio", "image.com");
 
         when(userService.updateUser(eq(USER_ID), eq(USER_ID), any(UserDto.class)))
                 .thenReturn(responseDto);
@@ -74,7 +75,7 @@ class UserControllerTest {
     @Test
     @DisplayName("PUT /api/v1/users/{id} - should return 401 when user is not authorized")
     void shouldReturn401WhenUnauthorized() throws Exception {
-        UserDto requestDto = new UserDto(USER_ID, "newusername", "new bio");
+        UserDto requestDto = new UserDto(USER_ID, "newusername", "new bio", "image.com");
         String differentUser = "different_user_456";
 
         when(userService.updateUser(eq(USER_ID), eq(differentUser), any(UserDto.class)))
@@ -92,7 +93,7 @@ class UserControllerTest {
     @Test
     @DisplayName("PUT /api/v1/users/{id} - should return 400 when body ID mismatches URL ID")
     void shouldReturn400WhenBodyIdMismatch() throws Exception {
-        UserDto requestDto = new UserDto("wrong_id", "newusername", "new bio");
+        UserDto requestDto = new UserDto("wrong_id", "newusername", "new bio", "image.com");
 
         when(userService.updateUser(eq(USER_ID), eq(USER_ID), any(UserDto.class)))
                 .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -110,7 +111,7 @@ class UserControllerTest {
     @DisplayName("PUT /api/v1/users/{id} - should return 400 when bio exceeds max length")
     void shouldReturn400WhenBioTooLong() throws Exception {
         String longBio = "a".repeat(201);
-        UserDto requestDto = new UserDto(USER_ID, "newusername", longBio);
+        UserDto requestDto = new UserDto(USER_ID, "newusername", longBio, "image.com");
 
         when(userService.updateUser(eq(USER_ID), eq(USER_ID), any(UserDto.class)))
                 .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -128,7 +129,7 @@ class UserControllerTest {
     @DisplayName("PUT /api/v1/users/{id} - should return 400 when username exceeds max length")
     void shouldReturn400WhenUsernameTooLong() throws Exception {
         String longUsername = "a".repeat(51);
-        UserDto requestDto = new UserDto(USER_ID, longUsername, "valid bio");
+        UserDto requestDto = new UserDto(USER_ID, longUsername, "valid bio", "image.com");
 
         when(userService.updateUser(eq(USER_ID), eq(USER_ID), any(UserDto.class)))
                 .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST,

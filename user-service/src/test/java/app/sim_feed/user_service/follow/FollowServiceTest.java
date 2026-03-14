@@ -3,6 +3,8 @@ package app.sim_feed.user_service.follow;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -20,6 +22,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.web.server.ResponseStatusException;
 
 import app.sim_feed.user_service.follow.models.FollowDto;
@@ -41,6 +45,9 @@ class FollowServiceTest {
 
     @Mock
     private PersonaService personaService;
+    
+    @Mock
+    private CacheManager cacheManager;
 
     @InjectMocks
     private FollowService followService;

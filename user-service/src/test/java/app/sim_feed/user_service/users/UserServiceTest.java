@@ -85,7 +85,7 @@ class UserServiceTest {
         @Test
         @DisplayName("should update user successfully when all validations pass")
         void shouldUpdateUserSuccessfully() {
-            UserDto updateDto = new UserDto(USER_ID, "newusername", "new bio");
+            UserDto updateDto = new UserDto(USER_ID, "newusername", "new bio", "image.com");
             User savedUser = User.builder()
                     .clerkId(USER_ID)
                     .username("newusername")
@@ -111,7 +111,7 @@ class UserServiceTest {
         @DisplayName("should throw UNAUTHORIZED when userId does not match requesterId")
         void shouldThrowUnauthorizedWhenUserIdMismatch() {
             String differentUserId = "different_user_456";
-            UserDto updateDto = new UserDto(USER_ID, "newusername", "new bio");
+            UserDto updateDto = new UserDto(USER_ID, "newusername", "new bio", "image.com");
 
             assertThatThrownBy(() -> userService.updateUser(USER_ID, differentUserId, updateDto))
                     .isInstanceOf(ResponseStatusException.class)
@@ -124,7 +124,7 @@ class UserServiceTest {
         @Test
         @DisplayName("should throw BAD_REQUEST when body ID does not match URL ID")
         void shouldThrowBadRequestWhenBodyIdMismatch() {
-            UserDto updateDto = new UserDto("mismatched_id", "newusername", "new bio");
+            UserDto updateDto = new UserDto("mismatched_id", "newusername", "new bio", "image.com");
 
             assertThatThrownBy(() -> userService.updateUser(USER_ID, USER_ID, updateDto))
                     .isInstanceOf(ResponseStatusException.class)
@@ -138,7 +138,7 @@ class UserServiceTest {
         @DisplayName("should throw BAD_REQUEST when bio exceeds 200 characters")
         void shouldThrowBadRequestWhenBioTooLong() {
             String longBio = "a".repeat(201);
-            UserDto updateDto = new UserDto(USER_ID, "newusername", longBio);
+            UserDto updateDto = new UserDto(USER_ID, "newusername", longBio, "image.com");
 
             assertThatThrownBy(() -> userService.updateUser(USER_ID, USER_ID, updateDto))
                     .isInstanceOf(ResponseStatusException.class)
@@ -152,7 +152,7 @@ class UserServiceTest {
         @DisplayName("should accept bio with exactly 200 characters")
         void shouldAcceptBioWithExactly200Characters() {
             String exactBio = "a".repeat(200);
-            UserDto updateDto = new UserDto(USER_ID, "newusername", exactBio);
+            UserDto updateDto = new UserDto(USER_ID, "newusername", exactBio, "image.com");
 
             when(userRepository.findById(USER_ID)).thenReturn(Optional.of(testUser));
             when(userRepository.save(any(User.class))).thenReturn(testUser);
@@ -168,7 +168,7 @@ class UserServiceTest {
         @DisplayName("should throw BAD_REQUEST when username exceeds 50 characters")
         void shouldThrowBadRequestWhenUsernameTooLong() {
             String longUsername = "a".repeat(51);
-            UserDto updateDto = new UserDto(USER_ID, longUsername, "valid bio");
+            UserDto updateDto = new UserDto(USER_ID, longUsername, "valid bio", "image.com");
 
             assertThatThrownBy(() -> userService.updateUser(USER_ID, USER_ID, updateDto))
                     .isInstanceOf(ResponseStatusException.class)
@@ -182,7 +182,7 @@ class UserServiceTest {
         @DisplayName("should accept username with exactly 50 characters")
         void shouldAcceptUsernameWithExactly50Characters() {
             String exactUsername = "a".repeat(50);
-            UserDto updateDto = new UserDto(USER_ID, exactUsername, "valid bio");
+            UserDto updateDto = new UserDto(USER_ID, exactUsername, "valid bio", "image.com");
 
             when(userRepository.findById(USER_ID)).thenReturn(Optional.of(testUser));
             when(userRepository.save(any(User.class))).thenReturn(testUser);
@@ -197,7 +197,7 @@ class UserServiceTest {
         @Test
         @DisplayName("should throw NoSuchElementException when user to update is not found")
         void shouldThrowWhenUserToUpdateNotFound() {
-            UserDto updateDto = new UserDto(USER_ID, "newusername", "new bio");
+            UserDto updateDto = new UserDto(USER_ID, "newusername", "new bio", "image.com");
             when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> userService.updateUser(USER_ID, USER_ID, updateDto))
@@ -210,7 +210,7 @@ class UserServiceTest {
         @Test
         @DisplayName("should set username and bio on user entity before saving")
         void shouldSetFieldsOnUserBeforeSaving() {
-            UserDto updateDto = new UserDto(USER_ID, "updatedname", "updated bio");
+            UserDto updateDto = new UserDto(USER_ID, "updatedname", "updated bio", "image.com");
 
             when(userRepository.findById(USER_ID)).thenReturn(Optional.of(testUser));
             when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));

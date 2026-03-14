@@ -162,8 +162,8 @@ class FollowDtoTest {
         @Test
         @DisplayName("should create instance via constructor")
         void shouldCreateViaConstructor() {
-            UserDto followerDto = new UserDto(FOLLOWER_ID, "follower_user", "follower bio");
-            UserDto followedDto = new UserDto(FOLLOWED_USER_ID, "followed_user", "followed bio");
+            UserDto followerDto = new UserDto(FOLLOWER_ID, "follower_user", "follower bio", "image.com");
+            UserDto followedDto = new UserDto(FOLLOWED_USER_ID, "followed_user", "followed bio", "image.com");
 
             FollowDto dto = new FollowDto(1L, followerDto, followedDto, null);
 
@@ -176,7 +176,7 @@ class FollowDtoTest {
         @Test
         @DisplayName("should create instance with personaFollowed via constructor")
         void shouldCreateWithPersonaFollowedViaConstructor() {
-            UserDto followerDto = new UserDto(FOLLOWER_ID, "follower_user", "follower bio");
+            UserDto followerDto = new UserDto(FOLLOWER_ID, "follower_user", "follower bio", "image.com");
             PersonaDto personaDto = new PersonaDto(FOLLOWED_PERSONA_ID, "persona_user");
 
             FollowDto dto = new FollowDto(2L, followerDto, null, personaDto);
@@ -190,8 +190,8 @@ class FollowDtoTest {
         @Test
         @DisplayName("should be equal when all fields match")
         void shouldBeEqualWhenAllFieldsMatch() {
-            UserDto followerDto = new UserDto(FOLLOWER_ID, "follower_user", "follower bio");
-            UserDto followedDto = new UserDto(FOLLOWED_USER_ID, "followed_user", "followed bio");
+            UserDto followerDto = new UserDto(FOLLOWER_ID, "follower_user", "follower bio", "image.com");
+            UserDto followedDto = new UserDto(FOLLOWED_USER_ID, "followed_user", "followed bio", "image.com");
 
             FollowDto dto1 = new FollowDto(1L, followerDto, followedDto, null);
             FollowDto dto2 = new FollowDto(1L, followerDto, followedDto, null);
@@ -202,8 +202,8 @@ class FollowDtoTest {
         @Test
         @DisplayName("should not be equal when id differs")
         void shouldNotBeEqualWhenIdDiffers() {
-            UserDto followerDto = new UserDto(FOLLOWER_ID, "follower_user", "follower bio");
-            UserDto followedDto = new UserDto(FOLLOWED_USER_ID, "followed_user", "followed bio");
+            UserDto followerDto = new UserDto(FOLLOWER_ID, "follower_user", "follower bio", "image.com");
+            UserDto followedDto = new UserDto(FOLLOWED_USER_ID, "followed_user", "followed bio", "image.com");
 
             FollowDto dto1 = new FollowDto(1L, followerDto, followedDto, null);
             FollowDto dto2 = new FollowDto(2L, followerDto, followedDto, null);
@@ -214,9 +214,9 @@ class FollowDtoTest {
         @Test
         @DisplayName("should not be equal when follower differs")
         void shouldNotBeEqualWhenFollowerDiffers() {
-            UserDto followerDto1 = new UserDto(FOLLOWER_ID, "follower_user", "follower bio");
-            UserDto followerDto2 = new UserDto("clerk_different_999", "different_user", "different bio");
-            UserDto followedDto = new UserDto(FOLLOWED_USER_ID, "followed_user", "followed bio");
+            UserDto followerDto1 = new UserDto(FOLLOWER_ID, "follower_user", "follower bio", "image.com");
+            UserDto followerDto2 = new UserDto("clerk_different_999", "different_user", "different bio", "image.com");
+            UserDto followedDto = new UserDto(FOLLOWED_USER_ID, "followed_user", "followed bio", "image.com");
 
             FollowDto dto1 = new FollowDto(1L, followerDto1, followedDto, null);
             FollowDto dto2 = new FollowDto(1L, followerDto2, followedDto, null);
@@ -227,9 +227,9 @@ class FollowDtoTest {
         @Test
         @DisplayName("should not be equal when userFollowed differs")
         void shouldNotBeEqualWhenUserFollowedDiffers() {
-            UserDto followerDto = new UserDto(FOLLOWER_ID, "follower_user", "follower bio");
-            UserDto followedDto1 = new UserDto(FOLLOWED_USER_ID, "followed_user", "followed bio");
-            UserDto followedDto2 = new UserDto("clerk_other_789", "other_user", "other bio");
+            UserDto followerDto = new UserDto(FOLLOWER_ID, "follower_user", "follower bio", "image.com");
+            UserDto followedDto1 = new UserDto(FOLLOWED_USER_ID, "followed_user", "followed bio", "image.com");
+            UserDto followedDto2 = new UserDto("clerk_other_789", "other_user", "other bio", "image.com");
 
             FollowDto dto1 = new FollowDto(1L, followerDto, followedDto1, null);
             FollowDto dto2 = new FollowDto(1L, followerDto, followedDto2, null);
@@ -240,7 +240,7 @@ class FollowDtoTest {
         @Test
         @DisplayName("should not be equal when personaFollowed differs")
         void shouldNotBeEqualWhenPersonaFollowedDiffers() {
-            UserDto followerDto = new UserDto(FOLLOWER_ID, "follower_user", "follower bio");
+            UserDto followerDto = new UserDto(FOLLOWER_ID, "follower_user", "follower bio", "image.com");
             PersonaDto personaDto1 = new PersonaDto(10L, "persona_a");
             PersonaDto personaDto2 = new PersonaDto(20L, "persona_b");
 
@@ -253,8 +253,8 @@ class FollowDtoTest {
         @Test
         @DisplayName("should have consistent hashCode for equal instances")
         void shouldHaveConsistentHashCode() {
-            UserDto followerDto = new UserDto(FOLLOWER_ID, "follower_user", "follower bio");
-            UserDto followedDto = new UserDto(FOLLOWED_USER_ID, "followed_user", "followed bio");
+            UserDto followerDto = new UserDto(FOLLOWER_ID, "follower_user", "follower bio", "image.com");
+            UserDto followedDto = new UserDto(FOLLOWED_USER_ID, "followed_user", "followed bio", "image.com");
 
             FollowDto dto1 = new FollowDto(1L, followerDto, followedDto, null);
             FollowDto dto2 = new FollowDto(1L, followerDto, followedDto, null);
@@ -265,8 +265,8 @@ class FollowDtoTest {
         @Test
         @DisplayName("should include all fields in toString")
         void shouldIncludeAllFieldsInToString() {
-            UserDto followerDto = new UserDto(FOLLOWER_ID, "follower_user", "follower bio");
-            UserDto followedDto = new UserDto(FOLLOWED_USER_ID, "followed_user", "followed bio");
+            UserDto followerDto = new UserDto(FOLLOWER_ID, "follower_user", "follower bio", "image.com");
+            UserDto followedDto = new UserDto(FOLLOWED_USER_ID, "followed_user", "followed bio", "image.com");
 
             FollowDto dto = new FollowDto(1L, followerDto, followedDto, null);
 

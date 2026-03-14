@@ -28,6 +28,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.clerk.backend_api.helpers.security.models.AuthenticateRequestOptions;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import app.sim_feed.user_service.caches.CacheConfiguration;
 import app.sim_feed.user_service.follow.models.FollowDto;
 import app.sim_feed.user_service.follow.models.NewFollowDto;
 import app.sim_feed.user_service.persona.models.PersonaDto;
@@ -36,7 +37,10 @@ import app.sim_feed.user_service.users.models.UserDto;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
+import org.springframework.context.annotation.Import;
+
 @org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest(FollowController.class)
+@Import(CacheConfiguration.class)
 class FollowControllerTest {
 
     @Autowired
@@ -65,8 +69,8 @@ class FollowControllerTest {
         NewFollowDto newFollowDto = new NewFollowDto(OTHER_USER_ID, null);
         FollowDto responseDto = new FollowDto(
                 1L,
-                new UserDto(USER_ID, "requester", "requester bio"),
-                new UserDto(OTHER_USER_ID, "followed", "followed bio"),
+                new UserDto(USER_ID, "requester", "requester bio", "image.com"),
+                new UserDto(OTHER_USER_ID, "followed", "followed bio", "image.com"),
                 null
         );
 
@@ -91,7 +95,7 @@ class FollowControllerTest {
         NewFollowDto newFollowDto = new NewFollowDto(null, 10L);
         FollowDto responseDto = new FollowDto(
                 2L,
-                new UserDto(USER_ID, "requester", "requester bio"),
+                new UserDto(USER_ID, "requester", "requester bio", "image.com"),
                 null,
                 new PersonaDto(10L, "persona_user")
         );
@@ -204,9 +208,9 @@ class FollowControllerTest {
     @DisplayName("GET /api/v1/follows/users/{userId}/follows - should return 200 with list of follows")
     void shouldReturn200WithFollows() throws Exception {
         List<FollowDto> follows = List.of(
-                new FollowDto(1L, new UserDto(USER_ID, "requester", "bio"),
-                        new UserDto(OTHER_USER_ID, "followed", "bio"), null),
-                new FollowDto(2L, new UserDto(USER_ID, "requester", "bio"),
+                new FollowDto(1L, new UserDto(USER_ID, "requester", "bio", "image.com"),
+                        new UserDto(OTHER_USER_ID, "followed", "bio", "image.com"), null),
+                new FollowDto(2L, new UserDto(USER_ID, "requester", "bio", "image.com"),
                         null, new PersonaDto(10L, "persona"))
         );
 
@@ -241,8 +245,8 @@ class FollowControllerTest {
     @DisplayName("GET /api/v1/follows/users/{userId}/followers - should return 200 with list of followers")
     void shouldReturn200WithFollowers() throws Exception {
         List<FollowDto> followers = List.of(
-                new FollowDto(3L, new UserDto(OTHER_USER_ID, "follower_user", "bio"),
-                        new UserDto(USER_ID, "me", "my bio"), null)
+                new FollowDto(3L, new UserDto(OTHER_USER_ID, "follower_user", "bio", "image.com"),
+                        new UserDto(USER_ID, "me", "my bio", "image.com"), null)
         );
 
         when(followService.getAllUserFollowers(USER_ID)).thenReturn(followers);

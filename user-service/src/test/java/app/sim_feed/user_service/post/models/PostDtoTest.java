@@ -179,7 +179,7 @@ class PostDtoTest {
         @Test
         @DisplayName("should create instance via constructor")
         void shouldCreateViaConstructor() {
-            UserDto userDto = new UserDto("id_123", "myuser", "my bio");
+            UserDto userDto = new UserDto("id_123", "myuser", "my bio", "image.com");
             PostDto dto = new PostDto(userDto, 10L, "My Title", "My Body");
 
             assertThat(dto.user()).isEqualTo(userDto);
@@ -191,7 +191,7 @@ class PostDtoTest {
         @Test
         @DisplayName("should be equal when all fields match")
         void shouldBeEqualWhenAllFieldsMatch() {
-            UserDto userDto = new UserDto("id_1", "user1", "bio1");
+            UserDto userDto = new UserDto("id_1", "user1", "bio1", "image.com");
             PostDto dto1 = new PostDto(userDto, 1L, "Title", "Body");
             PostDto dto2 = new PostDto(userDto, 1L, "Title", "Body");
 
@@ -201,7 +201,7 @@ class PostDtoTest {
         @Test
         @DisplayName("should not be equal when id differs")
         void shouldNotBeEqualWhenIdDiffers() {
-            UserDto userDto = new UserDto("id_1", "user1", "bio1");
+            UserDto userDto = new UserDto("id_1", "user1", "bio1", "image.com");
             PostDto dto1 = new PostDto(userDto, 1L, "Title", "Body");
             PostDto dto2 = new PostDto(userDto, 2L, "Title", "Body");
 
@@ -211,7 +211,7 @@ class PostDtoTest {
         @Test
         @DisplayName("should not be equal when title differs")
         void shouldNotBeEqualWhenTitleDiffers() {
-            UserDto userDto = new UserDto("id_1", "user1", "bio1");
+            UserDto userDto = new UserDto("id_1", "user1", "bio1", "image.com");
             PostDto dto1 = new PostDto(userDto, 1L, "Title A", "Body");
             PostDto dto2 = new PostDto(userDto, 1L, "Title B", "Body");
 
@@ -221,7 +221,7 @@ class PostDtoTest {
         @Test
         @DisplayName("should not be equal when body differs")
         void shouldNotBeEqualWhenBodyDiffers() {
-            UserDto userDto = new UserDto("id_1", "user1", "bio1");
+            UserDto userDto = new UserDto("id_1", "user1", "bio1", "image.com");
             PostDto dto1 = new PostDto(userDto, 1L, "Title", "Body A");
             PostDto dto2 = new PostDto(userDto, 1L, "Title", "Body B");
 
@@ -231,8 +231,8 @@ class PostDtoTest {
         @Test
         @DisplayName("should not be equal when user differs")
         void shouldNotBeEqualWhenUserDiffers() {
-            UserDto userDto1 = new UserDto("id_1", "user1", "bio1");
-            UserDto userDto2 = new UserDto("id_2", "user2", "bio2");
+            UserDto userDto1 = new UserDto("id_1", "user1", "bio1", "image.com");
+            UserDto userDto2 = new UserDto("id_2", "user2", "bio2", "image.com");
             PostDto dto1 = new PostDto(userDto1, 1L, "Title", "Body");
             PostDto dto2 = new PostDto(userDto2, 1L, "Title", "Body");
 
@@ -242,7 +242,7 @@ class PostDtoTest {
         @Test
         @DisplayName("should have consistent hashCode for equal instances")
         void shouldHaveConsistentHashCode() {
-            UserDto userDto = new UserDto("id_1", "user1", "bio1");
+            UserDto userDto = new UserDto("id_1", "user1", "bio1", "image.com");
             PostDto dto1 = new PostDto(userDto, 1L, "Title", "Body");
             PostDto dto2 = new PostDto(userDto, 1L, "Title", "Body");
 
@@ -252,7 +252,7 @@ class PostDtoTest {
         @Test
         @DisplayName("should include all fields in toString")
         void shouldIncludeAllFieldsInToString() {
-            UserDto userDto = new UserDto("id_1", "user1", "bio1");
+            UserDto userDto = new UserDto("id_1", "user1", "bio1", "image.com");
             PostDto dto = new PostDto(userDto, 42L, "My Title", "My Body");
 
             String toString = dto.toString();

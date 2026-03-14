@@ -23,6 +23,12 @@ public class CommentService {
     private final PostRepository postRepository;
     
     public CommentDto createComment(NewCommentDto newCommentDto, String userId) {
+        if (newCommentDto.body() == null || newCommentDto.body().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Comment body cannot be empty");
+        }
+        if (newCommentDto.body().length() > 1000) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Comment body cannot exceed 1000 characters");
+        }
         User user = userRepository.findById(userId).orElseThrow();
         Post post = postRepository.findById(newCommentDto.postId()).orElseThrow();
         Comment comment = Comment.builder()

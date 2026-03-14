@@ -26,11 +26,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-import org.springframework.boot.jackson.autoconfigure.JacksonAutoConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+
+import app.sim_feed.user_service.caches.CacheConfiguration;
+
 @WebMvcTest(PostController.class)
+@Import(CacheConfiguration.class)
 class PostControllerTest {
 
     @Autowired
@@ -60,7 +62,7 @@ class PostControllerTest {
     )
     void shouldReturnCreatedPost() throws Exception {
         NewPostDto newPost = new NewPostDto("Test Title", "Test body content");
-        UserDto userDto = new UserDto(USER_ID, "testuser", "Test bio");
+        UserDto userDto = new UserDto(USER_ID, "testuser", "Test bio", "image.com");
         PostDto responseDto = new PostDto(
             userDto,
             1L,
@@ -222,7 +224,7 @@ class PostControllerTest {
     void shouldPassAuthenticatedUserIdToService() throws Exception {
         String specificUserId = "clerk_specific_789";
         NewPostDto newPost = new NewPostDto("Title", "Body");
-        UserDto userDto = new UserDto(specificUserId, "specificuser", "bio");
+        UserDto userDto = new UserDto(specificUserId, "specificuser", "bio", "image.com");
         PostDto responseDto = new PostDto(userDto, 2L, "Title", "Body");
 
         when(

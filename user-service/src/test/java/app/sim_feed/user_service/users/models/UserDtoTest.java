@@ -114,7 +114,7 @@ class UserDtoTest {
         @Test
         @DisplayName("should create instance via constructor")
         void shouldCreateViaConstructor() {
-            UserDto dto = new UserDto("id_123", "myuser", "my bio");
+            UserDto dto = new UserDto("id_123", "myuser", "my bio", "image.com");
 
             assertThat(dto.id()).isEqualTo("id_123");
             assertThat(dto.username()).isEqualTo("myuser");
@@ -124,8 +124,8 @@ class UserDtoTest {
         @Test
         @DisplayName("should be equal when all fields match")
         void shouldBeEqualWhenAllFieldsMatch() {
-            UserDto dto1 = new UserDto("id_1", "user1", "bio1");
-            UserDto dto2 = new UserDto("id_1", "user1", "bio1");
+            UserDto dto1 = new UserDto("id_1", "user1", "bio1", "image.com");
+            UserDto dto2 = new UserDto("id_1", "user1", "bio1", "image.com");
 
             assertThat(dto1).isEqualTo(dto2);
         }
@@ -133,8 +133,8 @@ class UserDtoTest {
         @Test
         @DisplayName("should not be equal when id differs")
         void shouldNotBeEqualWhenIdDiffers() {
-            UserDto dto1 = new UserDto("id_1", "user1", "bio1");
-            UserDto dto2 = new UserDto("id_2", "user1", "bio1");
+            UserDto dto1 = new UserDto("id_1", "user1", "bio1", "image.com");
+            UserDto dto2 = new UserDto("id_2", "user1", "bio1", "image.com");
 
             assertThat(dto1).isNotEqualTo(dto2);
         }
@@ -142,8 +142,8 @@ class UserDtoTest {
         @Test
         @DisplayName("should not be equal when username differs")
         void shouldNotBeEqualWhenUsernameDiffers() {
-            UserDto dto1 = new UserDto("id_1", "user1", "bio1");
-            UserDto dto2 = new UserDto("id_1", "user2", "bio1");
+            UserDto dto1 = new UserDto("id_1", "user1", "bio1", "image.com");
+            UserDto dto2 = new UserDto("id_1", "user2", "bio1", "image.com");
 
             assertThat(dto1).isNotEqualTo(dto2);
         }
@@ -151,8 +151,8 @@ class UserDtoTest {
         @Test
         @DisplayName("should not be equal when bio differs")
         void shouldNotBeEqualWhenBioDiffers() {
-            UserDto dto1 = new UserDto("id_1", "user1", "bio1");
-            UserDto dto2 = new UserDto("id_1", "user1", "bio2");
+            UserDto dto1 = new UserDto("id_1", "user1", "bio1", "image.com");
+            UserDto dto2 = new UserDto("id_1", "user1", "bio2", "image.com");
 
             assertThat(dto1).isNotEqualTo(dto2);
         }
@@ -160,8 +160,8 @@ class UserDtoTest {
         @Test
         @DisplayName("should have consistent hashCode for equal instances")
         void shouldHaveConsistentHashCode() {
-            UserDto dto1 = new UserDto("id_1", "user1", "bio1");
-            UserDto dto2 = new UserDto("id_1", "user1", "bio1");
+            UserDto dto1 = new UserDto("id_1", "user1", "bio1", "image.com");
+            UserDto dto2 = new UserDto("id_1", "user1", "bio1", "image.com");
 
             assertThat(dto1.hashCode()).isEqualTo(dto2.hashCode());
         }
@@ -169,7 +169,7 @@ class UserDtoTest {
         @Test
         @DisplayName("should include all fields in toString")
         void shouldIncludeAllFieldsInToString() {
-            UserDto dto = new UserDto("id_1", "user1", "bio1");
+            UserDto dto = new UserDto("id_1", "user1", "bio1", "image.com");
 
             String toString = dto.toString();
             assertThat(toString).contains("id_1");
@@ -180,7 +180,7 @@ class UserDtoTest {
         @Test
         @DisplayName("should allow null values for all fields")
         void shouldAllowNullValues() {
-            UserDto dto = new UserDto(null, null, null);
+            UserDto dto = new UserDto(null, null, null, null);
 
             assertThat(dto.id()).isNull();
             assertThat(dto.username()).isNull();
