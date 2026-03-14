@@ -1,7 +1,7 @@
 package app.sim_feed.user_service.security.filters;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.clerk.backend_api.helpers.security.AuthenticateRequest;
 import com.clerk.backend_api.helpers.security.models.AuthenticateRequestOptions;
@@ -27,7 +27,8 @@ import org.springframework.stereotype.Component;
 @Component("clerkAuthenticationFilter")
 @RequiredArgsConstructor
 @Setter
-public class ClerkAuthenticationFilter extends OncePerRequestFilter{
+@Profile("!integration-test")
+public class ClerkAuthenticationFilter extends AuthenticationFilter{
 
     private final AuthenticateRequestOptions authenticateRequestOptions;
     

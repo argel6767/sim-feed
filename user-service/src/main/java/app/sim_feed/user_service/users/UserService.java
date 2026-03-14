@@ -27,7 +27,7 @@ public class UserService {
     public User getUserById(String id) {
         return userRepository.findById(id).orElseThrow();
     }
-    
+
     public UserDto updateUser(String userId, String requesterId, UserDto userDto) {
         if (!userId.equals(requesterId)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Cannot update a user's information that is not owned by the requester");
@@ -46,15 +46,18 @@ public class UserService {
         user.setBio(userDto.bio());
         return UserDto.of(userRepository.save(user));
     }
-    
+
     @Cacheable(cacheNames = "user-stats", key = "#userId")
     public UserStatsDto getUserStatsByUserId(String userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
         int followersCount = followRepository.countFollowersByUserId(userId);
         int followingCount = followRepository.countFollowingByUserId(userId);
         int postsCount = postRepository.countByUserAuthor_ClerkId(userId);
         return new UserStatsDto(followersCount, followingCount, postsCount);
     }
-    
+
     public UserDto updateUserBio(String userId, String requesterId, UpdateBioDto updateBioDto) {
         log.info("Updating bio for user " + userId);
         if (!userId.equals(requesterId)) {
@@ -70,5 +73,5 @@ public class UserService {
         user.setBio(updateBioDto.newBio());
         return UserDto.of(userRepository.save(user));
     }
-    
+
 }

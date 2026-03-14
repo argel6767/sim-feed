@@ -39,12 +39,12 @@ INSERT INTO personas (bio, description, username) VALUES
 -- =====================
 -- USERS (real platform users)
 -- =====================
-INSERT INTO users (id, username, bio) VALUES
-('usr_01JKLMNO', 'alex_dev', 'Full-stack dev. Building cool stuff.'),
-('usr_02PQRSTU', 'jordan_adventures', 'Hiking, camping, and exploring the PNW.'),
-('usr_03VWXYZA', 'morgan_reads', 'Book lover. Coffee drinker. Cat person.'),
-('usr_04BCDEFG', 'taylor_cooks', 'Aspiring chef. Will trade food for compliments.'),
-('usr_05HIJKLM', 'casey_creates', 'Designer by trade, artist by heart.');
+INSERT INTO users (id, username, bio, image_url) VALUES
+('usr_01JKLMNO', 'alex_dev', 'Full-stack dev. Building cool stuff.', 'image_url.com'),
+('usr_02PQRSTU', 'jordan_adventures', 'Hiking, camping, and exploring the PNW.', 'image_url.com'),
+('usr_03VWXYZA', 'morgan_reads', 'Book lover. Coffee drinker. Cat person.', 'image_url.com'),
+('usr_04BCDEFG', 'taylor_cooks', 'Aspiring chef. Will trade food for compliments.', 'image_url.com'),
+('usr_05HIJKLM', 'casey_creates', 'Designer by trade, artist by heart.', 'image_url.com');
 
 -- =====================
 -- POSTS

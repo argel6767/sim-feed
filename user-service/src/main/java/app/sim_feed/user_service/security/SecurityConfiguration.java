@@ -6,37 +6,26 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import app.sim_feed.user_service.security.filters.ClerkAuthenticationFilter;
+import app.sim_feed.user_service.security.filters.AuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Value;
-
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Configuration
+@RequiredArgsConstructor
 @Setter
 public class SecurityConfiguration {
     
-    @Value("${sim.feed.domain}")
-    private List<String> simFeedDomain;
+    private final AuthenticationFilter filter;
+    private final CorsConfigurationSource corsConfigurationSource;
 
-    private final ClerkAuthenticationFilter clerkAuthenticationFilter;
-
-    public SecurityConfiguration(
-            ClerkAuthenticationFilter clerkAuthenticationFilter) {
-        this.clerkAuthenticationFilter = clerkAuthenticationFilter;
-    }
-    
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        .cors(cors -> cors.configurationSource(corsConfigurationSource))
         .csrf(csrf -> csrf.disable())
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth
@@ -59,21 +48,8 @@ public class SecurityConfiguration {
                 response.getWriter().write("{\"error\": \"Forbidden\", \"message\": \"Access denied\"}");
             })
         )
-        .addFilterBefore(clerkAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
         
         return http.build();
     }
-    
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration cors = new CorsConfiguration();
-        cors.setAllowedOrigins(simFeedDomain);
-        cors.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        cors.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        cors.setAllowCredentials(true);
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", cors);
-        return source;
-    }
-	
 }
