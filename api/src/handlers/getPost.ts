@@ -48,7 +48,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         CASE WHEN p.author IS NOT NULL THEN 'persona' ELSE 'user' END AS author_type,
         COALESCE(per.username, u.username) AS author_username,
         p.created_at,
-        (SELECT COUNT(DISTINCT id) FROM likes WHERE post_id = p.id) AS likes_count,
+        (SELECT COUNT(DISTINCT id)::int FROM likes WHERE post_id = p.id) AS likes_count,
         COALESCE(
           json_agg(
             json_build_object(

@@ -17,6 +17,8 @@ import { LoadingBar } from "./components/loading";
 
 import { clerkMiddleware, rootAuthLoader } from '@clerk/react-router/server'
 import { ClerkProvider } from '@clerk/react-router'
+import { GoUp } from "./components/go-up";
+import { UserLikesPostIdsWrapper } from "./components/user-likes-post-ids";
 
 export const middleware = [clerkMiddleware()]
 
@@ -71,9 +73,12 @@ export default function App({ loaderData }: Route.ComponentProps) {
       }
     }}>
       <QueryClientProvider client={queryClient}>
-          <LoadingBar/>
-          <GoogleAnalyticsHolder />
-          <Outlet />
+        <UserLikesPostIdsWrapper >
+          <LoadingBar />
+          <GoUp/>
+            <GoogleAnalyticsHolder />
+            <Outlet />
+        </UserLikesPostIdsWrapper>
       </QueryClientProvider>
     </ClerkProvider>
   );

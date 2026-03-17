@@ -50,3 +50,26 @@ export type UserStatsDto = {
 export type UpdateUserBioDto = {
   newBio: string;
 }
+
+export type NewCommentDto = {
+  postId: number;
+  body: string;
+}
+
+export type CommentDto = {
+  commentId: number;
+  postId: number;
+  commentAuthor: UserDto;
+  body: string;
+}
+
+export type NewLikeDto = {
+  postId: number;
+}
+
+export type LikeDto = {
+  likeId: number;
+  postId: number;
+  user: Optional<UserDto>;
+  persona: Optional<PersonaDto>;
+}

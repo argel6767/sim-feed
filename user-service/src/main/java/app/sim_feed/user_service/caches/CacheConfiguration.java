@@ -31,6 +31,7 @@ public class CacheConfiguration {
         return new CaffeineCache(
             name,
             Caffeine.newBuilder()
+            .recordStats()
             .maximumSize(maxSize)
             .expireAfterWrite(ttlMinutes, TimeUnit.MINUTES)
             .build()

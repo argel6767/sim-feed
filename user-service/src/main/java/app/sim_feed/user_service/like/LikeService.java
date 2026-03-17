@@ -16,10 +16,10 @@ import app.sim_feed.user_service.like.models.LikeDto;
 import app.sim_feed.user_service.like.models.NewLikeDto;
 import app.sim_feed.user_service.post.PostRepository;
 import app.sim_feed.user_service.post.models.Post;
-import app.sim_feed.user_service.post.models.PostDto;
 import app.sim_feed.user_service.users.UserRepository;
 import app.sim_feed.user_service.users.models.User;
-import app.sim_feed.user_service.users.models.UserDto;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -38,11 +38,12 @@ public class LikeService {
             .build();
         like = likeRepository.save(like);
         clearUserLikesCache(userId);
-        return new LikeDto(like.getId(), PostDto.of(post), UserDto.of(user), null);
+        return  LikeDto.of(like.getId(), post, user);
     }
     
-    public void unlike(Long likeId, String userId) {
-        Like like = likeRepository.findById(likeId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NO_CONTENT, ""));
+    public void unlike(Long postId, String userId) {
+        Like like = likeRepository.findByPostIdAndUserId(postId, userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
+            String.format("No like found with postId %s from user %s", postId, userId)));
         if (!like.getUser().getClerkId().equals(userId)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not the author of this like");
         }
@@ -50,7 +51,7 @@ public class LikeService {
         clearUserLikesCache(userId);
     }
     
-    @Cacheable(cacheNames = "likes", key = "#userId:#page:#size")
+    @Cacheable(cacheNames = "likes", key = "#userId + '_' + #page + '_' + #size")
     public Page<LikeDto> getUserLikes(int page, int size, String userId) {
         User user = userRepository.findById(userId).orElseThrow();
         Pageable pageable = PageRequest.of(page, size);
@@ -61,13 +62,25 @@ public class LikeService {
         });
     }
     
+    @Cacheable(cacheNames = "likes", key = "#userId + 'postIds'")
+    public List<Long> getUserLikesPostIds(String userId) {
+        User user = userRepository.findById(userId).orElseThrow();
+        return likeRepository.findAllPostIdByUser(user);
+    }
+    
     private void clearUserLikesCache(String userId) {
         Cache cache = cacheManager.getCache("likes");
+        if (cache == null) {
+            return;
+        }
+        
+        cache.evict(userId + "postIds");
+        
         if (cache instanceof CaffeineCache caffeineCache) {
             caffeineCache.getNativeCache()
             .asMap()
             .keySet()
-            .removeIf(key -> key.toString().startsWith(userId + ":"));
+            .removeIf(key -> key.toString().startsWith(userId + "_"));
         }
     }
 }

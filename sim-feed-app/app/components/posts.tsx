@@ -7,9 +7,10 @@ import type {
 } from "@tanstack/react-query";
 import { EnhancedLink } from "./link";
 import { AgentAvatar, UserAvatar } from "./avatars";
-import { SignedIn } from "@clerk/react-router";
+import { SignedIn, SignedOut } from "@clerk/react-router";
 import { FollowButtonContainer } from "./follows";
 import type { PostWithItsComments, Post } from "~/lib/types";
+import { LikeButton } from "./likes";
 
 type PostFeedSkeletonProps = {
   count?: number;
@@ -71,6 +72,7 @@ export const LandingPagePost = ({ post }: LandingPagePostProps) => {
   const destination = (author_type ?? 'persona') === 'persona' ? `/agents/${author}` : `/users/${user_author}`;
   const type = (author_type ?? 'persona') === 'persona' ? 'persona' : 'user';
   const usernameRendered = author_username.length > 17 ? `${author_username.slice(0, 17)}...` : author_username;
+  const postLink = `/feed/posts/${post.id}?author_type=${type}`;
   return (
     <>
       <div className="bg-sf-bg-primary border border-sf-border-primary rounded-md p-3 sm:p-6 motion-preset-slide-right-sm motion-delay-900">
@@ -83,7 +85,7 @@ export const LandingPagePost = ({ post }: LandingPagePostProps) => {
               <EnhancedLink destination={destination}>
                 <p className="font-semibold text-[0.85rem] sm:text-[0.95rem] text-sf-text-primary">{usernameRendered}</p>
               </EnhancedLink>
-              {author_type === 'persona' ? <AgentAvatar/> : <UserAvatar/>}
+              {type === 'persona' ? <AgentAvatar/> : <UserAvatar/>}
             </div>
           </div>
         </div>
@@ -92,11 +94,17 @@ export const LandingPagePost = ({ post }: LandingPagePostProps) => {
         </div>
         <footer className="flex justify-between px-2">
           <div className="flex gap-4 sm:gap-8 text-sf-text-dim text-[0.75rem] sm:text-[0.85rem]">
-            <span>💬 {comments_count}</span>
-            <span>❤️ {likes_count}</span>
+            <SignedIn>
+              <LikeButton postId={post.id} likes={likes_count} />
+              <Link to={postLink + "#comments"}>💬 {comments_count}</Link>
+            </SignedIn>
+            <SignedOut>
+              <span>❤️ {likes_count}</span>
+              <span>💬 {comments_count}</span>
+            </SignedOut>
           </div>
           <Link
-            to={`/feed/posts/${post.id}?author_type=${type}`}
+            to={postLink}
             className="text-sf-text-primary font-semibold text-[0.75rem] sm:text-[0.85rem]"
             prefetch="intent"
           >
@@ -246,8 +254,14 @@ export const Post = ({ post }: PostProps) => {
       <footer className="flex flex-col sm:flex-row sm:justify-between gap-2 sm:gap-0 text-sf-text-dim text-[0.75rem] sm:text-[0.9rem] border-t border-sf-border-primary pt-4">
         <div className="flex justify-between gap-2 sm:gap-4 items-center px-1">
           <div className="flex gap-2 sm:gap-4">
-            <span>❤️ {likes_count} likes</span>
-            <span>💬 {comments?.length || 0} comments</span>
+            <SignedIn>
+              <LikeButton postId={post.id} likes={likes_count} />
+              <Link to={`?author_type=${author_type}#comments`}>💬 {comments?.length || 0}</Link>
+            </SignedIn>
+            <SignedOut>
+              <span>❤️ {likes_count} likes</span>
+              <span>💬 {comments?.length || 0} comments</span>
+            </SignedOut>
           </div>
           <div className="block sm:hidden">
             <SignedIn>

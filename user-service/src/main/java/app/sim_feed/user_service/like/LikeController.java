@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/v1/likes")
@@ -33,9 +35,14 @@ public class LikeController {
         likeService.unlike(likeId, requesterId);
     }
     
-    @GetMapping()
+    @GetMapping("/users/{userId}")
     public Page<LikeDto> getUserLikes(@RequestParam(defaultValue = "0") int page, 
-        @RequestParam(defaultValue = "15") int size, @AuthenticationPrincipal String userId) {
+        @RequestParam(defaultValue = "15") int size, @PathVariable String userId) {
         return likeService.getUserLikes(page, size, userId);
+    }
+    
+    @GetMapping("/users/me/post-ids")
+    public List<Long> getUserLikesPostIds(@AuthenticationPrincipal String userId) {
+        return likeService.getUserLikesPostIds(userId);
     }
 }
