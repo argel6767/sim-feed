@@ -62,6 +62,7 @@ export const Compose = () => {
   };
 
   if (!isLoaded || isLoading) return <PostFeedSkeleton count={1} />;
+  
 
   if (isError) {
     return (
@@ -123,6 +124,7 @@ export const Compose = () => {
         <button
           className="px-5 py-2.5 border border-sf-border-subtle rounded text-[0.85rem] font-semibold uppercase tracking-[0.5px] bg-transparent text-sf-text-tertiary transition-all duration-300 hover:border-sf-text-secondary hover:text-sf-text-primary cursor-pointer"
           onClick={clearFields}
+          disabled={canPost}
         >
           Cancel
         </button>

@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
+import java.net.URI;
 
 @RestController
 @RequestMapping("/api/v1/likes")
@@ -26,13 +28,15 @@ public class LikeController {
     private final LikeService likeService;
     
     @PostMapping()
-    public LikeDto like(@RequestBody NewLikeDto newLike, @AuthenticationPrincipal String requesterId) {
-        return likeService.like(newLike, requesterId);
+    public ResponseEntity<LikeDto> like(@RequestBody NewLikeDto newLike, @AuthenticationPrincipal String requesterId) {
+        LikeDto likeDto = likeService.like(newLike, requesterId);
+        return ResponseEntity.created(URI.create("/api/v1/likes/" + likeDto.likeId())).body(likeDto);
     }
     
     @DeleteMapping("/{likeId}")
-    public void unlike(@PathVariable Long likeId, @AuthenticationPrincipal String requesterId) {
+    public ResponseEntity<Void> unlike(@PathVariable Long likeId, @AuthenticationPrincipal String requesterId) {
         likeService.unlike(likeId, requesterId);
+        return ResponseEntity.noContent().build();
     }
     
     @GetMapping("/users/{userId}")

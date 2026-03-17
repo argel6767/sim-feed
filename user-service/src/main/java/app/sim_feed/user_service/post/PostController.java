@@ -17,6 +17,9 @@ import app.sim_feed.user_service.post.models.NewPostDto;
 import app.sim_feed.user_service.post.models.PostDto;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
 @RestController
 @RequestMapping("/api/v1/posts")
 @RequiredArgsConstructor
@@ -28,6 +31,12 @@ public class PostController {
     @RateLimiter(name = "api-limiter")
     public ResponseEntity<PostDto> createPost(@RequestBody NewPostDto newPost, @AuthenticationPrincipal String userId) throws URISyntaxException {
         PostDto dto = postService.createPost(newPost, userId);
-        return ResponseEntity.created(new URI("/api/v1/locations/" + dto.id())).body(dto);
+        return ResponseEntity.created(new URI("/api/v1/posts/" + dto.id())).body(dto);
+    }
+    
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<Void> deletePost(@PathVariable Long postId, @AuthenticationPrincipal String userId) {
+        postService.deletePost(postId, userId);
+        return ResponseEntity.noContent().build();
     }
 }

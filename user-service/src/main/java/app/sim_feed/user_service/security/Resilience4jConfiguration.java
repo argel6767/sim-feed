@@ -16,7 +16,7 @@ public class Resilience4jConfiguration {
     public RateLimiterRegistry rateLimiterRegistry() {
         return RateLimiterRegistry.of(RateLimiterConfig.custom()
             .limitRefreshPeriod(Duration.ofMinutes(1))
-            .limitForPeriod(100)
+            .limitForPeriod(200)
             .timeoutDuration(Duration.ofSeconds(5))
             .build()
         );

@@ -208,3 +208,7 @@ CREATE INDEX IF NOT EXISTS idx_agent_event_comment_comment_id ON agent_event_com
 
 -- agent_event_follow indexes
 CREATE INDEX IF NOT EXISTS idx_agent_event_follow_followed_id ON agent_event_follow(followed_id);
+
+-- pg_trgm
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE INDEX idx_users_username_trgm ON users USING GIN (username gin_trgm_ops);

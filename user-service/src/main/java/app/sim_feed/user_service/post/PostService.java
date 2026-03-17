@@ -49,7 +49,6 @@ public class PostService {
             .orElseThrow(() -> new ResponseStatusException(
                 HttpStatus.UNAUTHORIZED,
                 "User does not own this post or post not found"));
-        
         postRepository.delete(post);
     }
     

@@ -14,6 +14,7 @@ import lombok.extern.java.Log;
 import app.sim_feed.user_service.users.models.UserStatsDto;
 import app.sim_feed.user_service.users.models.UpdateBioDto;
 
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -72,6 +73,19 @@ public class UserService {
         User user = userRepository.findById(userId).orElseThrow();
         user.setBio(updateBioDto.newBio());
         return UserDto.of(userRepository.save(user));
+    }
+    
+    public List<UserDto> searchUsersByUsername(String query) {
+        if (query == null || query.isBlank() || query.length() < 3) {
+            return List.of();
+        }
+        
+        if (query.length() > 50) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username length is 50 characters max");
+        }
+        return userRepository.searchByUsername(query.trim()).stream()
+            .map(UserDto::of)
+            .toList();
     }
 
 }
