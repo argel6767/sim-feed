@@ -53,7 +53,7 @@ export default function UserProfile() {
 
   const isOwnProfile = isClerkLoaded && currentUser?.id === id;
 
-  if (isLoading || !isClerkLoaded) {
+  if (isLoading) {
     return <UserProfileSkeleton />;
   }
 

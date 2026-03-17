@@ -1,4 +1,3 @@
-import { useAuth } from "@clerk/react-router";
 import { useState } from "react";
 import { useStatus } from "~/hooks/useStatus";
 import { updateUserBio } from "~/api/user-api/users";
@@ -13,7 +12,6 @@ type UserBioProps = {
 };
 
 export const UserBio = ({ bio, isOwnProfile, id }: UserBioProps) => {
-  const { getToken } = useAuth();
   const { isLoading, isError, setLoading, setError, setIdle } = useStatus();
   const [isHovered, setIsHovered] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -29,11 +27,9 @@ export const UserBio = ({ bio, isOwnProfile, id }: UserBioProps) => {
     setLoading();
 
     try {
-      const token = await getToken();
-      if (!token) throw new globalThis.Error("No auth token available");
 
       const payload: UpdateUserBioDto = { newBio: newBio };
-      await updateUserBio(id, token, payload);
+      await updateUserBio(id, payload);
 
       queryClient.setQueryData(["user-info", id], (old: any) =>
         old ? { ...old, bio: newBio } : old,

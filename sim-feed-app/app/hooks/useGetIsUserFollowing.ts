@@ -5,18 +5,13 @@ import type { Optional } from "~/lib/types";
 export const useGetIsUserFollowing = (
   userId: Optional<string>,
   personaId: Optional<number>,
-  getToken: () => Promise<string | null>,
 ) => {
   return useQuery({
     queryKey: ["isFollowing", userId, personaId],
     queryFn: async () => {
-      const token = await getToken();
-      if (!token)
-        throw new Error(
-          "Token is required. This query should not be called without a token.",
-        );
-      return await isFollowing(userId, personaId, token);
+      return await isFollowing(userId, personaId);
     },
     refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 5,
   });
 };

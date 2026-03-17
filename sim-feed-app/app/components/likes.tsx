@@ -1,6 +1,5 @@
 import { createLike, deleteLike } from "~/api/user-api/likes";
 import { useLikeStore } from "~/stores/user-likes-post-id-stores";
-import { useAuth } from "@clerk/react-router";
 
 type LikeButtonProps = {
   postId: number;
@@ -8,7 +7,6 @@ type LikeButtonProps = {
 };
 
 export function LikeButton({ postId, likes }: LikeButtonProps) {
-  const { getToken, userId } = useAuth();
   const isHydrated = useLikeStore((state) => state.isHydrated);
   const isLiked = useLikeStore((state) => !!state.likedPostIds[postId]);
   const likeCountOffset = useLikeStore((state) => state.likeOffsets[postId] ?? 0);
@@ -21,8 +19,7 @@ export function LikeButton({ postId, likes }: LikeButtonProps) {
     toggleLike(postId);
     adjustOffset(postId, 1);
     try {
-      const token = await getToken();
-      await createLike({ postId }, token!);
+      await createLike({ postId });
     } catch {
       toggleLike(postId);
       adjustOffset(postId, -1);
@@ -33,15 +30,14 @@ export function LikeButton({ postId, likes }: LikeButtonProps) {
     toggleLike(postId);
     adjustOffset(postId, -1);
     try {
-      const token = await getToken();
-      await deleteLike(postId, token!);
+      await deleteLike(postId);
     } catch {
       toggleLike(postId);
       adjustOffset(postId, 1);
     }
   };
 
-  if (!isHydrated || !userId) {
+  if (!isHydrated) {
     return <span>❤️ {likeCount}</span>;
   }
 

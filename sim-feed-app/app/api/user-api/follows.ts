@@ -5,22 +5,16 @@ import type { NewFollowDto, FollowDto, FollowExistsDto } from "~/lib/user-api-dt
 const V1_FOLLOW = "/api/v1/follows";
 
 export const follow = async (
-  newFollow: NewFollowDto,
-  token: string,
+  newFollow: NewFollowDto
 ): Promise<FollowDto> => {
-  const response = await userApiClient.post(V1_FOLLOW, newFollow, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const response = await userApiClient.post(V1_FOLLOW, newFollow);
   return response.data;
 };
 
 export const unfollow = async (
   followId: number,
-  token: string,
 ): Promise<void> => {
-  await userApiClient.delete(`${V1_FOLLOW}/${followId}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  await userApiClient.delete(`${V1_FOLLOW}/${followId}`);
 };
 
 export const getFollows = async (
@@ -44,7 +38,6 @@ export const getFollowers = async (
 export const isFollowing = async (
   userId: Optional<string>,
   personaId: Optional<number>,
-  token: string,
 ): Promise<FollowExistsDto> => {
   const params: Record<string, string | number> = {};
   if (userId) params.userId = userId;
@@ -52,7 +45,6 @@ export const isFollowing = async (
 
   const response = await userApiClient.get(`${V1_FOLLOW}/is-following`, {
     params,
-    headers: { Authorization: `Bearer ${token}` },
   });
   return response.data;
 };

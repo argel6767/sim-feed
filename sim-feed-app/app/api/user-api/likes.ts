@@ -10,22 +10,16 @@ export const getUserLikes = async (page: number, size: number, userId: string): 
   return response.data;
 };
 
-export const getUserLikesPostIds = async (userId: string, token: string): Promise<number[]> => {
-  const response = await userApiClient.get<number[]>(`${V1_LIKES}/users/me/post-ids`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+export const getUserLikesPostIds = async (): Promise<number[]> => {
+  const response = await userApiClient.get<number[]>(`${V1_LIKES}/users/me/post-ids`);
   return response.data;
 };
 
-export const createLike = async (like: NewLikeDto, token: string): Promise<LikeDto> => {
-  const response = await userApiClient.post<LikeDto>(V1_LIKES, like, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+export const createLike = async (like: NewLikeDto): Promise<LikeDto> => {
+  const response = await userApiClient.post<LikeDto>(V1_LIKES, like);
   return response.data;
 };
 
-export const deleteLike = async (likeId: number, token: string): Promise<void> => {
-  await userApiClient.delete(`${V1_LIKES}/${likeId}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+export const deleteLike = async (likeId: number): Promise<void> => {
+  await userApiClient.delete(`${V1_LIKES}/${likeId}`);
 };

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { sleep } from "~/lib/sleep";
 import { unfollow, follow } from "~/api/user-api/follows";
-import { useAuth, useUser } from "@clerk/react-router";
+import { useUser } from "@clerk/react-router";
 import type { NewFollowDto } from "~/lib/user-api-dtos";
 import { useGetIsUserFollowing } from "~/hooks/useGetIsUserFollowing";
 import type { Optional } from "~/lib/types";
@@ -16,13 +16,12 @@ export const FollowButtonContainer = ({
   user_author,
   persona_author,
 }: FollowButtonContainerProps) => {
-  const { getToken } = useAuth();
   const { user } = useUser();
   const {
     data: isUserFollowing,
     isLoading: isUserFollowingLoading,
     isError: isUserFollowingError,
-  } = useGetIsUserFollowing(user_author, persona_author, getToken);
+  } = useGetIsUserFollowing(user_author, persona_author);
 
   const isAuthorTheUser = () => {
     if (user_author) {
@@ -44,7 +43,6 @@ export const FollowButtonContainer = ({
       {isUserFollowing.isFollowing ? (
         <Unfollow
           followId={isUserFollowing.followId}
-          getToken={getToken}
           userAuthor={user_author}
           personaAuthor={persona_author}
         />
@@ -52,7 +50,6 @@ export const FollowButtonContainer = ({
         <Follow
           userAuthor={user_author}
           personaAuthor={persona_author}
-          getToken={getToken}
         />
       )}
     </main>
@@ -62,10 +59,9 @@ export const FollowButtonContainer = ({
 type FollowProps = {
   userAuthor: Optional<string>;
   personaAuthor: Optional<number>;
-  getToken: () => Promise<string | null>;
 };
 
-const Follow = ({ userAuthor, personaAuthor, getToken }: FollowProps) => {
+const Follow = ({ userAuthor, personaAuthor }: FollowProps) => {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
 
@@ -79,9 +75,7 @@ const Follow = ({ userAuthor, personaAuthor, getToken }: FollowProps) => {
     setBusy(true);
     setError(false);
     try {
-      const token = await getToken();
-      if (!token) throw new Error("No auth token available");
-      const data = await follow(newFollow, token);
+      const data = await follow(newFollow);
       queryClient.setQueryData(queryKey, {
         isFollowing: true,
         followId: data.id,
@@ -100,14 +94,12 @@ const Follow = ({ userAuthor, personaAuthor, getToken }: FollowProps) => {
 
 type UnfollowProps = {
   followId: number;
-  getToken: () => Promise<string | null>;
   userAuthor: Optional<string>;
   personaAuthor: Optional<number>;
 };
 
 const Unfollow = ({
   followId,
-  getToken,
   userAuthor,
   personaAuthor,
 }: UnfollowProps) => {
@@ -119,9 +111,7 @@ const Unfollow = ({
     setBusy(true);
     setError(false);
     try {
-      const token = await getToken();
-      if (!token) throw new Error("No auth token available");
-      await unfollow(followId, token);
+      await unfollow(followId);
       queryClient.setQueryData(queryKey, {
         isFollowing: false,
         followId: null,

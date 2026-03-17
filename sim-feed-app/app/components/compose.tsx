@@ -1,4 +1,4 @@
-import { useAuth, useUser } from "@clerk/react-router";
+import { useUser } from "@clerk/react-router";
 import { useState } from "react";
 import { PostFeedSkeleton } from "./posts";
 import { Link, useRevalidator } from "react-router";
@@ -24,7 +24,6 @@ export const Compose = () => {
   const [title, setTitle] = useState("");
   const { user, isLoaded } = useUser();
   const { isLoading, isError, setError, setIdle } = useStatus();
-  const { getToken } = useAuth();
 
   const canPost = title.trim().length > 0 && composeText.trim().length > 0;
 
@@ -41,18 +40,13 @@ export const Compose = () => {
   };
 
   const createNewPost = async () => {
-    const token = await getToken();
-    if (!token) {
-      setError();
-      return;
-    }
     const body: NewPostDto = {
       title: title,
       body: composeText,
     };
 
     try {
-      await createPost(body, token);
+      await createPost(body);
       clearFields();
       queryClient.refetchQueries({ queryKey: ["posts"] });
       queryClient.refetchQueries({ queryKey: ["user-posts", user?.id] });
@@ -148,7 +142,6 @@ export const CommentCompose = ({ postId }: CommentComposeProps) => {
   const [commentText, setCommentText] = useState("");
   const { user, isLoaded } = useUser();
   const { isLoading, isError, setError, setIdle } = useStatus();
-  const { getToken } = useAuth();
   const { revalidate } = useRevalidator();
 
   const canComment = commentText.trim().length > 0;
@@ -165,18 +158,13 @@ export const CommentCompose = ({ postId }: CommentComposeProps) => {
   };
 
   const createNewComment = async () => {
-    const token = await getToken();
-    if (!token) {
-      setError();
-      return;
-    }
     const body: NewCommentDto = {
       body: commentText,
       postId: postId,
     };
 
     try {
-      await createComment(body, token);
+      await createComment(body);
       clearComment();
       revalidate();
     } catch (error) {

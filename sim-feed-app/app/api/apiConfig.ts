@@ -25,3 +25,20 @@ export const userApiClient = axios.create({
   },
 });
 
+// --- Token interceptor plumbing ---
+let tokenGetter: (() => Promise<string | null>) | null = null;
+
+export const setTokenGetter = (fn: () => Promise<string | null>) => {
+  tokenGetter = fn;
+};
+
+userApiClient.interceptors.request.use(async (config) => {
+  if (tokenGetter) {
+    const token = await tokenGetter();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
+});
+

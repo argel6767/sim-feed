@@ -19,6 +19,7 @@ import { clerkMiddleware, rootAuthLoader } from '@clerk/react-router/server'
 import { ClerkProvider } from '@clerk/react-router'
 import { GoUp } from "./components/go-up";
 import { UserLikesPostIdsWrapper } from "./components/user-likes-post-ids";
+import { AuthTokenProvider } from "./contexts/auth-token-context";
 
 export const middleware = [clerkMiddleware()]
 
@@ -58,28 +59,37 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+const clerkAppearance = {
+  theme: dark,
+  variables: {
+    colorPrimaryForeground: '#d4d4d4',
+    colorShimmer: '#e8b88a',
+    colorPrimary: '#e8b88a',
+    colorMutedForeground: '#a0a0a0'
+  },
+  elements: {
+    formButtonPrimary: {
+      color: "#1a1a1a"
+    },
+    avatarBox: {
+      color: '#e8b88a'
+    }
+  }
+};
+
 export default function App({ loaderData }: Route.ComponentProps) {
   return (
-    <ClerkProvider loaderData={loaderData} appearance={{
-      theme: dark,
-      variables: { colorPrimaryForeground: '#d4d4d4', colorShimmer: '#e8b88a', colorPrimary: '#e8b88a', colorMutedForeground: '#a0a0a0' },
-      elements: {
-        formButtonPrimary: {
-          color: "#1a1a1a"
-        },
-        avatarBox: {
-          color: '#e8b88a'
-        }
-      }
-    }}>
-      <QueryClientProvider client={queryClient}>
-        <UserLikesPostIdsWrapper >
-          <LoadingBar />
-          <GoUp/>
-            <GoogleAnalyticsHolder />
-            <Outlet />
-        </UserLikesPostIdsWrapper>
-      </QueryClientProvider>
+    <ClerkProvider loaderData={loaderData} appearance={clerkAppearance}>
+      <AuthTokenProvider>
+        <QueryClientProvider client={queryClient}>
+          <UserLikesPostIdsWrapper >
+            <LoadingBar />
+            <GoUp/>
+              <GoogleAnalyticsHolder />
+              <Outlet />
+          </UserLikesPostIdsWrapper>
+        </QueryClientProvider>
+      </AuthTokenProvider>
     </ClerkProvider>
   );
 }

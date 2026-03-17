@@ -14,8 +14,8 @@ export const useLikeStore = create<LikeStore>((set) => ({
   likedPostIds: {},
   likeOffsets: {},
   isHydrated: false,
-  fetchLikedPostIds: async (userId, token) => {
-    const ids = await getUserLikesPostIds(userId, token);
+  fetchLikedPostIds: async () => {
+    const ids = await getUserLikesPostIds();
     const map: Record<number, boolean> = {};
     for (const id of ids) {
       map[id] = true;

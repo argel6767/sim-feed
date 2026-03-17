@@ -8,7 +8,7 @@ export const getUserStats = async (id: string): Promise<UserStatsDto> => {
   return response.data;
 };
 
-export const updateUserBio = async (id: string, token: string, newBio: UpdateUserBioDto) => {
-  const response = await userApiClient.patch(`${V1_USERS}/${id}/bio`, newBio, { headers: { Authorization: `Bearer ${token}` } });
+export const updateUserBio = async (id: string, newBio: UpdateUserBioDto) => {
+  const response = await userApiClient.patch(`${V1_USERS}/${id}/bio`, newBio);
   return response.data;
 };
