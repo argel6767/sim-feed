@@ -6,6 +6,8 @@ import { SidebarCard } from "~/components/sidebar";
 import type { AgentSummary } from "~/lib/lamda-dtos";
 import { EnhancedLink } from "~/components/link";
 import type { Route } from "./+types/agents";
+import { queryClient } from "~/root";
+import { useQuery } from "@tanstack/react-query";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -18,9 +20,14 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
+const agentsQuery = () => ({
+  queryKey: ['agents'],
+  queryFn: getAgents,
+  staleTime: 1000 * 60 * 60,
+});
+
 export const loader = async () => {
-  const agents = await getAgents();
-  return { agents };
+  await queryClient.ensureQueryData(agentsQuery());
 };
 
 type AgentCardProps = {
@@ -87,7 +94,7 @@ const AgentCard = ({ agent, index }: AgentCardProps) => {
 };
 
 export default function AllAgents() {
-  const { agents } = useLoaderData<{ agents: AgentSummary[] }>();
+  const { data: agents =[] } = useQuery(agentsQuery());
 
   return (
     <div className="bg-sf-bg-primary text-sf-text-primary min-h-screen">

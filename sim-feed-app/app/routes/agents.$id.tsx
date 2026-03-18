@@ -1,4 +1,4 @@
-import { useLoaderData, Link } from "react-router";
+import { useLoaderData } from "react-router";
 import { getAgentById, getAgentFollowsRelations } from "~/api/endpoints";
 import { Footer } from "~/components/footer";
 import { Nav, MobileGoBackNav, MobileNav } from "~/components/nav";
@@ -10,10 +10,11 @@ import { useGetAgentPosts } from "~/hooks/useGetAgentPosts";
 import type { LoaderFunctionArgs } from "react-router";
 import { EnhancedLink, GoBackLink } from "~/components/link";
 import type { Agent } from "~/lib/types";
-
 import type { Route } from "./+types/feed";
 import { AgentAvatar } from "~/components/avatars";
 import { FollowButtonContainer } from "~/components/follows";
+import { useQuery } from "@tanstack/react-query";
+import { queryClient } from "~/root";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -26,16 +27,39 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
+// --- Query definitions ---
+
+const agentQuery = (id: number) => ({
+  queryKey: ["agent", id],
+  queryFn: () => getAgentById(id),
+  staleTime: 1000 * 60 * 5, // 5 minutes
+});
+
+const agentFollowersQuery = (id: number) => ({
+  queryKey: ["agent", id, "followers"],
+  queryFn: () => getAgentFollowsRelations(id, "followed"),
+  staleTime: 1000 * 60 * 5,
+});
+
+const agentFollowingQuery = (id: number) => ({
+  queryKey: ["agent", id, "following"],
+  queryFn: () => getAgentFollowsRelations(id, "follower"),
+  staleTime: 1000 * 60 * 5,
+});
+
+// --- Loader ---
+
 export const loader = async ({ params }: LoaderFunctionArgs) => {
-  const { id } = params;
-  const agent_id = Number(id);
-  const [agent, followers, following] = await Promise.all([
-    getAgentById(agent_id),
-    getAgentFollowsRelations(agent_id, "followed"),
-    getAgentFollowsRelations(agent_id, "follower"),
+  const agent_id = Number(params.id);
+  await Promise.all([
+    queryClient.ensureQueryData(agentQuery(agent_id)),
+    queryClient.ensureQueryData(agentFollowersQuery(agent_id)),
+    queryClient.ensureQueryData(agentFollowingQuery(agent_id)),
   ]);
-  return { agent, followers, following };
+  return { agent_id };
 };
+
+// --- Sub-components ---
 
 type FollowCardItemProps = {
   relation: PersonaRelation;
@@ -44,9 +68,7 @@ type FollowCardItemProps = {
 const FollowCardItem = ({ relation }: FollowCardItemProps) => {
   return (
     <div className="py-3 border-b border-sf-border-primary last:border-b-0">
-      <EnhancedLink
-        destination={`/agents/${relation.persona_id}`}
-      >
+      <EnhancedLink destination={`/agents/${relation.persona_id}`}>
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-linear-to-br from-sf-avatar-orange to-sf-avatar-orange-dark flex items-center justify-center font-semibold text-sf-bg-primary text-[0.7rem]">
             {relation.username.charAt(0).toUpperCase()}
@@ -60,12 +82,14 @@ const FollowCardItem = ({ relation }: FollowCardItemProps) => {
   );
 };
 
+// --- Page ---
+
 export default function AgentProfile() {
-  const { agent, followers, following } = useLoaderData<{
-    agent: Agent | null;
-    followers: PersonaRelation[];
-    following: PersonaRelation[];
-  }>();
+  const { agent_id } = useLoaderData<{ agent_id: number }>();
+
+  const { data: agent } = useQuery(agentQuery(agent_id));
+  const { data: followers = [] } = useQuery(agentFollowersQuery(agent_id));
+  const { data: following = [] } = useQuery(agentFollowingQuery(agent_id));
 
   if (!agent) {
     return (
@@ -85,7 +109,7 @@ export default function AgentProfile() {
             <p className="text-sf-text-muted text-sm sm:text-base">
               Failed to fetch information on queried agent. Try again later.
             </p>
-            <GoBackLink/>
+            <GoBackLink />
           </div>
         </div>
         <Footer />
