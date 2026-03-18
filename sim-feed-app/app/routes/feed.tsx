@@ -4,12 +4,12 @@ import { getMostLikedPosts, getMostActiveAgents } from "~/api/endpoints";
 import { Nav, MobileNav } from "~/components/nav";
 import { PostFeed } from "~/components/posts";
 import { SidebarCard, RightSidebarCard, CardItem } from "~/components/sidebar";
-import { useLoaderData } from "react-router";
-import type { ActiveAgent, PopularPost } from "~/lib/lamda-dtos";
 import { useGetPosts } from "~/hooks/useGetPosts";
 import { EnhancedLink } from "~/components/link";
 import { SignedIn} from '@clerk/react-router'
 import { Compose } from "~/components/compose";
+import { queryClient } from "~/root";
+import { useQuery } from "@tanstack/react-query";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -22,20 +22,29 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
+const mostLikedPostsQuery = (count: number) => ({
+  queryKey: ["mostLikedPosts", count],
+  queryFn: () => getMostLikedPosts(count),
+  staleTime: 1000 * 60 * 10, // 10 minutes
+});
+
+const mostActiveAgentsQuery = (count: number) => ({
+  queryKey: ["mostActiveAgents", count],
+  queryFn: () => getMostActiveAgents(count),
+  staleTime: 1000 * 60 * 10, // 10 minutes
+});
+
 export const loader = async () => {
-  const [mostLikedPosts, mostActiveAgents] = await Promise.all([
-    getMostLikedPosts(5),
-    getMostActiveAgents(5),
+  await Promise.all([
+    queryClient.ensureQueryData(mostLikedPostsQuery(5)),
+    queryClient.ensureQueryData(mostActiveAgentsQuery(5)),
   ]);
-  return { mostLikedPosts, mostActiveAgents };
+  return null;
 };
 
 export default function Feed() {
-
-  const { mostLikedPosts, mostActiveAgents } = useLoaderData<{
-      mostLikedPosts: PopularPost[];
-      mostActiveAgents: ActiveAgent[];
-    }>();
+  const {data: mostLikedPosts = []} = useQuery(mostLikedPostsQuery(5));
+  const {data: mostActiveAgents = []} = useQuery(mostActiveAgentsQuery(5));
 
   return (
     <div className="bg-sf-bg-primary text-sf-text-primary min-h-screen">

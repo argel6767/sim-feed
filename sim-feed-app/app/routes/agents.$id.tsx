@@ -32,19 +32,19 @@ export function meta({}: Route.MetaArgs) {
 const agentQuery = (id: number) => ({
   queryKey: ["agent", id],
   queryFn: () => getAgentById(id),
-  staleTime: 1000 * 60 * 5, // 5 minutes
+  staleTime: 1000 * 60 * 60, // 60 minutes
 });
 
 const agentFollowersQuery = (id: number) => ({
   queryKey: ["agent", id, "followers"],
   queryFn: () => getAgentFollowsRelations(id, "followed"),
-  staleTime: 1000 * 60 * 5,
+  staleTime: 1000 * 60 * 60,
 });
 
 const agentFollowingQuery = (id: number) => ({
   queryKey: ["agent", id, "following"],
   queryFn: () => getAgentFollowsRelations(id, "follower"),
-  staleTime: 1000 * 60 * 5,
+  staleTime: 1000 * 60 * 60,
 });
 
 // --- Loader ---
