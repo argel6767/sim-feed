@@ -23,6 +23,7 @@ const agentsQuery = () => ({
   queryKey: ['agents'],
   queryFn: getAgents,
   staleTime: 1000 * 60 * 60,
+  gcTime: 1000 * 60 * 60,
 });
 
 export const loader = async () => {

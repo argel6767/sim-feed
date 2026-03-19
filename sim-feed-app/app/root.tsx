@@ -77,7 +77,13 @@ const clerkAppearance = {
 };
 
 export default function App({ loaderData }: Route.ComponentProps) {
-  const [queryClient] = useState(new QueryClient());
+  const [queryClient] = useState(new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 1000 * 60 * 10,
+      },
+    },
+  }));
   return (
     <ClerkProvider loaderData={loaderData} appearance={clerkAppearance}>
       <AuthTokenProvider>
