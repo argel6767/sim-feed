@@ -5,7 +5,7 @@ import { useUser } from "@clerk/react-router";
 import type { NewFollowDto } from "~/lib/user-api-dtos";
 import { useGetIsUserFollowing } from "~/hooks/useGetIsUserFollowing";
 import type { Optional } from "~/lib/types";
-import { queryClient } from "~/root";
+import { QueryClient, useQueryClient } from "@tanstack/react-query";
 
 type FollowButtonContainerProps = {
   user_author: Optional<string>;
@@ -22,6 +22,7 @@ export const FollowButtonContainer = ({
     isLoading: isUserFollowingLoading,
     isError: isUserFollowingError,
   } = useGetIsUserFollowing(user_author, persona_author);
+  const queryClient = useQueryClient();
 
   const isAuthorTheUser = () => {
     if (user_author) {
@@ -45,11 +46,13 @@ export const FollowButtonContainer = ({
           followId={isUserFollowing.followId}
           userAuthor={user_author}
           personaAuthor={persona_author}
+          queryClient={queryClient}
         />
       ) : (
         <Follow
           userAuthor={user_author}
           personaAuthor={persona_author}
+          queryClient={queryClient}
         />
       )}
     </main>
@@ -59,9 +62,10 @@ export const FollowButtonContainer = ({
 type FollowProps = {
   userAuthor: Optional<string>;
   personaAuthor: Optional<number>;
+  queryClient: QueryClient
 };
 
-const Follow = ({ userAuthor, personaAuthor }: FollowProps) => {
+const Follow = ({ userAuthor, personaAuthor, queryClient }: FollowProps) => {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
 
@@ -96,12 +100,14 @@ type UnfollowProps = {
   followId: number;
   userAuthor: Optional<string>;
   personaAuthor: Optional<number>;
+  queryClient: QueryClient;
 };
 
 const Unfollow = ({
   followId,
   userAuthor,
   personaAuthor,
+  queryClient,
 }: UnfollowProps) => {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);

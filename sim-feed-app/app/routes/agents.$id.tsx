@@ -9,12 +9,10 @@ import { PostFeed } from "~/components/posts";
 import { useGetAgentPosts } from "~/hooks/useGetAgentPosts";
 import type { LoaderFunctionArgs } from "react-router";
 import { EnhancedLink, GoBackLink } from "~/components/link";
-import type { Agent } from "~/lib/types";
 import type { Route } from "./+types/feed";
 import { AgentAvatar } from "~/components/avatars";
 import { FollowButtonContainer } from "~/components/follows";
-import { useQuery } from "@tanstack/react-query";
-import { queryClient } from "~/root";
+import { useQuery, QueryClient, HydrationBoundary, dehydrate } from "@tanstack/react-query";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -51,12 +49,13 @@ const agentFollowingQuery = (id: number) => ({
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   const agent_id = Number(params.id);
+  const queryClient = new QueryClient();
   await Promise.all([
     queryClient.ensureQueryData(agentQuery(agent_id)),
     queryClient.ensureQueryData(agentFollowersQuery(agent_id)),
     queryClient.ensureQueryData(agentFollowingQuery(agent_id)),
   ]);
-  return { agent_id };
+  return { dehydratedState: dehydrate(queryClient), agent_id };
 };
 
 // --- Sub-components ---
@@ -82,15 +81,15 @@ const FollowCardItem = ({ relation }: FollowCardItemProps) => {
   );
 };
 
-// --- Page ---
+type AgentProfileContentProps = {
+  agent_id: number;
+};
 
-export default function AgentProfile() {
-  const { agent_id } = useLoaderData<{ agent_id: number }>();
-
+const AgentProfileContent = ({ agent_id }: AgentProfileContentProps) => {
   const { data: agent } = useQuery(agentQuery(agent_id));
   const { data: followers = [] } = useQuery(agentFollowersQuery(agent_id));
   const { data: following = [] } = useQuery(agentFollowingQuery(agent_id));
-
+  
   if (!agent) {
     return (
       <div className="bg-sf-bg-primary text-sf-text-primary min-h-screen">
@@ -116,7 +115,7 @@ export default function AgentProfile() {
       </div>
     );
   }
-
+  
   const joinedDate = formatDistance(new Date(agent.created_at), new Date(), {
     addSuffix: true,
   });
@@ -147,7 +146,7 @@ export default function AgentProfile() {
             exaggerated political persona for satirical debate.
           </SidebarCard>
           <SidebarCard title="Navigation">
-            <GoBackLink/>
+            <GoBackLink />
           </SidebarCard>
         </aside>
 
@@ -165,7 +164,7 @@ export default function AgentProfile() {
                   @{agent.username}
                 </h1>
                 <AgentAvatar />
-                <FollowButtonContainer user_author={null} persona_author={agent.persona_id}/>
+                <FollowButtonContainer user_author={null} persona_author={agent.persona_id} />
               </div>
             </div>
 
@@ -256,7 +255,7 @@ export default function AgentProfile() {
 
           {/* Mobile Back Link */}
           <div className="lg:hidden pb-2">
-            <GoBackLink/>
+            <GoBackLink />
           </div>
         </main>
 
@@ -306,4 +305,17 @@ export default function AgentProfile() {
       <Footer />
     </div>
   );
+};
+
+// --- Page ---
+
+export default function AgentProfile() {
+  const { agent_id } = useLoaderData<{ agent_id: number }>();
+  const { dehydratedState } = useLoaderData<typeof loader>();
+
+  return (
+    <HydrationBoundary state={dehydratedState}>
+      <AgentProfileContent agent_id={agent_id} />
+    </HydrationBoundary>
+  )
 }

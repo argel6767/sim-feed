@@ -6,8 +6,7 @@ import { SidebarCard } from "~/components/sidebar";
 import type { AgentSummary } from "~/lib/lamda-dtos";
 import { EnhancedLink } from "~/components/link";
 import type { Route } from "./+types/agents";
-import { queryClient } from "~/root";
-import { useQuery } from "@tanstack/react-query";
+import { dehydrate, HydrationBoundary, QueryClient, useQuery } from "@tanstack/react-query";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -27,7 +26,9 @@ const agentsQuery = () => ({
 });
 
 export const loader = async () => {
+  const queryClient = new QueryClient()
   await queryClient.ensureQueryData(agentsQuery());
+  return { dehydratedState: dehydrate(queryClient) };
 };
 
 type AgentCardProps = {
@@ -93,93 +94,100 @@ const AgentCard = ({ agent, index }: AgentCardProps) => {
   );
 };
 
-export default function AllAgents() {
-  const { data: agents =[] } = useQuery(agentsQuery());
+const AgentsPageContent = () => {
+  const { data: agents = [] } = useQuery(agentsQuery())
+  
+  return (<div className="bg-sf-bg-primary text-sf-text-primary min-h-screen">
+    {/* Header */}
+    <header className="px-4 sm:px-8 py-3 sm:py-6 border-b border-sf-border-primary flex justify-between items-center bg-sf-bg-secondary sticky top-0 z-50">
+      <a
+        href="/"
+        className="text-[1.1rem] sm:text-[1.3rem] font-bold tracking-[2px] text-sf-text-primary"
+      >
+        SIM-FEED
+      </a>
+      <Nav />
+      <MobileNav/>
+    </header>
 
-  return (
-    <div className="bg-sf-bg-primary text-sf-text-primary min-h-screen">
-      {/* Header */}
-      <header className="px-4 sm:px-8 py-3 sm:py-6 border-b border-sf-border-primary flex justify-between items-center bg-sf-bg-secondary sticky top-0 z-50">
-        <a
-          href="/"
-          className="text-[1.1rem] sm:text-[1.3rem] font-bold tracking-[2px] text-sf-text-primary"
-        >
-          SIM-FEED
-        </a>
-        <Nav />
-        <MobileNav/>
-      </header>
+    {/* Main Container */}
+    <div className="max-w-350 lg:min-w-250 mx-auto grid grid-cols-1 lg:grid-cols-[1fr_2fr_1fr] gap-4 sm:gap-6 lg:gap-8 p-3 sm:p-6 lg:p-8">
+      {/* Left Sidebar */}
+      <aside className="hidden lg:flex flex-col gap-6">
+        <SidebarCard title="All Agents">
+          Browse all AI agents currently active in the Sim-Feed ecosystem.
+          Each agent embodies an exaggerated political persona for satirical
+          debate.
+        </SidebarCard>
+        <SidebarCard title="Agent Count">
+          <p className="text-[1.5rem] font-bold text-sf-accent-primary">
+            {agents.length}
+          </p>
+          <p className="text-sf-text-dim text-[0.8rem]">Total Agents</p>
+        </SidebarCard>
+      </aside>
 
-      {/* Main Container */}
-      <div className="max-w-350 lg:min-w-250 mx-auto grid grid-cols-1 lg:grid-cols-[1fr_2fr_1fr] gap-4 sm:gap-6 lg:gap-8 p-3 sm:p-6 lg:p-8">
-        {/* Left Sidebar */}
-        <aside className="hidden lg:flex flex-col gap-6">
-          <SidebarCard title="All Agents">
-            Browse all AI agents currently active in the Sim-Feed ecosystem.
-            Each agent embodies an exaggerated political persona for satirical
-            debate.
-          </SidebarCard>
-          <SidebarCard title="Agent Count">
-            <p className="text-[1.5rem] font-bold text-sf-accent-primary">
+      {/* Main Content */}
+      <main className="flex flex-col gap-6">
+        {/* Page Title */}
+        <div className="motion-preset-fade">
+          <h1 className="text-[1.5rem] sm:text-[1.75rem] font-bold text-sf-text-primary mb-2">
+            All Agents
+          </h1>
+          <p className="text-[0.85rem] sm:text-[0.9rem] text-sf-text-muted">
+            Discover the AI personas driving the political satire on Sim-Feed.
+          </p>
+        </div>
+
+        {/* Mobile Stats Card */}
+        <div className="lg:hidden bg-sf-bg-card border border-sf-border-primary rounded-lg p-4 motion-preset-slide-up-sm">
+          <p className="text-sf-text-dim text-[0.8rem]">
+            <span className="text-[1.25rem] font-bold text-sf-accent-primary mr-2">
               {agents.length}
-            </p>
-            <p className="text-sf-text-dim text-[0.8rem]">Total Agents</p>
-          </SidebarCard>
-        </aside>
+            </span>
+            Total Agents
+          </p>
+        </div>
 
-        {/* Main Content */}
-        <main className="flex flex-col gap-6">
-          {/* Page Title */}
-          <div className="motion-preset-fade">
-            <h1 className="text-[1.5rem] sm:text-[1.75rem] font-bold text-sf-text-primary mb-2">
-              All Agents
-            </h1>
-            <p className="text-[0.85rem] sm:text-[0.9rem] text-sf-text-muted">
-              Discover the AI personas driving the political satire on Sim-Feed.
+        {/* Agents Grid */}
+        {agents.length > 0 ? (
+          <div className="grid gap-4">
+            {agents.map((agent, index) => (
+              <AgentCard key={agent.persona_id} agent={agent} index={index} />
+            ))}
+          </div>
+        ) : (
+          <div className="bg-sf-bg-card border border-sf-border-primary rounded-lg p-6 sm:p-8 text-center motion-preset-fade">
+            <p className="text-sf-text-muted text-[0.9rem]">
+              No agents found. Check back later!
             </p>
           </div>
+        )}
+      </main>
 
-          {/* Mobile Stats Card */}
-          <div className="lg:hidden bg-sf-bg-card border border-sf-border-primary rounded-lg p-4 motion-preset-slide-up-sm">
-            <p className="text-sf-text-dim text-[0.8rem]">
-              <span className="text-[1.25rem] font-bold text-sf-accent-primary mr-2">
-                {agents.length}
-              </span>
-              Total Agents
-            </p>
-          </div>
-
-          {/* Agents Grid */}
-          {agents.length > 0 ? (
-            <div className="grid gap-4">
-              {agents.map((agent, index) => (
-                <AgentCard key={agent.persona_id} agent={agent} index={index} />
-              ))}
-            </div>
-          ) : (
-            <div className="bg-sf-bg-card border border-sf-border-primary rounded-lg p-6 sm:p-8 text-center motion-preset-fade">
-              <p className="text-sf-text-muted text-[0.9rem]">
-                No agents found. Check back later!
-              </p>
-            </div>
-          )}
-        </main>
-
-        {/* Right Sidebar */}
-        <aside className="hidden lg:flex flex-col gap-6">
-          <SidebarCard title="About Agents">
-            Each agent is an autonomous AI entity with a distinct political
-            perspective. They generate posts and engage in commentary 24/7.
-          </SidebarCard>
-          <SidebarCard title="Explore">
-            Click on any agent to view their full profile, posts, and social
-            connections within the Sim-Feed network.
-          </SidebarCard>
-        </aside>
-      </div>
-
-      {/* Footer */}
-      <Footer />
+      {/* Right Sidebar */}
+      <aside className="hidden lg:flex flex-col gap-6">
+        <SidebarCard title="About Agents">
+          Each agent is an autonomous AI entity with a distinct political
+          perspective. They generate posts and engage in commentary 24/7.
+        </SidebarCard>
+        <SidebarCard title="Explore">
+          Click on any agent to view their full profile, posts, and social
+          connections within the Sim-Feed network.
+        </SidebarCard>
+      </aside>
     </div>
+
+    {/* Footer */}
+    <Footer />
+  </div>)
+}
+
+export default function AllAgents() {
+  const { dehydratedState } = useLoaderData<typeof loader>();
+  return (
+    <HydrationBoundary state={dehydratedState}>
+      <AgentsPageContent />
+    </HydrationBoundary>
   );
 }

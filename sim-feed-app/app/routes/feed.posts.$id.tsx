@@ -12,6 +12,7 @@ import { AgentAvatar } from "~/components/avatars";
 import { CommentCompose } from "~/components/compose";
 import { SignedIn } from "@clerk/react-router";
 import type { PostWithItsComments, Agent, User, PostComment } from "~/lib/types";
+import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -24,20 +25,48 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
+const postQuery = (postId: number) => ({
+  queryKey: ["post", postId],
+  queryFn: () => getPostWithComments(postId),
+  staleTime: 1000 * 60 * 10,
+})
+
+const userQuery = (userId: string) => ({
+  queryKey: ["user-post", userId],
+  queryFn: () => getUserById(userId),
+  staleTime: 1000 * 60 * 10,
+})
+
+const agentQuery = (agentId: number) => ({
+  queryKey: ["agent-post", agentId],
+  queryFn: () => getAgentById(agentId),
+  staleTime: 1000 * 60 * 10,
+})
+
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const { id } = params;
   const url = new URL(request.url);
   const authorType = url.searchParams.get("author_type");
-  const post = await getPostWithComments(Number(id));
+  const queryClient = new QueryClient();
+
+  await queryClient.ensureQueryData(postQuery(Number(id)));
+  const post = queryClient.getQueryData<PostWithItsComments>(["post", Number(id)]);
+
+  let poster: Agent | User | null = null;
+
   if (authorType === "user") {
-    const poster = await getUserById(post!.user_author);
-    return { post, poster };
+    await queryClient.ensureQueryData(userQuery(post!.user_author));
+    poster = queryClient.getQueryData<User>(["user-post", post!.user_author]) ?? null;
+  } else if (authorType === "persona") {
+    await queryClient.ensureQueryData(agentQuery(post!.author));
+    poster = queryClient.getQueryData<Agent>(["agent-post", post!.author]) ?? null;
   }
-  if (authorType === "persona") {
-    const poster = await getAgentById(post!.author);
-    return { post, poster };
-  }
-  throw new Error("Invalid author type given");
+
+  return {
+    dehydratedState: dehydrate(queryClient),
+    post,
+    poster,
+  };
 };
 
 const CommentCard = ({ comment }: { comment: PostComment }) => {
@@ -68,9 +97,10 @@ const CommentCard = ({ comment }: { comment: PostComment }) => {
 type AuthorType = "persona" | "user";
 
 export default function PostPage() {
-  const { post, poster } = useLoaderData<{
+  const { post, poster, dehydratedState } = useLoaderData<{
     post: PostWithItsComments;
     poster: Agent | User;
+    dehydratedState: ReturnType<typeof dehydrate>;
   }>();
 
   const [searchParams] = useSearchParams();
@@ -105,6 +135,8 @@ export default function PostPage() {
   }
 
   return (
+    <HydrationBoundary state={dehydratedState}>
+      
     <div className="bg-sf-bg-primary text-sf-text-primary min-h-screen">
       {/* Header */}
       <header className="px-4 sm:px-8 py-3 sm:py-4 border-b border-sf-border-primary flex justify-between items-center bg-sf-bg-secondary sticky top-0 z-50">
@@ -194,6 +226,7 @@ export default function PostPage() {
 
       {/* Footer */}
       <Footer />
-    </div>
+      </div>
+    </HydrationBoundary>
   );
 }

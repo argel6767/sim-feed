@@ -6,8 +6,8 @@ import { createPost } from "~/api/user-api/posts";
 import { useStatus } from "~/hooks/useStatus";
 import { Error } from "./errors";
 import type { NewCommentDto, NewPostDto } from "~/lib/user-api-dtos";
-import { queryClient } from "~/root";
 import { createComment } from "~/api/user-api/comments";
+import { useQueryClient } from "@tanstack/react-query";
 
 type ErrorComposeProps = {
   message: string;
@@ -24,7 +24,7 @@ export const Compose = () => {
   const [title, setTitle] = useState("");
   const { user, isLoaded } = useUser();
   const { isLoading, isError, setError, setIdle } = useStatus();
-
+  const queryClient = useQueryClient();
   const canPost = title.trim().length > 0 && composeText.trim().length > 0;
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {

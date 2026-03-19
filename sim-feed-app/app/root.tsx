@@ -20,6 +20,7 @@ import { ClerkProvider } from '@clerk/react-router'
 import { GoUp } from "./components/go-up";
 import { UserLikesPostIdsWrapper } from "./components/user-likes-post-ids";
 import { AuthTokenProvider } from "./contexts/auth-token-context";
+import { useState } from "react";
 
 export const middleware = [clerkMiddleware()]
 
@@ -37,8 +38,6 @@ export const links: Route.LinksFunction = () => [
     href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
   },
 ];
-
-export const queryClient = new QueryClient();
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -78,6 +77,7 @@ const clerkAppearance = {
 };
 
 export default function App({ loaderData }: Route.ComponentProps) {
+  const [queryClient] = useState(new QueryClient());
   return (
     <ClerkProvider loaderData={loaderData} appearance={clerkAppearance}>
       <AuthTokenProvider>

@@ -8,8 +8,9 @@ import { useGetPosts } from "~/hooks/useGetPosts";
 import { EnhancedLink } from "~/components/link";
 import { SignedIn} from '@clerk/react-router'
 import { Compose } from "~/components/compose";
-import { queryClient } from "~/root";
-import { useQuery } from "@tanstack/react-query";
+import { HydrationBoundary, QueryClient, useQuery } from "@tanstack/react-query";
+import { dehydrate } from "@tanstack/react-query";
+import { useLoaderData } from "react-router";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -35,30 +36,53 @@ const mostActiveAgentsQuery = (count: number) => ({
 });
 
 export const loader = async () => {
+  const queryClient = new QueryClient();
   await Promise.all([
     queryClient.ensureQueryData(mostLikedPostsQuery(5)),
     queryClient.ensureQueryData(mostActiveAgentsQuery(5)),
   ]);
-  return null;
+  return { dehydratedState: dehydrate(queryClient) };
+};
+
+const MostActiveAgentsAndMostLikedPosts = () => {
+  const {data: mostLikedPosts = []} = useQuery(mostLikedPostsQuery(5));
+  const { data: mostActiveAgents = [] } = useQuery(mostActiveAgentsQuery(5));
+  
+  return (
+    <main className="hidden lg:flex flex-col gap-6">
+      <RightSidebarCard title="Most Active Agents">
+        {mostActiveAgents.map((agent) => (
+          <CardItem key={agent.persona_id} id={agent.persona_id} label={`@${agent.username}`} count={agent.post_count} cardType="agent" authorType="agent"/>
+        ))}
+        <EnhancedLink destination="/agents" message="View All Agents" />
+      </RightSidebarCard>
+
+      <RightSidebarCard title="Most Liked Posts">
+        {mostLikedPosts.map((post) => (
+          <CardItem key={post.id} id={post.id} label={`#${post.title}`} count={post.like_count} cardType="post" authorType={post.author_type}/>
+        ))}
+      </RightSidebarCard>
+    </main>
+  )
 };
 
 export default function Feed() {
-  const {data: mostLikedPosts = []} = useQuery(mostLikedPostsQuery(5));
-  const {data: mostActiveAgents = []} = useQuery(mostActiveAgentsQuery(5));
+  const { dehydratedState } = useLoaderData<typeof loader>();
 
   return (
-    <div className="bg-sf-bg-primary text-sf-text-primary min-h-screen">
-      {/* Header */}
-      <header className="px-8 py-3 sm:py-6 border-b border-sf-border-primary flex justify-between items-center bg-sf-bg-secondary sticky top-0 z-50">
-        <a
-          href="/"
-          className="text-[1.3rem] font-bold tracking-[2px] text-sf-text-primary"
-        >
-          SIM-FEED
-        </a>
-        <Nav />
-        <MobileNav/>
-      </header>
+    <HydrationBoundary state={dehydratedState}>
+      <div className="bg-sf-bg-primary text-sf-text-primary min-h-screen">
+        {/* Header */}
+        <header className="px-8 py-3 sm:py-6 border-b border-sf-border-primary flex justify-between items-center bg-sf-bg-secondary sticky top-0 z-50">
+          <a
+            href="/"
+            className="text-[1.3rem] font-bold tracking-[2px] text-sf-text-primary"
+          >
+            SIM-FEED
+          </a>
+          <Nav />
+          <MobileNav/>
+        </header>
 
       {/* Main Container */}
       <div className="max-w-300 mx-auto grid grid-cols-1 lg:grid-cols-[1fr_2fr_1fr] gap-8 p-8">
@@ -82,24 +106,14 @@ export default function Feed() {
           <PostFeed queryHook={useGetPosts}/>
         </span>
         {/* Right Sidebar */}
-        <aside className="hidden lg:flex flex-col gap-6">
-          <RightSidebarCard title="Most Active Agents">
-            {mostActiveAgents.map((agent) => (
-              <CardItem key={agent.persona_id} id={agent.persona_id} label={`@${agent.username}`} count={agent.post_count} cardType="agent" authorType="agent"/>
-            ))}
-            <EnhancedLink destination="/agents" message="View All Agents" />
-          </RightSidebarCard>
-
-          <RightSidebarCard title="Most Liked Posts">
-            {mostLikedPosts.map((post) => (
-              <CardItem key={post.id} id={post.id} label={`#${post.title}`} count={post.like_count} cardType="post" authorType={post.author_type}/>
-            ))}
-          </RightSidebarCard>
+        <aside>
+          <MostActiveAgentsAndMostLikedPosts/>
         </aside>
       </div>
 
       {/* Footer */}
       <Footer />
-    </div>
+      </div>
+    </HydrationBoundary>
   );
 }
