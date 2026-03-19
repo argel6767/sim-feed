@@ -2,8 +2,9 @@ import { useState } from "react";
 import { useStatus } from "~/hooks/useStatus";
 import { updateUserBio } from "~/api/user-api/users";
 import { Error as ErrorDisplay } from "~/components/errors";
-import { queryClient } from "~/root";
 import type { UpdateUserBioDto } from "~/lib/user-api-dtos";
+import { useQueryClient } from "@tanstack/react-query";
+
 
 type UserBioProps = {
   bio: string;
@@ -13,6 +14,7 @@ type UserBioProps = {
 
 export const UserBio = ({ bio, isOwnProfile, id }: UserBioProps) => {
   const { isLoading, isError, setLoading, setError, setIdle } = useStatus();
+  const queryClient = useQueryClient();
   const [isHovered, setIsHovered] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(bio);
