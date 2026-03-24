@@ -1,19 +1,24 @@
-package app.sim_feed.user_service.chats;
+package app.sim_feed.user_service.chats.models;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
+import app.sim_feed.user_service.messages.Message;
 import jakarta.persistence.Column;
 import jakarta.persistence.CascadeType;
 
@@ -27,6 +32,7 @@ import jakarta.persistence.CascadeType;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Chat {
     
     @Id
@@ -39,8 +45,11 @@ public class Chat {
     @Column(name = "creator_id", nullable = false)
     private String creatorId;
     
-    @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ChatMember> members;
+    
+    @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Message> messages;
     
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -48,4 +57,14 @@ public class Chat {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
     
+    @PrePersist
+    void onPrePersist() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+    
+    @PreUpdate
+    void onPreUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

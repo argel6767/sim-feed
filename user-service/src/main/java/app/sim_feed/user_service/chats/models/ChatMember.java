@@ -1,4 +1,4 @@
-package app.sim_feed.user_service.chats;
+package app.sim_feed.user_service.chats.models;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -48,7 +48,7 @@ public class ChatMember {
     private Chat chat;
     
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = true)
     private User user;
     
     @ManyToOne
