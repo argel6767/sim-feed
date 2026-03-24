@@ -67,7 +67,9 @@ export const Nav = () => {
       >
         Agents
       </Link>
-      <UserSearch />
+      <SignedIn>
+        <UserSearch />
+      </SignedIn>
       <Link
         to="https://github.com/argel6767/sim-feed#readme"
         className="flex gap-2 items-center text-sf-text-tertiary text-[0.85rem] tracking-[0.5px] uppercase transition-colors duration-300 hover:text-sf-accent-primary motion-preset-fade-sm"
@@ -199,11 +201,13 @@ export const MobileNav = () => {
                   Agents
                 </Link>
                 
-                <span
-                  className="px-4 py-3 rounded-lg text-[0.95rem] font-medium tracking-[0.5px] uppercase transition-all duration-200 text-sf-text-secondary hover:bg-sf-bg-card-hover hover:text-sf-accent-primary"
-                >
-                  <UserSearch />
-                </span>
+                <SignedIn>
+                  <span
+                    className="px-4 py-3 rounded-lg text-[0.95rem] font-medium tracking-[0.5px] uppercase transition-all duration-200 text-sf-text-secondary hover:bg-sf-bg-card-hover hover:text-sf-accent-primary"
+                  >
+                    <UserSearch />
+                  </span>
+                </SignedIn>
   
                 <div className="my-4 h-px bg-sf-border-primary" />
   
