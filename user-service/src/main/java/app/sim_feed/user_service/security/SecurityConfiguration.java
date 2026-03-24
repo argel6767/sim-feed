@@ -18,7 +18,7 @@ import lombok.Setter;
 @RequiredArgsConstructor
 @Setter
 public class SecurityConfiguration {
-    
+
     private final AuthenticationFilter filter;
     private final CorsConfigurationSource corsConfigurationSource;
 
@@ -30,6 +30,7 @@ public class SecurityConfiguration {
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/", "/actuator/**").permitAll()
+            .requestMatchers("/ws/**").permitAll()
             .requestMatchers(
                 "/api/v1/follows/users/**",
                 "/api/v1/users/*/stats"
@@ -49,7 +50,7 @@ public class SecurityConfiguration {
             })
         )
         .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
-        
+
         return http.build();
     }
 }
