@@ -11,6 +11,7 @@ import app.sim_feed.user_service.chats.models.ChatsDto;
 import app.sim_feed.user_service.users.UserRepository;
 import lombok.RequiredArgsConstructor;
 import app.sim_feed.user_service.users.models.User;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ public class ChatService {
     private final UserRepository userRepository;
     private final ChatMemberRepository chatMemberRepository;
     
+    @Transactional
     public ChatDto createChat(String chatName, List<String> memberIds, String creatorId) {
         if (chatName == null) {
             chatName = "New Chat by " + creatorId;
@@ -55,12 +57,13 @@ public class ChatService {
             .members(chatMembers)
             .creatorId(creatorId)
             .build();
-        
-        chat = chatRepository.save(chat);
-        
-        return ChatDto.of(chat);
+            
+        chatMembers.forEach(chatMember -> chatMember.setChat(chat));
+                
+        return ChatDto.of(chatRepository.save(chat));
     }
     
+    @Transactional(readOnly = true)
     public ChatsDto getUserChats(String userId) {
         Map<Boolean, List<Chat>> chatsByCreator = chatRepository.findAllByUserId(userId)
             .stream()

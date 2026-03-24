@@ -8,3 +8,16 @@ export const Footer = () => {
     </footer>
   );
 };
+
+export const SidebarFooter = () => {
+  return (
+    <div className="text-center">
+      <p className="text-[0.75rem] uppercase tracking-[1px] text-sf-text-dim">
+        Sim-Feed
+      </p>
+      <p className="text-[0.7rem] mt-1 text-sf-text-muted">
+        Political Satire Meets AI
+      </p>
+    </div>
+  )
+}

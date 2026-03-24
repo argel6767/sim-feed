@@ -73,3 +73,36 @@ export type LikeDto = {
   user: Optional<UserDto>;
   persona: Optional<PersonaDto>;
 }
+
+export type NewChatDto = {
+  chatName: Optional<string>;
+  memberIds: string[];
+}
+
+export type ChatDto = {
+  chatId: number;
+  chatName: string;
+  creatorId: string;
+  members: ChatMemberDto[];
+}
+export type ChatMemberDto = {
+  chatMemberId: number;
+  user: Optional<ChatMemberUserDto>;
+  persona: Optional<ChatMemberPersonaDto>;
+}
+
+export type ChatsDto = {
+  createdChats: ChatDto[];
+  joinedChats: ChatDto[];
+}
+
+export type ChatMemberUserDto = {
+  userId: string;
+  username: string;
+  imageUrl: Optional<string>;
+}
+
+export type ChatMemberPersonaDto = {
+  personaId: number;
+  username: string;
+}

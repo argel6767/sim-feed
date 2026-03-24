@@ -17,7 +17,9 @@ import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 
@@ -43,6 +45,8 @@ public class ChatMember {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
     
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @ManyToOne
     @JoinColumn(name = "chat_id", nullable = false)
     private Chat chat;

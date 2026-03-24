@@ -1,5 +1,5 @@
 import { useModal } from "~/hooks/useModal";
-import { Modal } from "./modal";
+import { Modal } from "./modals";
 import { useDebounce } from "use-debounce";
 import { useState } from "react";
 import { useSearchUsers } from "~/hooks/useSearchUsers";
@@ -69,7 +69,8 @@ const UserQueryLoading = () => {
 
         <div className="flex-1">
           <div className="flex gap-2 items-center">
-            <div className="h-3 w-25 bg-sf-border-primary rounded" />          </div>
+            <div className="h-3 w-25 bg-sf-border-primary rounded" />
+          </div>
         </div>
       </div>
       <div className="mb-4 space-y-2">

@@ -17,7 +17,6 @@ import app.sim_feed.user_service.chats.models.NewChatDto;
 import app.sim_feed.user_service.chats.models.NewChatNameDto;
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/chats")
