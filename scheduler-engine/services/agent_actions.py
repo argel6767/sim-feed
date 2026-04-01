@@ -3,6 +3,7 @@ import inspect
 
 from configs.db import Database
 from configs.tavily_client import get_tavily_client
+import logging
 
 from services.agent_event_logger import (
     log_comment,
@@ -11,6 +12,8 @@ from services.agent_event_logger import (
     log_like_post,
     log_update_bio,
 )
+
+logger = logging.getLogger(__name__)
 
 async def view_most_recent_posts(db: Database):
     """
@@ -51,6 +54,7 @@ async def view_most_recent_posts(db: Database):
             "posts_found": posts_serializable,
         }
     except Exception as e:
+        logger.error(f"failed to fetch posts due to {e}")
         return {"status": f"failed to fetch posts due to {e}. Try another action"}
 
 
@@ -169,6 +173,7 @@ async def like_post(db: Database, post_id: int, persona_id: int):
             log_like_post(db, persona_id, rows[0]["id"])
         return {"status": f"{post_id} liked successfully"}
     except Exception as e:
+        logger.error(f"{persona_id} failed to like post {post_id} due to {e}")
         return {
             "status": f"failed to like post {post_id} due to {e}. Try another action"
         }
@@ -216,6 +221,7 @@ async def view_most_popular_posts(db: Database):
             "posts": posts_serializable,
         }
     except Exception as e:
+        logger.error(f"failed to retrieve most popular posts due to {e}")
         return {
             "status": f"failed to retrieve most popular posts due to {e}. Try another action"
         }
@@ -262,6 +268,7 @@ async def view_most_commented_posts(db: Database):
             "posts": posts_serializable,
         }
     except Exception as e:
+        logger.error(f"failed to retrieve most commented posts due to {e}")
         return {
             "status": f"failed to retrieve most commented posts due to {e}. Try another action"
         }
@@ -290,6 +297,7 @@ async def comment_on_post(db: Database, post_id: int, persona_id: int, body: str
         log_comment(db, persona_id, post_id, comment_id)
         return {"status": f"{post_id} commented successfully"}
     except Exception as e:
+        logger.error(f"{persona_id} failed to comment on post {post_id} due to {e}")
         return {
             "status": f"failed to comment on post {post_id} due to {e}. Try another action"
         }
@@ -325,6 +333,7 @@ async def view_comments_on_post(db: Database, post_id: int):
             "comments found": comments_serializable,
         }
     except Exception as e:
+        logger.error(f"failed to fetch comments for post {post_id} due to {e}")
         return {
             "status": f"Failed to fetch all comments for post {post_id} due to {e}. Try another action"
         }
@@ -398,6 +407,7 @@ async def find_post_author(db: Database, post_id: int):
             "author_info": dict(rows[0]),
         }
     except Exception as e:
+        logger.error(f"failed to fetch author information for post {post_id} due to {e}")
         return {
             "status": f"Failed to fetch author information due to {e}. Try another action"
         }
@@ -428,6 +438,7 @@ async def update_bio(db: Database, persona_id: int, updated_bio: str):
         log_update_bio(db, persona_id, updated_bio)
         return {"status": "Bio updated successfully"}
     except Exception as e:
+        logger.error(f"failed to update bio for persona {persona_id} due to {e}")
         return {"status": f"Failed to update bio due to {e}. Try another action"}
 
 
@@ -457,6 +468,7 @@ async def follow_user(db: Database, persona_id: int, followed_persona_id: int):
             log_follow(db, persona_id, followed_persona_id)
         return {"status": f"{followed_persona_id} followed successfully"}
     except Exception as e:
+        logger.error(f"{persona_id} failed to follow persona {followed_persona_id} due to {e}")
         return {
             "status": f"failed to follow persona {followed_persona_id} due to {e}. Try another action"
         }

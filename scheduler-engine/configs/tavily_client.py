@@ -4,6 +4,7 @@ import trafilatura
 
 class TavilyClientHolder:
     tavily_client: TavilyClient
+    failed_urls = set()
 
     def __init__(self):
         self.tavily_client = TavilyClient(api_key=os.environ.get('TAVILY_API_KEY'))
@@ -15,9 +16,13 @@ class TavilyClientHolder:
         return self.tavily_client.search(query='What is new in politics', max_results=10)
     
     def extract_article_content(self, url):
+        if url in self.failed_urls:
+            return "Could not extract content from article. The website may not allow extraction. Try a different article URL."
+        
         content =  trafilatura.extract(trafilatura.fetch_url(url))
         
         if (not content or content == ''):
+            self.failed_urls.add(url)
             return "Could not extract content from article. The website may not allow extraction. Try a different article URL."
         return content
     

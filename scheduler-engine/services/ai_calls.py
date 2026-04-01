@@ -70,6 +70,7 @@ async def run_agent_turn(request_function, context, db:Database):
 
         function_name = response_data.get("function_name")
         arguments = response_data.get("arguments", [])
+        reasoning = response_data.get("reasoning", "No reasoning provided.")
 
         if not function_name:
             context.append({
@@ -86,6 +87,8 @@ async def run_agent_turn(request_function, context, db:Database):
         return
 
     if function_name in functions:
+        logger.info(f"Executing function: {function_name} with arguments: {arguments}")
+        logger.info(f"Agent reasoning: {reasoning}")
         result = await functions[function_name](db, *arguments)
         # Convert dict/result to JSON string
         result_str = json.dumps(result) if isinstance(result, dict) else str(result)
