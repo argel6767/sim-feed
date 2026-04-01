@@ -2,6 +2,7 @@ import asyncio
 import inspect
 
 from configs.db import Database
+from configs.tavily_client import get_tavily_client
 
 from services.agent_event_logger import (
     log_comment,
@@ -11,23 +12,34 @@ from services.agent_event_logger import (
     log_update_bio,
 )
 
-from configs.tavily_client import get_tavily_client
-
-
 async def view_most_recent_posts(db: Database):
     """
-    Retrieves the most recent posts created within the past hour.
+    Retrieves the most recent posts created in the feed.
 
     Queries the database for 25 posts that were created most recently, ordered from newest to oldest. This function is typically used
     by an agent to discover recent activity in the feed in order to decide
     which posts to like, comment on, or analyze for interaction.
 
     Returns:
-        A list of post records representing the 25 most recent posts
-        created within the past 6 hours. If no posts exist in this time
-        window, an empty list is returned.
+        A list of post records representing the 25 most recent posts,
+        ordered from newest to oldest. If no posts exist, an empty list
+        is returned.
     """
-    query = "SELECT * FROM posts ORDER BY created_at DESC LIMIT 25"
+    query = """
+    SELECT
+      p.id,
+      p.title,
+      p.body,
+      p.author,
+      p.user_author,
+      p.created_at,
+      COALESCE(per.username, u.username) AS author_username
+    FROM posts p
+    LEFT JOIN personas per ON p.author = per.persona_id
+    LEFT JOIN users u ON p.user_author = u.id
+    ORDER BY p.created_at DESC
+    LIMIT 25
+    """
     try:
         posts = await db.execute_query(query)
         posts_serializable = [
@@ -35,13 +47,11 @@ async def view_most_recent_posts(db: Database):
             for post in posts
         ]
         return {
-            "status": "posts successfully fetched from the past 6 hours",
+            "status": "posts successfully fetched",
             "posts_found": posts_serializable,
         }
     except Exception as e:
-        return {
-            "status": f"failed to fetch posts from past hour due to {e}. Try another action"
-        }
+        return {"status": f"failed to fetch posts due to {e}. Try another action"}
 
 
 async def view_follows_recent_actions(db: Database, persona_id: int):
@@ -56,7 +66,7 @@ async def view_follows_recent_actions(db: Database, persona_id: int):
     with, analyze trends, or discover discussion topics to participate in.
 
     Args:
-        persona_id: The ID of the agent (persona) whose follows are being
+        persona_id: The ID of the agent (you) whose follows are being
                     queried (int)
 
     Returns:
@@ -74,7 +84,7 @@ async def view_follows_recent_actions(db: Database, persona_id: int):
     WHERE f.follower = $1
     """
 
-    activity_query = activity_query = """
+    activity_query = """
     (
       SELECT
         'post' AS activity_type,
@@ -266,7 +276,7 @@ async def comment_on_post(db: Database, post_id: int, persona_id: int, body: str
 
     Args:
         post_id: The ID of the post being commented on (int)
-        persona_id: The ID of the agent (persona) writing the comment (int)
+        persona_id: The ID of the agent (you) writing the comment (int)
         body: The text content of the comment (string)
 
     Returns:
@@ -352,8 +362,8 @@ async def find_post_author(db: Database, post_id: int):
 
     Looks up the post by post_id, identifies its author, and returns the author's
     details. The author may be either a persona (with persona_id and username) or
-    a real user (with user_id). An author_type field indicates which type of author
-    authored the post.
+    a real user (with user_id and username). An author_type field indicates which
+    type of author authored the post.
 
     Args:
         post_id: The ID of the post whose author is being looked up (int)
@@ -366,14 +376,15 @@ async def find_post_author(db: Database, post_id: int):
     query = """
     SELECT
       p.author AS persona_id,
-      per.username AS username,
       p.user_author AS user_id,
+      COALESCE(per.username, u.username) AS username,
       CASE
         WHEN p.author IS NOT NULL THEN 'persona'
         ELSE 'user'
       END AS author_type
     FROM posts p
     LEFT JOIN personas per ON p.author = per.persona_id
+    LEFT JOIN users u ON p.user_author = u.id
     WHERE p.id = $1
     """
     try:
@@ -384,7 +395,7 @@ async def find_post_author(db: Database, post_id: int):
             }
         return {
             "status": "Author information successfully fetched",
-            "author_info": rows,
+            "author_info": dict(rows[0]),
         }
     except Exception as e:
         return {
@@ -420,32 +431,34 @@ async def update_bio(db: Database, persona_id: int, updated_bio: str):
         return {"status": f"Failed to update bio due to {e}. Try another action"}
 
 
-async def follow_user(db: Database, persona_id: int, user_id: int):
+async def follow_user(db: Database, persona_id: int, followed_persona_id: int):
     """
-    Creates a follow relationship where the current agent follows another user.
+    Creates a follow relationship where the current agent follows another persona.
 
-    Records that the agent (persona_id) is now following the specified user (user_id)
-    in the database with the current timestamp. Returns success or failure status.
+    Records that the agent (persona_id) is now following the specified persona
+    (followed_persona_id) in the database with the current timestamp. Only
+    persona-to-persona follows are supported through this action. Returns
+    success or failure status.
 
     Args:
         persona_id: The ID of the agent (persona) who is following (int)
-        user_id: The ID of the user (persona) being followed by the agent (int)
+        followed_persona_id: The ID of the persona being followed by the agent (int)
 
     Returns:
         Dictionary with status message indicating success or failure reason
     """
-    if persona_id == user_id:
+    if persona_id == followed_persona_id:
         return {"status": "Error. You cannot follow yourself. Try another action"}
 
     query = "INSERT INTO follows (follower, followed, created_at) VALUES ($1, $2, DEFAULT) ON CONFLICT (follower, followed) DO NOTHING RETURNING id"
     try:
-        rows = await db.fetch(query, persona_id, user_id)
+        rows = await db.fetch(query, persona_id, followed_persona_id)
         if rows:
-            log_follow(db, persona_id, user_id)
-        return {"status": f"{user_id} followed successfully"}
+            log_follow(db, persona_id, followed_persona_id)
+        return {"status": f"{followed_persona_id} followed successfully"}
     except Exception as e:
         return {
-            "status": f"failed to follow user {user_id} due to {e}. Try another action"
+            "status": f"failed to follow persona {followed_persona_id} due to {e}. Try another action"
         }
 
 
@@ -489,7 +502,8 @@ def search_new_politcal_news():
     """
     tavily_client = get_tavily_client()
     return tavily_client.find_the_latest_news_in_politics()
-    
+
+
 def read_article_content(article_url: str):
     """
     Extracts and returns the full text content of a web article from a given URL.
@@ -508,7 +522,7 @@ def read_article_content(article_url: str):
     """
     tavily_client = get_tavily_client()
     return tavily_client.extract_article_content(article_url)
-    
+
 
 functions = {
     "view_most_recent_posts": view_most_recent_posts,
