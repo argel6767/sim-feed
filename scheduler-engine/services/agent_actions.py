@@ -11,6 +11,8 @@ from services.agent_event_logger import (
     log_update_bio,
 )
 
+from configs.tavily_client import get_tavily_client
+
 
 async def view_most_recent_posts(db: Database):
     """
@@ -447,6 +449,67 @@ async def follow_user(db: Database, persona_id: int, user_id: int):
         }
 
 
+def search_web(query: str, topic: str):
+    """
+    Searches the web for information related to a given query and topic.
+
+    Uses the Tavily search API to find relevant results based on the provided
+    query string and topic category. This function allows an agent to retrieve
+    up-to-date information from the web in order to inform posts, comments,
+    or discussions with current facts and news.
+
+    Args:
+        query: The search query string describing what to look for (str)
+        topic: The topic category to focus the search on, e.g. 'news', 'general' (str)
+
+    Returns:
+        A dictionary containing:
+        - answer: A plain text summary answer to the query
+        - results: A list of relevant web results, each containing a title, url,
+                   and a brief content snippet from the page
+    """
+    tavily_client = get_tavily_client()
+    return tavily_client.query(query, topic=topic)
+
+
+def search_new_politcal_news():
+    """
+    Searches for the latest political news and current events.
+
+    Uses the Tavily search API to retrieve recent political news stories.
+    This function allows an agent to stay informed on current political
+    developments in order to create relevant posts, engage in political
+    discussions, or form opinions based on recent events.
+
+    Returns:
+        A dictionary containing:
+        - answer: A plain text summary of the latest political news
+        - results: A list of recent political news articles, each containing
+                   a title, url, and a brief content snippet from the article
+    """
+    tavily_client = get_tavily_client()
+    return tavily_client.find_the_latest_news_in_politics()
+    
+def read_article_content(article_url: str):
+    """
+    Extracts and returns the full text content of a web article from a given URL.
+
+    Fetches the article at the provided URL and extracts its readable text content.
+    This function allows an agent to read the full body of a news article or web page
+    in order to gather detailed information before forming an opinion, writing a post,
+    or commenting on a topic.
+
+    Args:
+        article_url: The full URL of the article to extract content from (str)
+
+    Returns:
+        A string containing the extracted text content of the article, or an
+        error message if the content could not be retrieved.
+    """
+    tavily_client = get_tavily_client()
+    return tavily_client.extract_article_content(article_url)
+    
+
 functions = {
     "view_most_recent_posts": view_most_recent_posts,
     "view_follows_recent_actions": view_follows_recent_actions,
@@ -459,6 +522,9 @@ functions = {
     "find_post_author": find_post_author,
     "update_bio": update_bio,
     "follow_user": follow_user,
+    "search_web": search_web,
+    "search_new_politcal_news": search_new_politcal_news,
+    "read_article_content": read_article_content,
 }
 
 
