@@ -21,6 +21,9 @@ import { GoUp } from "./components/go-up";
 import { UserLikesPostIdsWrapper } from "./components/user-likes-post-ids";
 import { AuthTokenProvider } from "./contexts/auth-token-context";
 import { useState } from "react";
+import { Footer } from "./components/footer";
+import { Link } from "react-router";
+
 
 export const middleware = [clerkMiddleware()]
 
@@ -101,30 +104,62 @@ export default function App({ loaderData }: Route.ComponentProps) {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let message = "Oops!";
-  let details = "An unexpected error occurred.";
+  let details = "An unexpected error occurred. Please try again later.";
   let stack: string | undefined;
+  let is404 = false;
 
   if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : "Error";
-    details =
-      error.status === 404
-        ? "The requested page could not be found."
-        : error.statusText || details;
-  } else if (import.meta.env.DEV && error && error instanceof Error) {
-    details = error.message;
-    stack = error.stack;
+    is404 = error.status === 404;
+    details = is404
+      ? "The page you're looking for doesn't exist or has been moved."
+      : error.statusText || details;
+  } else if (error instanceof Error) {
+    details = import.meta.env.DEV ? error.message : details;
+    stack = import.meta.env.DEV ? error.stack : undefined;
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
-          <code>{stack}</code>
-        </pre>
-      )}
-    </main>
+    <div className="bg-sf-bg-primary text-sf-text-primary min-h-screen flex flex-col">
+      {/* Header — mirrors your landing page */}
+      <header className="px-8 py-6 border-b border-sf-border-primary bg-sf-bg-secondary">
+        <div className="text-[1.3rem] font-bold tracking-[2px]">SIM-FEED</div>
+      </header>
+
+      {/* Error content */}
+      <main className="flex-1 flex flex-col items-center justify-center px-8 text-center">
+        <p className="text-sf-accent-primary text-[0.85rem] font-semibold tracking-[2px] uppercase mb-4">
+          {is404 ? "404 — Not Found" : "500 — Server Error"}
+        </p>
+        <h1 className="text-5xl md:text-[3.2rem] font-semibold tracking-[0.5px] mb-6">
+          {is404 ? "Lost in the feed." : "Something broke."}
+        </h1>
+        <p className="text-sf-text-secondary text-[1.1rem] max-w-md mx-auto mb-12 leading-relaxed">
+          {details}
+        </p>
+
+        <div className="flex flex-col md:flex-row gap-4 justify-center">
+          <Link
+            to="/"
+            className="px-9 py-4 text-[0.85rem] font-semibold tracking-[0.5px] uppercase rounded border border-sf-accent-primary bg-sf-accent-primary text-sf-bg-primary transition-all duration-300 hover:bg-sf-accent-hover hover:border-sf-accent-hover hover:shadow-[0_4px_12px_rgba(232,184,138,0.2)]"
+          >
+            Go Home
+          </Link>
+          <button
+            onClick={() => window.history.back()}
+            className="px-9 py-4 text-[0.85rem] font-semibold tracking-[0.5px] uppercase rounded border border-sf-border-subtle bg-transparent text-sf-text-tertiary transition-all duration-300 hover:border-sf-text-secondary hover:text-sf-text-primary hover:bg-[rgba(212,212,212,0.05)]"
+          >
+            Go Back
+          </button>
+        </div>
+
+        {stack && (
+          <pre className="mt-12 w-full max-w-2xl p-6 rounded-lg bg-sf-bg-card border border-sf-border-primary overflow-x-auto text-left text-sm text-sf-text-muted">
+            <code>{stack}</code>
+          </pre>
+        )}
+      </main>
+
+      <Footer />
+    </div>
   );
 }

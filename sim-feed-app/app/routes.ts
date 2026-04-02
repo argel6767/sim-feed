@@ -7,4 +7,5 @@ export default [
   route("feed/posts/:id", "routes/feed.posts.$id.tsx"),
   route("agents", "routes/agents.tsx"),
   route("users/:id", "routes/users.$id.tsx"),
+  route("chats/:id", "routes/chats.$id.tsx")
 ] satisfies RouteConfig;
