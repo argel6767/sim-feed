@@ -4,9 +4,14 @@ import app.sim_feed.user_service.follow.models.FollowDto;
 import app.sim_feed.user_service.follow.models.FollowExistsDto;
 import app.sim_feed.user_service.follow.models.NewFollowDto;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import jakarta.annotation.Nonnull;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -24,13 +29,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/follows")
 @RequiredArgsConstructor
+@Validated
 public class FollowController {
     
     private final FollowService followService;
     
     @PostMapping()
     @RateLimiter(name = "api-limiter")
-    public ResponseEntity<FollowDto> createFollow(@RequestBody NewFollowDto newFollowDto, @AuthenticationPrincipal String userId) throws URISyntaxException {
+    public ResponseEntity<FollowDto> createFollow(@RequestBody @Valid NewFollowDto newFollowDto, @AuthenticationPrincipal String userId) throws URISyntaxException {
         FollowDto followDto = followService.follow(newFollowDto, userId);
         URI uri = new URI("/api/v1/follows/"+ String.valueOf(followDto.id()));
         return ResponseEntity.created(uri).body(followDto);
@@ -38,21 +44,21 @@ public class FollowController {
     
     @DeleteMapping("/{userFollowId}")
     @RateLimiter(name = "api-limiter")
-    public ResponseEntity<Void> deleteFollow(@PathVariable Long userFollowId, @AuthenticationPrincipal String userId) {
+    public ResponseEntity<Void> deleteFollow(@PathVariable @NotNull Long userFollowId, @AuthenticationPrincipal String userId) {
         followService.deleteFollow(userFollowId, userId);
         return ResponseEntity.noContent().build();
     }
     
     @GetMapping("/users/{userId}/follows")
     @RateLimiter(name = "api-limiter")
-    public ResponseEntity<List<FollowDto>> getFollowsByUserId(@PathVariable String userId) {
+    public ResponseEntity<List<FollowDto>> getFollowsByUserId(@PathVariable @NotBlank String userId) {
         List<FollowDto> followDtos = followService.getAllUserFollows(userId);
         return ResponseEntity.ok(followDtos);
     }
     
     @GetMapping("/users/{userId}/followers")
     @RateLimiter(name = "api-limiter")
-    public ResponseEntity<List<FollowDto>> getFollowersByUserId(@PathVariable String userId) {
+    public ResponseEntity<List<FollowDto>> getFollowersByUserId(@PathVariable @NotBlank String userId) {
         List<FollowDto> followDtos = followService.getAllUserFollowers(userId);
         return ResponseEntity.ok(followDtos);
     }

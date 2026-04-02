@@ -17,6 +17,8 @@ import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import app.sim_feed.user_service.users.models.UserStatsDto;
 import lombok.RequiredArgsConstructor;
 
+import jakarta.validation.Valid;
+
 import java.util.List;
 
 @RestController
@@ -33,7 +35,7 @@ public class UserController {
 
     @PutMapping("/{id}")
     @RateLimiter(name = "api-limiter")
-    public UserDto updateUser(@PathVariable String id, @AuthenticationPrincipal String authenticatedUser, @RequestBody UserDto userDto) {
+    public UserDto updateUser(@PathVariable String id, @AuthenticationPrincipal String authenticatedUser, @RequestBody @Valid UserDto userDto) {
         return userService.updateUser(id, authenticatedUser, userDto);
     }
     
@@ -45,7 +47,7 @@ public class UserController {
     
     @PatchMapping("/{id}/bio")
     @RateLimiter(name = "api-limiter")
-    public UserDto updateUser(@PathVariable String id, @AuthenticationPrincipal String authenticatedUser, @RequestBody UpdateBioDto updateBioDto) {
+    public UserDto updateUser(@PathVariable String id, @AuthenticationPrincipal String authenticatedUser, @RequestBody @Valid UpdateBioDto updateBioDto) {
         return userService.updateUserBio(id, authenticatedUser, updateBioDto);
     }
 }

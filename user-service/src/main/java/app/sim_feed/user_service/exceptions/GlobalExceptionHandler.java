@@ -1,6 +1,7 @@
 package app.sim_feed.user_service.exceptions;
 
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -11,6 +12,8 @@ import java.util.NoSuchElementException;
 import org.springframework.http.ResponseEntity;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.java.Log;
+
+import jakarta.validation.ConstraintViolationException;
 
 @RestControllerAdvice
 @Log
@@ -45,11 +48,23 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler{
         String requestUri = request.getRequestURI();
         return ResponseEntity.status(429).body(new FailedRequestDto("Rate limit exceeded. Please try again later.", 429, requestUri));
     }
+     
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<FailedRequestDto> handleConstraintViolationException(ConstraintViolationException cve, HttpServletRequest request) {
+        String requestUri = request.getRequestURI();
+        return ResponseEntity.status(400).body(new FailedRequestDto(cve.getMessage(), 400, requestUri));
+    }
+    
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<FailedRequestDto> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException matme, HttpServletRequest request) {
+        String requestUri = request.getRequestURI();
+        return ResponseEntity.status(400).body(new FailedRequestDto(matme.getMessage(), 400, requestUri));
+    }
     
     @ExceptionHandler(Exception.class)
     public ResponseEntity<FailedRequestDto> handleException(Exception e, HttpServletRequest request) {
         String requestUri = request.getRequestURI();
-        log.warning("Request: " + requestUri + " failed due to: " + e.getMessage());
+        log.warning("Request: " + requestUri + " failed due to internal error: " + e.getMessage());
         return ResponseEntity.status(500).body(new FailedRequestDto(e.getMessage(), 500, requestUri));
     }
     

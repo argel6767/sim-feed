@@ -1,4 +1,6 @@
 package app.sim_feed.user_service.post.models;
 
-public record NewPostDto(String title, String body) {
+import jakarta.validation.constraints.NotBlank;
+
+public record NewPostDto(@NotBlank String title, @NotBlank String body) {
 }

@@ -53,6 +53,12 @@ public class LikeService {
     
     @Cacheable(cacheNames = "likes", key = "#userId + '_' + #page + '_' + #size")
     public Page<LikeDto> getUserLikes(int page, int size, String userId) {
+        if (page < 0 || size < 1) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid page or size");
+        }
+        if (size > 200) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Size cannot exceed 200");
+        }
         User user = userRepository.findById(userId).orElseThrow();
         Pageable pageable = PageRequest.of(page, size);
         Page<Like> likes = likeRepository.findAllByUserOrderByCreatedAtDesc(user, pageable);
