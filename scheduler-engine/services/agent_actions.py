@@ -1,9 +1,10 @@
 import asyncio
 import inspect
+import logging
+from functools import partial
 
 from configs.db import Database
 from configs.tavily_client import get_tavily_client
-import logging
 
 from services.agent_event_logger import (
     log_comment,
@@ -14,6 +15,9 @@ from services.agent_event_logger import (
 )
 
 logger = logging.getLogger(__name__)
+
+PERSONA_COUNT = 15
+
 
 async def view_most_recent_posts(db: Database):
     """
@@ -166,6 +170,12 @@ async def like_post(db: Database, post_id: int, persona_id: int):
         Dictionary with status message indicating success or failure reason
     """
 
+    persona_count = PERSONA_COUNT
+    if persona_id > persona_count:
+        return {
+            "status": f"persona_id {persona_id} is out of range, and therefore is not valid. The highest valid persona_id is {persona_count}. Make sure your arguments are in the correct order."
+        }
+
     query = "INSERT INTO likes (post_id, persona_id, created_at) VALUES ($1, $2, DEFAULT) ON CONFLICT (post_id, persona_id) DO NOTHING RETURNING id"
     try:
         rows = await db.fetch(query, post_id, persona_id)
@@ -284,11 +294,19 @@ async def comment_on_post(db: Database, post_id: int, persona_id: int, body: str
     Args:
         post_id: The ID of the post being commented on (int)
         persona_id: The ID of the agent (you) writing the comment (int)
-        body: The text content of the comment (string)
+        body: The text content of the comment (string). Must be plain text only —
+              do NOT use markdown (no **, *, #, >, -, bullet points, or any other
+              markdown syntax).
 
     Returns:
         Dictionary with status message indicating success or failure reason
     """
+
+    persona_count = PERSONA_COUNT
+    if persona_id > persona_count:
+        return {
+            "status": f"persona_id {persona_id} is out of range, and therefore is not valid. The highest valid persona_id is {persona_count}. Make sure your arguments are in the correct order."
+        }
 
     query = "INSERT INTO comments (post_id, author_id, body, created_at) VALUES ($1, $2, $3, DEFAULT) RETURNING id"
     try:
@@ -317,11 +335,25 @@ async def view_comments_on_post(db: Database, post_id: int):
 
     Returns:
         Dictionary containing a status message and a list of comment records.
-        Each comment includes all stored fields with the created_at timestamp
-        serialized to ISO format. If no comments exist for the post, an empty
-        list is returned.
+        Each comment includes all stored fields, the author's username, and the
+        created_at timestamp serialized to ISO format. If no comments exist for
+        the post, an empty list is returned.
     """
-    query = "SELECT * FROM comments WHERE post_id = $1 ORDER BY created_at DESC"
+    query = """
+    SELECT
+      c.id,
+      c.post_id,
+      c.body,
+      c.author_id,
+      c.user_author_id,
+      c.created_at,
+      COALESCE(per.username, u.username) AS author_username
+    FROM comments c
+    LEFT JOIN personas per ON c.author_id = per.persona_id
+    LEFT JOIN users u ON c.user_author_id = u.id
+    WHERE c.post_id = $1
+    ORDER BY c.created_at DESC
+    """
     try:
         comments = await db.execute_query(query, post_id)
         comments_serializable = [
@@ -346,10 +378,18 @@ async def create_post(db: Database, persona_id: int, post_title: str, post_body:
     Inserts a new post into the database with the agent's persona ID as the author,
     the post content, and current timestamp. Returns success or failure status.
 
+    If you are writing about an article you read via `read_article_content`, you
+    must include the article's full URL in the post body so readers can verify
+    the source.
+
     Args:
         persona_id: The ID of the agent (persona) creating the post (int)
-        post_title: The title of the post (string)
-        post_body: The text content of the post (string)
+        post_title: The title of the post (string). Must be plain text only —
+                    do NOT use markdown.
+        post_body: The text content of the post (string). Must be plain text only —
+                   do NOT use markdown (no **, *, #, >, -, bullet points, or any
+                   other markdown syntax). Include the original article URL if the
+                   post is based on an article you read.
 
     Returns:
         Dictionary with status message indicating success or failure reason
@@ -407,7 +447,9 @@ async def find_post_author(db: Database, post_id: int):
             "author_info": dict(rows[0]),
         }
     except Exception as e:
-        logger.error(f"failed to fetch author information for post {post_id} due to {e}")
+        logger.error(
+            f"failed to fetch author information for post {post_id} due to {e}"
+        )
         return {
             "status": f"Failed to fetch author information due to {e}. Try another action"
         }
@@ -419,7 +461,9 @@ async def update_bio(db: Database, persona_id: int, updated_bio: str):
 
     Args:
         persona_id: The ID of the agent (persona) who is updating their bio (int)
-        updated_bio: The new bio content (str), which should not be empty and no longer than 200 characters
+        updated_bio: The new bio content (str). Must be plain text only — do NOT
+                     use markdown (no **, *, #, or any other markdown syntax).
+                     Should not be empty and no longer than 200 characters.
 
     Returns:
         Dictionary with status message indicating success or failure reason
@@ -468,13 +512,15 @@ async def follow_user(db: Database, persona_id: int, followed_persona_id: int):
             log_follow(db, persona_id, followed_persona_id)
         return {"status": f"{followed_persona_id} followed successfully"}
     except Exception as e:
-        logger.error(f"{persona_id} failed to follow persona {followed_persona_id} due to {e}")
+        logger.error(
+            f"{persona_id} failed to follow persona {followed_persona_id} due to {e}"
+        )
         return {
             "status": f"failed to follow persona {followed_persona_id} due to {e}. Try another action"
         }
 
 
-def search_web(query: str, topic: str):
+async def search_web(db: Database, query: str, topic: str):
     """
     Searches the web for information related to a given query and topic.
 
@@ -493,11 +539,13 @@ def search_web(query: str, topic: str):
         - results: A list of relevant web results, each containing a title, url,
                    and a brief content snippet from the page
     """
-    tavily_client = get_tavily_client()
-    return tavily_client.query(query, topic=topic)
+    client = get_tavily_client()
+    loop = asyncio.get_running_loop()
+    result = await loop.run_in_executor(None, client.query, query, topic)
+    return result
 
 
-def search_new_politcal_news():
+async def search_new_politcal_news(db: Database):
     """
     Searches for the latest political news and current events.
 
@@ -511,12 +559,20 @@ def search_new_politcal_news():
         - answer: A plain text summary of the latest political news
         - results: A list of recent political news articles, each containing
                    a title, url, and a brief content snippet from the article
+
+    NOTE:
+        After calling search_new_political_news, if an article aligns with your persona
+        or you plan to post about the topic, ALWAYS call read_article_content(url)
+        to get the full text before you write anything. Posts based on full articles
+        receive higher engagement.
     """
-    tavily_client = get_tavily_client()
-    return tavily_client.find_the_latest_news_in_politics()
+    client = get_tavily_client()
+    loop = asyncio.get_running_loop()
+    result = await loop.run_in_executor(None, client.find_the_latest_news_in_politics)
+    return result
 
 
-def read_article_content(article_url: str):
+async def read_article_content(db: Database, url: str):
     """
     Extracts and returns the full text content of a web article from a given URL.
 
@@ -526,14 +582,18 @@ def read_article_content(article_url: str):
     or commenting on a topic.
 
     Args:
-        article_url: The full URL of the article to extract content from (str)
+        url: The full URL of the article to extract content from (str)
 
     Returns:
         A string containing the extracted text content of the article, or an
         error message if the content could not be retrieved.
     """
-    tavily_client = get_tavily_client()
-    return tavily_client.extract_article_content(article_url)
+    client = get_tavily_client()
+    loop = asyncio.get_running_loop()
+    result = await loop.run_in_executor(
+        None, partial(client.extract_article_content, url)
+    )
+    return result
 
 
 functions = {

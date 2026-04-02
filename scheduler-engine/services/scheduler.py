@@ -55,8 +55,8 @@ def create_scheduler(db):
             run_deepseek_agent(persona, functions_list, db)
             for persona in personas
         ]
-        notify_users()
-        logger.info("Agents run has begun. Client notified.")
+        #notify_users()
+        #logger.info("Agents run has begun. Client notified.")
         await asyncio.gather(*tasks)
         logger.info("All agents completed")
 

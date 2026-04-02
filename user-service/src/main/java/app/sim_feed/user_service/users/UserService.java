@@ -2,6 +2,8 @@ package app.sim_feed.user_service.users;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -19,7 +21,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Log
-public class UserService {
+public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final FollowRepository followRepository;
@@ -86,6 +88,11 @@ public class UserService {
         return userRepository.searchByUsername(query.trim()).stream()
             .map(UserDto::of)
             .toList();
+    }
+    
+    @Override
+    public UserDetails loadUserByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 
 }

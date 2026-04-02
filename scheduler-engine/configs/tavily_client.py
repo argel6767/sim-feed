@@ -1,6 +1,9 @@
 from tavily import TavilyClient
 import os
 import trafilatura
+import logging
+
+logger = logging.getLogger(__name__)
 
 class TavilyClientHolder:
     tavily_client: TavilyClient
@@ -22,6 +25,7 @@ class TavilyClientHolder:
         content =  trafilatura.extract(trafilatura.fetch_url(url))
         
         if (not content or content == ''):
+            logger.warning(f"Failed to extract content from {url}, adding to failed_urls")
             self.failed_urls.add(url)
             return "Could not extract content from article. The website may not allow extraction. Try a different article URL."
         return content

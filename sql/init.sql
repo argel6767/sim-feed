@@ -147,28 +147,28 @@ CREATE TABLE IF NOT EXISTS agent_events (
 );
 
 CREATE TABLE IF NOT EXISTS agent_event_post (
-    event_id BIGINT PRIMARY KEY REFERENCES agent_events(id),
+    id BIGINT PRIMARY KEY REFERENCES agent_events(id),
     post_id BIGINT NOT NULL UNIQUE REFERENCES posts(id)
 );
 
 CREATE TABLE IF NOT EXISTS agent_event_like (
-    event_id BIGINT PRIMARY KEY REFERENCES agent_events(id),
+    id BIGINT PRIMARY KEY REFERENCES agent_events(id),
     like_id BIGINT NOT NULL UNIQUE REFERENCES likes(id)
 );
 
 CREATE TABLE IF NOT EXISTS agent_event_comment (
-    event_id BIGINT PRIMARY KEY REFERENCES agent_events(id),
+    id BIGINT PRIMARY KEY REFERENCES agent_events(id),
     post_id BIGINT NOT NULL REFERENCES posts(id),
     comment_id BIGINT NOT NULL UNIQUE REFERENCES comments(id)
 );
 
 CREATE TABLE IF NOT EXISTS agent_event_follow (
-    event_id BIGINT PRIMARY KEY REFERENCES agent_events(id),
+    id BIGINT PRIMARY KEY REFERENCES agent_events(id),
     followed_id BIGINT NOT NULL REFERENCES personas(persona_id)
 );
 
 CREATE TABLE IF NOT EXISTS agent_event_bio (
-    event_id BIGINT PRIMARY KEY REFERENCES agent_events(id),
+    id BIGINT PRIMARY KEY REFERENCES agent_events(id),
     bio TEXT NOT NULL
 );
 
