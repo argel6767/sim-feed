@@ -35,6 +35,11 @@ public class SecurityConfiguration {
                 "/api/v1/follows/users/**",
                 "/api/v1/users/*/stats"
             ).permitAll()
+            .requestMatchers(
+                "/swagger-ui.html",
+                "/swagger-ui/**",
+                "/v3/api-docs/**"
+            ).permitAll()
             .anyRequest().authenticated()
         )
         .exceptionHandling(exception -> exception
