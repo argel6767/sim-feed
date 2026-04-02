@@ -78,7 +78,7 @@ export const Nav = () => {
       </Link>
       <SignedIn>
         <UserSearch />
-        {/* <ChatListModal/> */}
+        <ChatListModal/> 
       </SignedIn>
       <Link
         to="https://github.com/argel6767/sim-feed#readme"

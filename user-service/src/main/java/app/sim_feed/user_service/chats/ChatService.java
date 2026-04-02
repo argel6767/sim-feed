@@ -1,5 +1,6 @@
 package app.sim_feed.user_service.chats;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -8,6 +9,8 @@ import app.sim_feed.user_service.chats.models.Chat;
 import app.sim_feed.user_service.chats.models.ChatDto;
 import app.sim_feed.user_service.chats.models.ChatMember;
 import app.sim_feed.user_service.chats.models.ChatsDto;
+import app.sim_feed.user_service.messages.MessageService;
+import app.sim_feed.user_service.messages.models.MessageDto;
 import app.sim_feed.user_service.users.UserRepository;
 import lombok.RequiredArgsConstructor;
 import app.sim_feed.user_service.users.models.User;
@@ -25,6 +28,7 @@ public class ChatService {
     private final ChatRepository chatRepository;
     private final UserRepository userRepository;
     private final ChatMemberRepository chatMemberRepository;
+    private final MessageService messageService;
     
     @Transactional
     public ChatDto createChat(String chatName, List<String> memberIds, String creatorId) {
@@ -69,6 +73,14 @@ public class ChatService {
             .stream()
             .collect(Collectors.partitioningBy(chat -> chat.getCreatorId().equals(userId)));
         return ChatsDto.of(chatsByCreator.get(true), chatsByCreator.get(false));
+    }
+    
+    @Transactional(readOnly = true)
+    public Page<MessageDto> getChatMessages(Long chatId, int page, int size, String requesterId) {
+        if (!chatMemberRepository.existsByChatIdAndUserClerkId(chatId, requesterId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not a member of this chat");
+        }
+        return messageService.getMessagesByChatId(chatId, page, size);
     }
     
     public void deleteChat(Long chatId, String userId) {

@@ -1,10 +1,10 @@
-import type { NewLikeDto, LikeDto } from "~/lib/user-api-dtos";
+import type { NewLikeDto, LikeDto, PageDto } from "~/lib/user-api-dtos";
 import { userApiClient } from "../apiConfig";
 
 const V1_LIKES = "/api/v1/likes"
 
-export const getUserLikes = async (page: number, size: number, userId: string): Promise<LikeDto[]> => {
-  const response = await userApiClient.get<LikeDto[]>(`${V1_LIKES}/users/${userId}`, {
+export const getUserLikes = async (page: number, size: number, userId: string): Promise<PageDto<LikeDto>> => {
+  const response = await userApiClient.get<PageDto<LikeDto>>(`${V1_LIKES}/users/${userId}`, {
     params: { page, size },
   });
   return response.data;

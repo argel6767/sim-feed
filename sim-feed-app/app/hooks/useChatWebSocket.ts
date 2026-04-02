@@ -2,12 +2,21 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { Client } from "@stomp/stompjs";
 import { createStompClient } from "~/configs/stompConfig";
 import { useAuthToken } from "~/contexts/auth-token-context";
+import type { NewMessageDto, MessageDto } from "~/lib/user-api-dtos";
+import type { Optional } from "~/lib/types";
 
-export type ChatNotification = {
-  type: string;
+type ChatNotificationType = "JOIN" | "LEAVE" | "MESSAGE";
+
+type ChatInteraction = {
   userId: string;
   chatId: number;
   message: string;
+};
+
+export type ChatNotification = {
+  type: ChatNotificationType;
+  chatInteraction: Optional<ChatInteraction>;
+  message: Optional<MessageDto>;
   timestamp: string;
 };
 
@@ -77,6 +86,11 @@ export function useChatWebSocket(chatId: number | null) {
     client.activate();
 
     return () => {
+      if (client.connected) {
+          client.publish({
+            destination: `/app/chats/${chatId}/leave`,
+          });
+        }
       client.deactivate();
       if (clientRef.current === client) {
         clientRef.current = null;
@@ -99,7 +113,7 @@ export function useChatWebSocket(chatId: number | null) {
   }, [chatId]);
 
   const publish = useCallback(
-    (destination: string, body?: string) => {
+    (destination: string, body?: NewMessageDto) => {
       const client = clientRef.current;
       if (!client?.connected) {
         console.warn(
@@ -107,7 +121,7 @@ export function useChatWebSocket(chatId: number | null) {
         );
         return;
       }
-      client.publish({ destination, body });
+      client.publish({ destination, body: JSON.stringify(body) });
     },
     []
   );

@@ -122,7 +122,7 @@ const ChatCard = ({ chat }: ChatCardProps) => {
           )}
         </div>
 
-        <Link to={`/chat/${chat.chatId}`} className="text-[0.7rem] text-sf-text-dim uppercase tracking-[0.5px] transition-colors duration-300 hover:text-sf-accent-primary">
+        <Link to={`/chats/${chat.chatId}`} className="text-[0.7rem] text-sf-text-dim uppercase tracking-[0.5px] transition-colors duration-300 hover:text-sf-accent-primary">
           Open →
         </Link>
       </footer>

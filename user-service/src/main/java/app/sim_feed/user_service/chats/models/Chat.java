@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
-import app.sim_feed.user_service.messages.Message;
+import app.sim_feed.user_service.messages.models.Message;
 import jakarta.persistence.Column;
 import jakarta.persistence.CascadeType;
 

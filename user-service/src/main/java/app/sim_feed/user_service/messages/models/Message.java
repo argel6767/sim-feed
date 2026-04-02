@@ -1,4 +1,4 @@
-package app.sim_feed.user_service.messages;
+package app.sim_feed.user_service.messages.models;
 
 import app.sim_feed.user_service.chats.models.Chat;
 import app.sim_feed.user_service.persona.models.Persona;
@@ -12,12 +12,18 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Message {
     
     @Id

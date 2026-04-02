@@ -106,3 +106,31 @@ export type ChatMemberPersonaDto = {
   personaId: number;
   username: string;
 }
+
+export type MessageDto = {
+  messageId: number;
+  chatId: number;
+  content: string;
+  userAuthor: Optional<ChatMemberUserDto>;
+  personaAuthor: Optional<ChatMemberPersonaDto>;
+  createdAt: string;
+}
+
+export type NewMessageDto = {
+  content: string;
+  chatId: number;
+  userAuthorId: Optional<string>;
+  personaAuthorId: Optional<number>;
+}
+
+export type PageDto<T> = {
+  content: T[];
+  page: PageInfo;
+}
+
+export type PageInfo = {
+  size: number;
+  page: number;
+  totalElements: number;
+  totalPages: number;
+}
