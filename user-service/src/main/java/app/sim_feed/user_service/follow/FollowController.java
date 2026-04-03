@@ -4,7 +4,6 @@ import app.sim_feed.user_service.follow.models.FollowDto;
 import app.sim_feed.user_service.follow.models.FollowExistsDto;
 import app.sim_feed.user_service.follow.models.NewFollowDto;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
-import jakarta.annotation.Nonnull;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
