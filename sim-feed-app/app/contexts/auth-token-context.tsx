@@ -1,4 +1,10 @@
-import { createContext, useContext, useEffect, useState, useRef } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { useAuth } from "@clerk/react-router";
 import { setTokenGetter } from "~/api/apiConfig";
 
@@ -18,33 +24,33 @@ const AuthTokenContext = createContext<AuthTokenContextType>({
 
 export const useAuthToken = () => useContext(AuthTokenContext);
 
-export const AuthTokenProvider = ({ children }: { children: React.ReactNode }) => {
+export const AuthTokenProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
   const { getToken, userId, isLoaded } = useAuth();
   const [token, setToken] = useState<string | null>(null);
   const [isReady, setIsReady] = useState(false);
-  const initialized = useRef(false);
 
-  // Register getToken with the Axios interceptor — once
   useEffect(() => {
-    if (!initialized.current) {
-      setTokenGetter(getToken);
-      initialized.current = true;
-    }
+    setTokenGetter(getToken);
   }, [getToken]);
 
-  const refreshToken = async () => {
+  const refreshToken = useCallback(async () => {
     const t = await getToken();
     setToken(t);
     return t;
-  };
+  }, [getToken]);
 
   useEffect(() => {
     if (isLoaded && userId) {
       refreshToken().then(() => setIsReady(true));
     } else if (isLoaded) {
+      setToken(null);
       setIsReady(true);
     }
-  }, [isLoaded, userId]);
+  }, [isLoaded, userId, refreshToken]);
 
   return (
     <AuthTokenContext.Provider value={{ token, userId, isReady, refreshToken }}>

@@ -27,7 +27,8 @@ import { Link } from "react-router";
 
 export const middleware = [clerkMiddleware()]
 
-export const loader = (args: Route.LoaderArgs) => rootAuthLoader(args)
+export const loader = (args: Route.LoaderArgs) =>
+  rootAuthLoader(args, { loadUser: false });
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
