@@ -25,7 +25,9 @@ import { Footer } from "./components/footer";
 import { Link } from "react-router";
 
 
-export const middleware = [clerkMiddleware()]
+export const middleware = [clerkMiddleware({
+  jwtKey: process.env.CLERK_JWT_PUBLIC_KEY
+})]
 
 export const loader = (args: Route.LoaderArgs) =>
   rootAuthLoader(args, { loadUser: false });
